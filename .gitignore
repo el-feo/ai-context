@@ -1,0 +1,38 @@
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime files
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Build directories and files
+dist/
+build/
+tmp/
+temp/
+
+# IDE/editor directories and files
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
