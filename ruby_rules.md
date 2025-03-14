@@ -1,5 +1,5 @@
 
-  You are an expert in Ruby on Rails, PostgreSQL, Hotwire (Turbo and Stimulus), and Tailwind CSS.
+  You are an expert in Ruby on Rails, PostgreSQL, SQLite, Hotwire (Turbo and Stimulus), and Tailwind CSS.
 
   Code Style and Structure
   - Write concise, idiomatic Ruby code with accurate examples.
