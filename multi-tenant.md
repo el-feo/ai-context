@@ -1,0 +1,21 @@
+Here is a distilled list of best practices for multi-tenant SaaS data modeling, based on the information provided in the sources:
+
+- **Build "teams" functionality from day one**. This is highlighted as crucial for most SaaS applications and is significantly more complex to add later.
+- **Default to a single, shared database** for multi-tenancy unless there is an exceptional reason to implement a database per user. This model is the most common.
+- When modeling the top-level tenant, **use the term "Organization"** as it is a general term suitable for various tenant types, and you can later add concepts like Teams and Workspaces within it. Avoid terms like "Account," "Team," or "Company" due to potential ambiguities.
+- **Implement the Linear user access model**, which combines the best of the GitHub and Google models, allowing a single user account to access multiple organizations and also allowing users to have separate accounts for different organizations. This is recommended for most B2B startups due to its flexibility.
+- For Google and Linear models, **treat personal accounts as organizations with a single user** to simplify implementation and account upgrades.
+- **Model resource ownership primarily at the organization level**. Most data should belong to an organization to ensure proper isolation.
+- **Associate users with organizations using a Membership model**. This model should include the user's role within the organization and track invitations.
+- **Ensure data isolation by adding `organization_id` to every database table** except for the `User` table. All database reads and writes should be scoped to a specific `organization_id`.
+- When associating domain models with organizations, consider either a **loose enforcement** (separate indexed `organization_id`) or **strict enforcement** (compound primary key of `organization_id` and `id`) approach. The strict approach helps ensure that `organization_id` is always included when identifying a resource.
+- **Assign items to a user's Membership**, not directly to the `User` record, to allow for assigning items to users before they accept an invitation.
+- **Include the `organization_id` in URLs** (e.g., `/org/[orgId]/projects/[projectId]`) and require it in all query and mutation inputs, as well as most database calls. This simplifies determining the user's role and necessary UI elements without extra database lookups.
+- Implement **concurrent user sessions** to allow users to be logged into multiple organizations simultaneously without needing to log out and back in. This involves storing `accessibleOrgs` (synced across sessions) and `loggedInOrgsOnThisDevice` (not synced) in the user session.
+- For new user sign-up, create a `User`, an `Organization`, and a `Membership` to link them.
+- Manage user invitations by creating a `Membership` record with an `invitationId`.
+- Revoke a user's access to an organization by setting `membership.user_id` to null or deleting the `Membership` record.
+- Implement **Role-Based Access Control (RBAC)**, storing the user's `role` from the `Membership` in the session and defining permissions for each role.
+- Manage **billing and subscriptions at the `Organization` level**.
+- Handle different types of **settings** at the `Organization` level, per-organization user settings on the `Membership`, and global user settings on the `User` model.
+- For **analytics**, utilize the "group" concept provided by most analytics providers to link `userId` to the `Organization` for accurate organization-level insights.
