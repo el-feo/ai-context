@@ -15,7 +15,7 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
     *   `invited_by_id` (optional foreign key to the User model who sent the invitation).
 *   **Assign items (resources) within an organization to a user's Membership, not directly to the User**. This allows assigning items to users even before they accept an invitation. Remember that these items should still belong to an organization via `organization_id`.
 *   **For new user sign-up, create a User, an Organization, and a Membership linking them together**.
-*   **For inviting a user to an existing organization, create a new Membership linked to the Organization with `user_id` set to null initially.** Use fields like `invitationId`, `invitationExpiresAt`, and `invitedEmail` in the Membership model to manage the invitation process. When the user signs up using the invitation link, create the User and associate it with the existing Membership.
+*   **For inviting a user to an existing organization, create a new Membership linked to the Organization with `user_id` set to null initially.** Use fields like `invitation_id`, `invitation_expires_at`, and `invited_email` in the Membership model to manage the invitation process. When the user signs up using the invitation link, create the User and associate it with the existing Membership.
 *   **To revoke a user's access to an organization, either set `membership.user_id` to null or delete the Membership record entirely**. Consider keeping the Membership with a null `user_id` if you need to track past access.
 
 **II. User Management and Access Models:**
