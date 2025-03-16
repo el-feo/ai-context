@@ -1,23 +1,29 @@
-Based on the principles and practices demonstrated in "99 Bottles of OOP," here is a set of rules that can guide an LLM when writing Ruby code:
+Drawing on information from "99 Bottles of OOP" and "Practical Object-Oriented Design in Ruby", here is a set of rules that can guide an LLM when writing Ruby code:
 
-*   **Prioritize Simple and Understandable Code**: Aim for code that is easy to read and comprehend, even if it means being more verbose initially. Avoid being **incomprehensibly concise** or indulging in **unnecessary complexity**. The goal is to quickly reach a working state ("green") while prioritizing understandability.
+*   **Prioritize Simple and Understandable Code**: Aim for code that is easy to read and comprehend, even if it means being more verbose initially. Avoid being **incomprehensibly concise** or indulging in **unnecessary complexity**. The goal is to quickly reach a working state ("green") while prioritizing understandability. **Simple code** is preferred.
 
-*   **Practice Test-Driven Development (TDD)**: Follow the **Red/Green/Refactor cycle**. Write tests first that thoroughly describe the problem, then write the minimum code to pass these tests, and finally refactor the code to improve its design. The exercises in the book rely on **Minitest**.
+*   **Practice Test-Driven Development (TDD)**: Follow the **Red/Green/Refactor cycle**. Write tests first that thoroughly describe the problem, then write the minimum code to pass these tests, and finally refactor the code to improve its design. The exercises in "99 Bottles" rely on **Minitest**. "Practical Object-Oriented Design in Ruby" also emphasizes the importance of testing to ensure code changeability. Aim for the **fastest tests possible**, using the **fewest number necessary** and the **most intention-revealing expectations** (as implied by the focus on clear tests in "99 Bottles").
 
-*   **Address Requirements Directly and Incrementally**: Focus on meeting the **current requirements** without speculating about future needs. When a new requirement arrives, it indicates exactly how the code should change. **Clarify requirements** and write the minimum necessary code.
+*   **Design Classes with a Single Responsibility**: Each class should have **one reason to change**. Decide what belongs in a single class. Methods within a class should be cohesive around a single purpose. Focus on **isolating responsibilities** within classes.
+
+*   **Manage Dependencies Carefully**: Understand how objects get entangled and strive to **keep them apart**. **Inject dependencies** to reduce coupling. Be averse to allowing instance methods to know the names of constants and seek to depend on injected abstractions rather than hard-coded concretions. Recognize and manage the **dependency direction**.
 
 *   **Refactor Systematically to Improve Design**: Continuously look for **code smells** and apply **refactoring techniques** to improve the code's structure, reduce duplication (DRY - Don't Repeat Yourself), and extract abstractions. The **Flocking Rules** (Select alike, find smallest difference, make simplest change) can guide refactoring.
 
-*   **Embrace Object-Oriented Principles**: Design code around **objects** that communicate through **messages**. Identify responsibilities and encapsulate them within classes. Consider extracting classes to model abstractions.
+*   **Embrace Object-Oriented Principles**: Design code around **objects** that communicate through **messages**. Identify responsibilities and encapsulate them within classes. Consider **extracting classes** to model abstractions. Aim for code that is **open for extension, but closed for modification**.
 
-*   **Choose Intention-Revealing Names**: Select names for classes, methods, and variables that clearly communicate their purpose and role. Name methods at "one higher level of abstraction than their current implementation". **Intention-revealing code** is built from thoughtful acts, like choosing `case` over `if` when conditions are fundamentally the same.
+*   **Choose Intention-Revealing Names**: Select names for classes, methods, and variables that clearly communicate their purpose and role. Name methods at "one higher level of abstraction than their current implementation". **Intention-revealing code** is built from thoughtful acts.
 
-*   **Manage Duplication Strategically**: While **DRY is generally good**, it's sometimes better to manage temporary duplication than to create incorrect abstractions prematurely. Wait for **unambiguous examples** before creating abstractions. In testing, it is often best to **"just write it down"** rather than trying to be too DRY.
+*   **Manage Duplication Strategically**: While **DRY is generally good**, it's sometimes better to manage temporary duplication than to create incorrect abstractions prematurely. Wait for **unambiguous examples** before creating abstractions.
 
-*   **Strive for Code That is Open for Extension and Closed for Modification**: Design code that can be easily extended to meet new requirements without requiring modification of existing code. Recognize when code is not "open" to new requirements and address the underlying **code smells**.
+*   **Apply Polymorphism to Handle Variations**: Replace conditional logic (like `if` and `case` statements) with **polymorphism** by creating different classes that respond to the same messages in different ways. **Factories** can be used to manufacture the correct objects based on certain conditions.
 
-*   **Apply Polymorphism to Handle Variations**: Replace conditional logic (like `if` and `case` statements) with **polymorphism** by creating different classes that respond to the same messages in different ways. Factories can be used to manufacture the correct objects based on certain conditions.
+*   **Obey the Liskov Substitution Principle (LSP)**: Subclasses should be substitutable for their superclasses. Trustworthy objects behave as expected.
 
-*   **Adhere to the Law of Demeter**: Minimize the number of dependencies an object has on other objects. An object should only talk to its immediate neighbors. Fix violations by adding forwarding methods if necessary.
+*   **Adhere to the Law of Demeter (LoD)**: Minimize the number of dependencies an object has on other objects. An object should only talk to its immediate neighbors. Fix violations by adding forwarding methods if necessary.
 
-*   **Write Unit Tests That Tell a Story**: Unit tests should demonstrate and confirm a class's direct responsibilities and do nothing else. Aim for the **fastest tests possible**, using the **fewest number necessary** and the **most intention-revealing expectations**.
+*   **Push Object Creation to the Edge**: Seek opportunities to move object creation towards the edges of the application. Expect objects to be created in one place and used in another. Use factories as a mechanism for this.
+
+*   **Write Unit Tests That Tell a Story**: Unit tests should demonstrate and confirm a class's direct responsibilities and do nothing else. Focus on testing the **behavior** of objects and verifying **roles**.
+
+By adhering to these rules, an LLM can generate Ruby code that embodies the principles of good object-oriented design, leading to code that is more maintainable, understandable, and adaptable to future changes, as advocated by both "99 Bottles of OOP" and "Practical Object-Oriented Design in Ruby."
