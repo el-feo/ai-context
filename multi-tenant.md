@@ -34,13 +34,13 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
     *   Set `accessibleOrgs` to the list of all their organization memberships.
     *   Set `loggedInOrgsOnThisDevice` to the same list, but filtered by organizations that permit access with the current login method (e.g., email/password or social login).
 *   **Allow users to log into additional organizations through an "organization switcher":**
-    *   Add the new `orgId` to `accessibleOrgs` (if it's not already there) and to `loggedInOrgsOnThisDevice`.
+    *   Add the new `org_id` to `accessibleOrgs` (if it's not already there) and to `loggedInOrgsOnThisDevice`.
 *   **Enforce that each device must independently log in to the organizations it wants to access** by not syncing `loggedInOrgsOnThisDevice`.
 
 **IV. General Implementation Considerations:**
 
 *   **Include the `organization_id` everywhere it's relevant, including in URLs** (e.g., `/org/[orgId]/projects/[projectId]`), query inputs, and mutation inputs. While it might seem less aesthetically pleasing, it avoids extra database calls to determine the current organization and user role. Consider alternative URL strategies like custom subdomains or domains as well.
-*   **Billing and subscriptions should belong to the Organization**. Store billing-related information (e.g., `billing_email`, `stripeCustomerId`) on the Organization model. Track per-user charges by counting the Memberships within an organization.
+*   **Billing and subscriptions should belong to the Organization**. Store billing-related information (e.g., `billing_email`, `stripe_customer_id`) on the Organization model. Track per-user charges by counting the Memberships within an organization.
 *   **Manage settings at three levels:**
     *   Organization settings stored on the Organization model.
     *   User settings per organization stored on the Membership model (e.g., notifications).
