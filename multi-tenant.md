@@ -1,4 +1,4 @@
-Here is a distilled list of best practices for multi-tenant SaaS data modeling, based on the information provided in the sources:
+Here is a distilled list of best practices for multi-tenant SaaS data modeling:
 
 - **Build "teams" functionality from day one**. This is highlighted as crucial for most SaaS applications and is significantly more complex to add later.
 - **Default to a single, shared database** for multi-tenancy unless there is an exceptional reason to implement a database per user. This model is the most common.
