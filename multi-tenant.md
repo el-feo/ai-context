@@ -28,13 +28,13 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
 
 *   **Implement "concurrent user sessions" for the best user experience**, allowing users to be simultaneously logged into multiple organizations with multiple identities without needing to log out.
 *   **Store the following in the user session:**
-    *   `accessibleOrgs: Array<{orgId: string, role: string}>`: A list of all organizations the user has a membership to, along with their role in each. This should be synced across all the user's devices/sessions.
+    *   `accessible_orgs: Array<{orgId: string, role: string}>`: A list of all organizations the user has a membership to, along with their role in each. This should be synced across all the user's devices/sessions.
     *   `loggedInOrgsOnThisDevice: Array<{orgId: string}>`: A list of organizations the user is currently actively logged into on the current device. This should not be synced across devices.
 *   **On the first login on a device:**
-    *   Set `accessibleOrgs` to the list of all their organization memberships.
+    *   Set `accessible_orgs` to the list of all their organization memberships.
     *   Set `loggedInOrgsOnThisDevice` to the same list, but filtered by organizations that permit access with the current login method (e.g., email/password or social login).
 *   **Allow users to log into additional organizations through an "organization switcher":**
-    *   Add the new `org_id` to `accessibleOrgs` (if it's not already there) and to `loggedInOrgsOnThisDevice`.
+    *   Add the new `org_id` to `accessible_orgs` (if it's not already there) and to `loggedInOrgsOnThisDevice`.
 *   **Enforce that each device must independently log in to the organizations it wants to access** by not syncing `loggedInOrgsOnThisDevice`.
 
 **IV. General Implementation Considerations:**
