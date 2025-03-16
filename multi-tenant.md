@@ -28,8 +28,8 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
 
 *   **Implement "concurrent user sessions" for the best user experience**, allowing users to be simultaneously logged into multiple organizations with multiple identities without needing to log out.
 *   **Store the following in the user session:**
-    *   `accessible_orgs: Array<{orgId: string, role: string}>`: A list of all organizations the user has a membership to, along with their role in each. This should be synced across all the user's devices/sessions.
-    *   `loggedInOrgsOnThisDevice: Array<{orgId: string}>`: A list of organizations the user is currently actively logged into on the current device. This should not be synced across devices.
+    *   `accessible_orgs: Array<{org_id: string, role: string}>`: A list of all organizations the user has a membership to, along with their role in each. This should be synced across all the user's devices/sessions.
+    *   `loggedInOrgsOnThisDevice: Array<{org_id: string}>`: A list of organizations the user is currently actively logged into on the current device. This should not be synced across devices.
 *   **On the first login on a device:**
     *   Set `accessible_orgs` to the list of all their organization memberships.
     *   Set `loggedInOrgsOnThisDevice` to the same list, but filtered by organizations that permit access with the current login method (e.g., email/password or social login).
@@ -39,7 +39,7 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
 
 **IV. General Implementation Considerations:**
 
-*   **Include the `organization_id` everywhere it's relevant, including in URLs** (e.g., `/org/[orgId]/projects/[projectId]`), query inputs, and mutation inputs. While it might seem less aesthetically pleasing, it avoids extra database calls to determine the current organization and user role. Consider alternative URL strategies like custom subdomains or domains as well.
+*   **Include the `organization_id` everywhere it's relevant, including in URLs** (e.g., `/org/[org_id]/projects/[projectId]`), query inputs, and mutation inputs. While it might seem less aesthetically pleasing, it avoids extra database calls to determine the current organization and user role. Consider alternative URL strategies like custom subdomains or domains as well.
 *   **Billing and subscriptions should belong to the Organization**. Store billing-related information (e.g., `billing_email`, `stripe_customer_id`) on the Organization model. Track per-user charges by counting the Memberships within an organization.
 *   **Manage settings at three levels:**
     *   Organization settings stored on the Organization model.
