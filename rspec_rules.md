@@ -1,3 +1,5 @@
+NotebookLLM Prompt: create a set of rules that can be used to guide an LLM when writing RSpec tests, provide an example for each rule.
+
 Here are a set of rules to guide an LLM when writing RSpec tests, along with examples drawn from the provided sources:
 
 - **Rule 1: Clearly Describe the Method or Class Under Test.** Use `describe` with the Ruby documentation convention (`#` for instance methods and `.` or `::` for class methods) to specify what is being tested.
