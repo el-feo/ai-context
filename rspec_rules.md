@@ -160,7 +160,7 @@ Here are a set of rules to guide an LLM when writing RSpec tests, along with exa
 
     ```ruby
     it 'creates a user' do
-      user = User.create(name: 'Genoveffa', surname: 'Piccolina', city: 'Billyville', birth: '17 Agoust 1982', active: true) #
+      user = User.create(name: 'Genoveffa', surname: 'Piccolina', city: 'Billyville', birth: '17 Agoust 1982', active: true)
       expect(user).to be_persisted
     end
     ```
@@ -168,7 +168,7 @@ Here are a set of rules to guide an LLM when writing RSpec tests, along with exa
   - **Good Example (using FactoryBot):**
     ```ruby
     it 'creates a user' do
-      user = FactoryBot.create(:user) #
+      user = FactoryBot.create(:user)
       expect(user).to be_persisted
     end
     ```
