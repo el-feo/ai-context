@@ -2,7 +2,7 @@ Drawing on information from "99 Bottles of OOP" and "Practical Object-Oriented D
 
 1. Prioritize Simple and Understandable Code: Aim for code that is easy to read and comprehend, even if it means being more verbose initially. Avoid being incomprehensibly concise or indulging in unnecessary complexity. The goal is to quickly reach a working state ("green") while prioritizing understandability. Simple code is preferred.
 
-2. Practice Test-Driven Development (TDD): Skip this rule if I use the word "skip_test".Follow the Red/Green/Refactor cycle. Write tests first that thoroughly describe the problem, then write the minimum code to pass these tests, and finally refactor the code to improve its design. Aim for the fastest tests possible, using the fewest number necessary and the most intention-revealing expectations.
+2. Skip this rule if I use the word "skip_test". Practice Test-Driven Development (TDD): Follow the Red/Green/Refactor cycle. Write tests first that thoroughly describe the problem, then write the minimum code to pass these tests, and finally refactor the code to improve its design. Aim for the fastest tests possible, using the fewest number necessary and the most intention-revealing expectations.
 
 3. Design Classes with a Single Responsibility: Each class should have one reason to change. Decide what belongs in a single class. Methods within a class should be cohesive around a single purpose. Focus on isolating responsibilities within classes.
 
