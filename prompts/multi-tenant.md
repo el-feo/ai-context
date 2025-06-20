@@ -3,7 +3,7 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
 **I. Multi-Tenant Data Modeling:**
 
 *   **Default to a single, shared database unless there's an exceptional need for database per user or separate schemas**. The single database approach with tenant identification is the most common.
-*   **Identify the top-level tenant model.** The source recommends using "Organization" as a general term. Other options like "Account", "Team", "Company", "Tenant", or "Workspace" might be considered, but "Organization" is preferred for its generality, allowing for the later addition of Teams and Workspaces within it.
+*   **Identify the top-level tenant model.** The source recommends using "Organization" as a general term.
 *   **Associate every database table (except possibly the users table) with the top-level tenant (e.g., Organization) by adding an `organization_id` column**.
 *   **Scope all database reads and writes to a specific `organization_id`**. This is crucial for data isolation between tenants.
 *   **Use loose enforcement for enforcing the association:**
@@ -12,17 +12,17 @@ Here is a set of rules to guide an LLM when implementing multi-tenancy from scra
     *   `user_id` (foreign key to the User model)
     *   `organization_id` (foreign key to the Organization model, cannot be null)
     *   `role` (to define the user's access level within the organization).
-    *   `invited_by_id` (optional foreign key to the User model who sent the invitation).
-*   **Assign items (resources) within an organization to a user's Membership, not directly to the User**. This allows assigning items to users even before they accept an invitation. Remember that these items should still belong to an organization via `organization_id`.
+    *   `invited_by_id` (foreign key to the User model who sent the invitation).
 *   **For new user sign-up, create a User, an Organization, and a Membership linking them together**.
 *   **For inviting a user to an existing organization, create a new Membership linked to the Organization with `user_id` set to null initially.** Use fields like `invitation_id`, `invitation_expires_at`, and `invited_email` in the Membership model to manage the invitation process. When the user signs up using the invitation link, create the User and associate it with the existing Membership.
+*   **Assign items (resources) within an organization to a user's Membership, not directly to the User**. This allows assigning items to users even before they accept an invitation. Remember that these items should still belong to an organization via `organization_id`.
 *   **To revoke a user's access to an organization, either set `membership.user_id` to null or delete the Membership record entirely**. Consider keeping the Membership with a null `user_id` if you need to track past access.
 
 **II. User Management and Access Models:**
 
-*   **Choose the Linear access model for how users interact with organizations**. A single user account can have access to multiple organizations, and a user can have multiple accounts each with different organization access. Recommended for most B2B startups as it combines the flexibility of both other models.
+*   **For user interaction with organizations**. A single user account can have access to multiple organizations, and a user can have multiple accounts each with different organization access.
 *   **Treat personal accounts as just Organizations with a single user**. This simplifies implementation and allows for easy upgrades to business accounts.
-*   **Implement Role-Based Access Control (RBAC) using the `role` field in the Membership model**. Store the user's `role` in the session to avoid frequent database lookups. Define permissions for each `role` and enforce these permissions on both the client and server.
+*   **Implement Role-Based Access Control (RBAC) using the `role` field in the Membership model**. Store the user's encrypted `role` in the session to avoid frequent database lookups. Define permissions for each `role` and enforce these permissions on both the client and server.
 
 **III. User Login Sessions:**
 
