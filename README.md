@@ -1,83 +1,166 @@
 # AI Context
 
-> **Project Status**: 🚧 Under Development 🚧
+A collection of skills, commands, rules, and prompts for enhancing developer productivity with Claude Code and other LLM-powered development tools.
 
 ## Overview
 
-AI Context is a collection of tools, prompts, and rules designed to enhance developer productivity when working with Large Language Models (LLMs) in their preferred code editors. This project aims to standardize the interaction between developers and AI assistants, making it easier to leverage AI capabilities regardless of the editor environment.
+AI Context provides reusable components that can be copied or installed into your projects to standardize AI-assisted development workflows. The repository focuses primarily on Ruby/Rails development but includes support for JavaScript/TypeScript and other technologies.
 
-## Why AI Context?
+## Repository Structure
 
-Working with LLMs can significantly boost development speed, but inconsistent interaction patterns across different platforms can create friction. AI Context provides:
-
-- **Standardized Prompts**: Optimized prompts that work across multiple LLM platforms
-- **Editor Integration**: Guidelines for seamless integration with popular code editors
-- **Best Practices**: Rules and patterns for effective AI collaboration
-
-## Features
-
-- ✅ **Cross-Editor Compatibility**: Use the same prompts and workflows in VSCode, JetBrains IDEs, Vim, Emacs, and more
-- ⬜ **Task-Specific Templates**: Pre-configured prompts for common development tasks like code review, refactoring, and documentation
-- ⬜ **Customization Framework**: Adapt the prompts and rules to your specific needs and workflows
-- ⬜ **Community-Driven**: Benefit from and contribute to a growing collection of proven AI interaction patterns
-
-## Getting Started
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/username/ai-context.git
-cd ai-context
-
-# Use the tools according to your preferred editor
+```text
+ai-context/
+├── skills/          # Claude Code skills (SKILL.md + references/)
+├── commands/        # Slash command definitions
+├── rules/           # Coding rules and guidelines
+├── agents/          # Agent configurations for specialized tasks
+├── prompts/         # Reusable prompt templates
+├── tools/           # Helper scripts
+└── config/          # Configuration files (e.g., mcp.json)
 ```
 
-### Basic Usage
+## Skills
 
-1. Select the appropriate prompt template for your task
-2. Customize any placeholders in the template
-3. Use the prompt with your preferred LLM tool within your editor
-4. Follow the suggested interaction pattern
+Skills are structured documentation that Claude Code uses to provide expert guidance on specific topics. Each skill contains a `SKILL.md` file with optional `references/` subdirectory for detailed documentation.
 
-## Prompt Library
+### Ruby/Rails
 
-AI Context includes prompts for various development scenarios:
+| Skill                       | Description                                            |
+| --------------------------- | ------------------------------------------------------ |
+| `rails`                     | Ruby on Rails v8.1 development guide                   |
+| `ruby`                      | Ruby language fundamentals and design patterns         |
+| `rspec`                     | RSpec testing patterns and best practices              |
+| `rubocop`                   | Ruby linting and code style                            |
+| `rubycritic`                | Code quality analysis                                  |
+| `simplecov`                 | Test coverage analysis                                 |
+| `brakeman`                  | Rails security vulnerability scanner                   |
+| `rails-generators`          | Creating custom Rails generators                       |
+| `sandi-metz-reviewer`       | OO design principles from POODR and 99 Bottles         |
+| `review-ruby-code`          | Code review with Sandi Metz rules and SOLID principles |
+| `postgresql-rails-analyzer` | PostgreSQL optimization for Rails                      |
 
-- ✅ Code explanation
-- ⬜ Bug fixing
-- ⬜ Test generation
-- ⬜ Documentation writing
-- ⬜ Performance optimization
-- ⬜ Code review
-- ⬜ Refactoring
+### JavaScript/TypeScript
 
-## Editor Integration Guides
+| Skill                     | Description                                 |
+| ------------------------- | ------------------------------------------- |
+| `eslint`                  | JavaScript/TypeScript linting               |
+| `vitest`                  | Vitest testing framework and Jest migration |
+| `javascript-unit-testing` | Unit testing patterns with Jest             |
 
-Detailed guides for integrating these prompts and workflows with popular editors:
+### DevOps & Infrastructure
 
-- ✅ Visual Studio Code
-- ⬜ JetBrains IDEs (IntelliJ, PyCharm, etc.)
-- ⬜ Vim/Neovim
-- ⬜ Emacs
-- ⬜ Sublime Text
+| Skill            | Description                     |
+| ---------------- | ------------------------------- |
+| `github-actions` | CI/CD workflow creation         |
+| `kamal`          | Docker deployment configuration |
+| `tailscale`      | VPN setup and configuration     |
+
+### General
+
+| Skill              | Description                |
+| ------------------ | -------------------------- |
+| `mermaid-diagrams` | Creating software diagrams |
+
+## Commands
+
+Slash commands for Claude Code workflows. Copy to `.claude/commands/` in your project.
+
+### GitHub Project Management (GHPM)
+
+A complete workflow for product development:
+
+```text
+/ghpm:create-prd    → Create product requirements document
+/ghpm:create-epics  → Break PRD into GitHub epics
+/ghpm:create-tasks  → Break epics into actionable tasks
+/ghpm:tdd-task      → Execute task using TDD workflow
+```
+
+Install all GHPM commands:
+
+```bash
+chmod +x commands/ghpm/scripts/install-ghpm-claude-commands.sh
+./commands/ghpm/scripts/install-ghpm-claude-commands.sh
+```
+
+### Development Workflow Commands
+
+| Command               | Description                            |
+| --------------------- | -------------------------------------- |
+| `/red-green-refactor` | Start a TDD session                    |
+| `/review-ruby-code`   | Code review with Sandi Metz principles |
+| `/rails-generators`   | Create Rails generators                |
+| `/vitest`             | Migrate from Jest to Vitest            |
+
+### GitHub Integration Commands
+
+| Command            | Description                           |
+| ------------------ | ------------------------------------- |
+| `/gh-plan-product` | Product planning with GitHub Projects |
+| `/gh-create-epic`  | Create GitHub epic issue              |
+| `/gh-execute`      | Execute a GitHub issue                |
+| `/gh-finish-task`  | Create PR and update issue            |
+| `/gh-tdd`          | TDD workflow with GitHub integration  |
+
+## Rules
+
+Coding guidelines and best practices. Reference in your project's `CLAUDE.md` or copy to your project.
+
+| Rule                    | Description                       |
+| ----------------------- | --------------------------------- |
+| `ruby_rules.md`         | Rails conventions and code style  |
+| `oop_rules.md`          | OO design principles (Sandi Metz) |
+| `rspec_rules.md`        | RSpec testing patterns            |
+| `ruby_tdd_process.md`   | TDD workflow guidelines           |
+| `cursor_memory_bank.md` | Context management for Cursor     |
+| `experimental_rules.md` | Experimental coding rules         |
+
+## Agents
+
+Agent configurations for specialized tasks:
+
+- `qa_planner.md` - QA test planning
+- `rails-generator-agent.md` - Rails generator creation
+
+## Installation
+
+### Skills
+
+Copy skill directories to `.claude/skills/` in your project:
+
+```bash
+cp -r skills/rails /path/to/your/project/.claude/skills/
+```
+
+### Commands
+
+Copy command files to `.claude/commands/` in your project:
+
+```bash
+cp commands/red-green-refactor.md /path/to/your/project/.claude/commands/
+```
+
+### Rules
+
+Reference rules in your project's `CLAUDE.md`:
+
+```markdown
+## Rules
+
+Follow the guidelines in:
+- [Ruby Rules](path/to/ruby_rules.md)
+- [OOP Rules](path/to/oop_rules.md)
+```
 
 ## Contributing
 
-We welcome contributions to improve AI Context! To contribute:
-
 1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-prompt`)
-3. Add or modify prompts/rules
-4. Commit your changes (`git commit -m 'Add some amazing prompt'`)
-5. Push to the branch (`git push origin feature/amazing-prompt`)
+2. Create your feature branch (`git checkout -b feature/new-skill`)
+3. Add or modify content
+4. Commit your changes
+5. Push to the branch
 6. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- Thanks to all the developers sharing their AI interaction patterns
-- The open-source LLM community for making these tools accessible
