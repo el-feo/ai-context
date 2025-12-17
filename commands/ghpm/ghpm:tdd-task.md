@@ -4,7 +4,7 @@ allowed-tools: [Read, Edit, Write, Bash, Grep, Glob, Skill(ruby), Skill(javascri
 ---
 
 <objective>
-Implement a GitHub Task issue using disciplined TDD (Red -> Green -> Refactor), recording all decisions and progress on the GitHub issue, then opening a PR that closes the Task.
+Implement a GitHub Task issue using disciplined TDD (Red -> Green -> Refactor), recording all decisions and progress on the GitHub issue, then opening a PR that closes the Task. All commits and PRs follow Conventional Commits format to enable automated changelog generation.
 </objective>
 
 <arguments>
@@ -57,7 +57,89 @@ Implement a GitHub Task issue using disciplined TDD (Red -> Green -> Refactor), 
 - Do not silently expand scope. If you must, create a new follow-up Task issue and link it.
 - Always provide a runnable test command in the final notes.
 - Minimize noise: comment at meaningful milestones.
+- All commits and PR titles MUST follow Conventional Commits format for changelog generation.
 </operating_rules>
+
+<conventional_commits>
+
+## Conventional Commits Format
+
+All commits and PR titles must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification to enable automated changelog generation.
+
+### Format
+
+```
+<type>[optional scope]: <description> (#<issue>)
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types
+
+| Type | Description | Changelog Section |
+|------|-------------|-------------------|
+| `feat` | New feature or capability | Features |
+| `fix` | Bug fix | Bug Fixes |
+| `refactor` | Code restructuring without behavior change | Code Refactoring |
+| `perf` | Performance improvement | Performance |
+| `test` | Adding or updating tests | Testing |
+| `docs` | Documentation only changes | Documentation |
+| `style` | Formatting, whitespace (no code change) | (excluded) |
+| `chore` | Build, CI, dependencies, tooling | Maintenance |
+| `revert` | Revert a previous commit | Reverts |
+
+### Determining Commit Type
+
+Infer the type from the Task context:
+
+1. **Task labels**: `enhancement` → `feat`, `bug` → `fix`
+2. **Task title keywords**: "add", "implement", "create" → `feat`; "fix", "resolve", "correct" → `fix`
+3. **Epic context**: Feature epic → `feat`, Bug epic → `fix`, Tech debt epic → `refactor`
+4. **Scope of change**: If primarily tests → `test`, if primarily docs → `docs`
+
+### Breaking Changes
+
+For breaking changes, add `!` after the type or include `BREAKING CHANGE:` in the footer:
+
+```
+feat!: remove deprecated API endpoint (#123)
+
+BREAKING CHANGE: The /v1/users endpoint has been removed. Use /v2/users instead.
+```
+
+### Examples
+
+**Feature commit:**
+```
+feat(auth): add OAuth2 login flow (#42)
+```
+
+**Bug fix commit:**
+```
+fix(payments): resolve null pointer in checkout (#103)
+```
+
+**Refactor commit:**
+```
+refactor(users): extract email service into separate module (#87)
+```
+
+**Test commit:**
+```
+test(api): add integration tests for user endpoints (#156)
+```
+
+### Commit Message During TDD Cycles
+
+During Red-Green-Refactor cycles, commit at each meaningful milestone:
+
+- **RED phase**: `test(<scope>): add failing test for <behavior> (#<task>)`
+- **GREEN phase**: `feat(<scope>): implement <behavior> (#<task>)` or `fix(<scope>): ...`
+- **REFACTOR phase**: `refactor(<scope>): <improvement description> (#<task>)`
+
+</conventional_commits>
 
 <workflow>
 
@@ -113,15 +195,21 @@ Comment branch name to the issue (same comment or a follow-up).
 For each slice:
 
 1. **RED:** Add failing test(s)
+   - Commit: `test(<scope>): add failing test for <behavior> (#$TASK)`
 2. **GREEN:** Implement minimum change to pass
+   - Commit: `<type>(<scope>): <description> (#$TASK)` (typically `feat` or `fix`)
 3. **REFACTOR:** Clean up while tests stay green
+   - Commit: `refactor(<scope>): <description> (#$TASK)`
 4. Run tests and capture command + result
+
+**Commit after each phase** using conventional commit format. Determine the type from Task context (see `<conventional_commits>` section).
 
 After each slice, comment on the Task with:
 
 - What changed
 - Tests added/updated
 - Test command executed + result
+- Commit hash(es) made
 - Any decision/rationale
 
 ## Step 4: Update the Task body with a "Task Report" section
@@ -152,12 +240,15 @@ gh issue edit "$TASK" --body "<updated markdown>"
 
 ## Step 5: Open a PR that closes the Task
 
-Push branch and create PR:
+Push branch and create PR using **Conventional Commits** format for the title:
 
 ```bash
 git push -u origin HEAD
 
-gh pr create --title "Task #$TASK: <short title>" --body "$(cat <<'EOF'
+# Determine type from Task context (see <conventional_commits> section)
+# Format: <type>(<scope>): <description> (#$TASK)
+
+gh pr create --title "<type>(<scope>): <description> (#$TASK)" --body "$(cat <<'EOF'
 Closes #$TASK
 
 ## Summary
@@ -167,9 +258,19 @@ Closes #$TASK
 ## Test Plan
 
 - `<test command>`
+
+## Commits
+
+<list of conventional commits made during TDD>
 EOF
 )"
 ```
+
+**PR Title Examples:**
+
+- `feat(auth): add OAuth2 login flow (#42)`
+- `fix(payments): resolve checkout null pointer (#103)`
+- `refactor(users): extract email service (#87)`
 
 Comment the PR URL back onto the Task:
 
