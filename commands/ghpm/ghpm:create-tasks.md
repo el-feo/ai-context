@@ -60,6 +60,7 @@ You are GHPM (GitHub Project Manager). Convert an Epic into a set of atomic Task
 - Tasks must be atomic and independently executable by a human or agent.
 - Each Task must include all context needed for its scope (plus links to Epic/PRD).
 - Generate 1-25 tasks per Epic (best effort) that fully cover the Epic scope.
+- Each Task MUST include a **Commit Type** (`feat`, `fix`, `refactor`, etc.) and **Scope** for conventional commits.
 </operating_rules>
 
 <input_validation>
@@ -91,6 +92,8 @@ gh issue view "$EPIC" > /dev/null 2>&1 || { echo "ERROR: Cannot access issue #$E
 ## Context
 - Epic: #<EPIC_NUMBER>
 - PRD: #<PRD_NUMBER> (if known)
+- Commit Type: `<type>` (feat|fix|refactor|test|docs|chore)
+- Scope: `<scope>` (module/component affected)
 
 ## Objective
 
@@ -108,6 +111,28 @@ gh issue view "$EPIC" > /dev/null 2>&1 || { echo "ERROR: Cannot access issue #$E
 
 ## Notes / Open Questions
 ```
+
+### Commit Type Guidelines
+
+The **Commit Type** field determines the conventional commit prefix used during implementation:
+
+| Type | Use When |
+|------|----------|
+| `feat` | Adding new functionality, features, or capabilities |
+| `fix` | Fixing bugs, errors, or incorrect behavior |
+| `refactor` | Restructuring code without changing behavior |
+| `test` | Adding or improving tests only |
+| `docs` | Documentation changes only |
+| `chore` | Build, CI, dependencies, or tooling changes |
+
+**How to determine:**
+
+1. Task creates new user-facing behavior → `feat`
+2. Task fixes reported issue/bug → `fix`
+3. Task improves code quality without behavior change → `refactor`
+4. Task adds/updates tests without implementation → `test`
+5. Task updates documentation → `docs`
+6. Task updates build/CI/tooling → `chore`
 
 </task_issue_format>
 
