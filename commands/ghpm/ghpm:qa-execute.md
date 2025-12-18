@@ -466,6 +466,85 @@ if (!results.pass && results.screenshot) {
 }
 ```
 
+## Step 5: Handle Pass Result with GitHub Comment
+
+When a QA Step passes, post a success comment on the Step issue.
+
+### Pass Comment Template
+
+```bash
+gh issue comment "$STEP" --body "$(cat <<'COMMENT'
+## ✅ Passed
+
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+- **Result:** All assertions passed
+
+### Actions Executed
+
+- Navigate to <URL>
+- Click <element>
+- Fill <field> with <value>
+- Assert text "<text>" visible
+COMMENT
+)"
+```
+
+### Pass Handler Implementation
+
+```javascript
+async function handlePassResult(stepNumber, results) {
+  const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC');
+
+  // Build action summary
+  const actionSummary = results.actions
+    .filter(a => a.success && !a.skipped)
+    .map(a => {
+      switch (a.action.type) {
+        case 'navigate': return `- Navigate to ${a.action.url}`;
+        case 'click': return `- Click \`${a.action.selector}\``;
+        case 'fill': return `- Fill \`${a.action.selector}\` with "${a.action.value}"`;
+        case 'select': return `- Select "${a.action.value}" from \`${a.action.selector}\``;
+        case 'wait': return `- Wait ${a.action.duration / 1000} seconds`;
+        case 'assertText': return `- Assert text "${a.action.text}" visible`;
+        case 'assertNoText': return `- Assert text "${a.action.text}" not visible`;
+        case 'assertURL': return `- Assert URL is ${a.action.url}`;
+        case 'assertURLContains': return `- Assert URL contains "${a.action.pattern}"`;
+        default: return `- ${a.action.type}`;
+      }
+    })
+    .join('\n');
+
+  const comment = `## ✅ Passed
+
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** ${timestamp}
+- **Result:** All assertions passed
+
+### Actions Executed
+
+${actionSummary}`;
+
+  // Post comment using gh CLI
+  const { execSync } = require('child_process');
+  execSync(`gh issue comment ${stepNumber} --body "${comment.replace(/"/g, '\\"')}"`, {
+    stdio: 'inherit'
+  });
+
+  console.log(`Posted pass comment on QA Step #${stepNumber}`);
+}
+```
+
+### Pass Comment Format
+
+| Field | Value |
+|-------|-------|
+| Emoji | ✅ |
+| Executed by | AI (Claude Code) |
+| Timestamp | UTC timestamp |
+| Result | All assertions passed |
+| Actions | Bulleted list of executed actions |
+
 </workflow>
 
 Proceed now.
