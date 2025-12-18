@@ -217,4 +217,76 @@ Given a PRD for "User Login Feature", generate steps like:
    - When I click Login without entering any credentials,
    - Then I should see validation errors for email and password fields
 
+## Step 4: Create QA Step Issues with QA-Step Label
+
+```bash
+# Get repository owner and name
+OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO=$(gh repo view --json name -q '.name')
+
+# Ensure QA-Step label exists (create if not)
+gh label create QA-Step --description "QA Step for acceptance testing" --color 9B59B6 2>/dev/null || true
+```
+
+For each generated QA Step, create a GitHub issue:
+
+```bash
+# For each step, create issue with populated template
+STEP_TITLE="QA Step: <Brief Description>"
+
+STEP_BODY=$(cat <<BODY
+# QA Step: <Brief Description>
+
+## Scenario
+
+As a <role>,
+Given <precondition>,
+When <action>,
+Then <expected outcome>
+
+## Parent QA Issue
+
+- QA: #$QA
+
+## Test Details
+
+- **URL/Page:** <starting URL or page>
+- **Prerequisites:** <any setup needed>
+- **Test Data:** <if applicable>
+
+## Execution Log
+
+- [ ] Pass / Fail
+- **Executed by:** (not yet executed)
+- **Timestamp:** (pending)
+- **Notes:** (none)
+
+## Bugs Found
+
+(None)
+BODY
+)
+
+# Create the QA Step issue
+STEP_URL=$(gh issue create \
+  --title "$STEP_TITLE" \
+  --label "QA-Step" \
+  --body "$STEP_BODY")
+
+# Extract step number from URL
+STEP_NUM=$(echo "$STEP_URL" | grep -oE '[0-9]+$')
+
+echo "Created QA Step #$STEP_NUM: $STEP_URL"
+
+# Store step number and title for later use
+STEP_NUMBERS+=("$STEP_NUM")
+STEP_TITLES["$STEP_NUM"]="$STEP_TITLE"
+```
+
+### Issue Creation Notes
+
+- Create all steps before proceeding to linking
+- If any step creation fails, log the error and continue with remaining steps
+- Track created step numbers for sub-issue linking and checklist generation
+
 </workflow>
