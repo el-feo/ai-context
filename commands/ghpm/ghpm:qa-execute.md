@@ -256,6 +256,139 @@ When a step cannot be parsed:
 3. During execution, skip unparseable actions but include in report
 4. Do not fail the entire step for unparseable clauses
 
+## Step 3: Execute Playwright Actions
+
+Execute the parsed actions in a browser using Playwright.
+
+### Browser Launch Configuration
+
+```javascript
+const { chromium, expect } = require('@playwright/test');
+
+async function executeStep(stepNumber, actions, options = {}) {
+  const {
+    headless = true,
+    timeout = 30000,
+    viewport = { width: 1280, height: 720 },
+    baseUrl = ''
+  } = options;
+
+  const browser = await chromium.launch({ headless });
+  const context = await browser.newContext({ viewport });
+  const page = await context.newPage();
+
+  page.setDefaultTimeout(timeout);
+
+  const results = {
+    stepNumber,
+    pass: true,
+    actions: [],
+    error: null,
+    screenshot: null
+  };
+
+  try {
+    for (const action of actions) {
+      const actionResult = { action, success: false, error: null };
+
+      try {
+        switch (action.type) {
+          case 'navigate':
+            const url = action.url.startsWith('http') ? action.url : baseUrl + action.url;
+            await page.goto(url, { waitUntil: 'networkidle' });
+            actionResult.success = true;
+            break;
+
+          case 'click':
+            await page.click(action.selector);
+            actionResult.success = true;
+            break;
+
+          case 'fill':
+            // Try common selector patterns
+            const fillSelector = action.selector.startsWith('[') || action.selector.startsWith('#') || action.selector.startsWith('.')
+              ? action.selector
+              : `[name="${action.selector}"], [placeholder*="${action.selector}" i], label:has-text("${action.selector}") + input`;
+            await page.fill(fillSelector, action.value);
+            actionResult.success = true;
+            break;
+
+          case 'select':
+            const selectSelector = action.selector.startsWith('[') || action.selector.startsWith('#')
+              ? action.selector
+              : `select[name="${action.selector}"]`;
+            await page.selectOption(selectSelector, action.value);
+            actionResult.success = true;
+            break;
+
+          case 'wait':
+            await page.waitForTimeout(action.duration);
+            actionResult.success = true;
+            break;
+
+          case 'assertText':
+            await expect(page.locator('body')).toContainText(action.text, { timeout });
+            actionResult.success = true;
+            break;
+
+          case 'assertNoText':
+            await expect(page.locator('body')).not.toContainText(action.text, { timeout });
+            actionResult.success = true;
+            break;
+
+          case 'assertURL':
+            await expect(page).toHaveURL(action.url, { timeout });
+            actionResult.success = true;
+            break;
+
+          case 'assertURLContains':
+            await expect(page).toHaveURL(new RegExp(action.pattern), { timeout });
+            actionResult.success = true;
+            break;
+
+          case 'unparseable':
+            // Skip but log
+            actionResult.skipped = true;
+            actionResult.success = true;
+            console.log(`Skipped unparseable action: ${action.line}`);
+            break;
+
+          default:
+            actionResult.error = `Unknown action type: ${action.type}`;
+        }
+      } catch (actionError) {
+        actionResult.error = actionError.message;
+        results.pass = false;
+        results.error = actionError.message;
+        // Capture screenshot on failure (handled in Step 4)
+        break; // Stop execution on first failure
+      }
+
+      results.actions.push(actionResult);
+    }
+  } finally {
+    await browser.close();
+  }
+
+  return results;
+}
+```
+
+### Execution Flow
+
+1. Launch headless Chromium browser
+2. Create new page with configured viewport
+3. Execute each action in sequence
+4. Stop on first failure and capture error
+5. Close browser and return results
+
+### Timeout and Wait Handling
+
+- Default action timeout: 30 seconds
+- Navigation waits for `networkidle` state
+- Explicit waits via `When I wait for X seconds`
+- Assertions have configurable timeout
+
 </workflow>
 
 Proceed now.
