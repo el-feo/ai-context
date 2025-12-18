@@ -17,6 +17,7 @@ This installs the following commands to `.claude/commands/`:
 - `ghpm:create-prd.md`
 - `ghpm:create-epics.md`
 - `ghpm:create-tasks.md`
+- `ghpm:execute.md`
 - `ghpm:tdd-task.md`
 - `ghpm:changelog.md`
 
@@ -27,6 +28,7 @@ This installs the following commands to `.claude/commands/`:
 | `/ghpm:create-prd <prompt>` | Create a Product Requirements Document |
 | `/ghpm:create-epics [prd=#N]` | Break PRD into Epics |
 | `/ghpm:create-tasks [epic=#N\|prd=#N]` | Break Epics into atomic Tasks |
+| `/ghpm:execute [task=#N\|epic=#N]` | Execute Task (routes to TDD or non-TDD workflow) |
 | `/ghpm:tdd-task [task=#N]` | Implement Task using TDD |
 | `/ghpm:changelog [from=ref] [to=ref]` | Generate changelog from commits |
 
