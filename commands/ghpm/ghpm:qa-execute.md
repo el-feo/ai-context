@@ -724,6 +724,118 @@ The created bug issue includes:
 4. **Screenshot**: Reference to captured screenshot
 5. **Expected vs Actual**: Comparison of expected and actual behavior
 
+## Step 7: Update QA Step Execution Log Section
+
+Update the Execution Log section in the QA Step issue body with execution results.
+
+### Execution Log Section Format
+
+The QA Step issue body contains an Execution Log section:
+
+```markdown
+## Execution Log
+
+- [ ] Pass / Fail
+- **Executed by:** (not yet executed)
+- **Timestamp:** (pending)
+- **Notes:** (none)
+```
+
+After execution, update to:
+
+**On Pass:**
+
+```markdown
+## Execution Log
+
+- [x] Pass / ~~Fail~~
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** 2025-01-15 14:30:00 UTC
+- **Notes:** All 5 actions completed successfully
+```
+
+**On Fail:**
+
+```markdown
+## Execution Log
+
+- [ ] ~~Pass~~ / Fail
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** 2025-01-15 14:30:00 UTC
+- **Notes:** Failed at action 3: Assert text "Welcome" visible - Bug #123 created
+```
+
+### Update Implementation
+
+```javascript
+async function updateExecutionLog(stepNumber, results, bugNumber = null) {
+  const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC');
+
+  // Fetch current issue body
+  const { execSync } = require('child_process');
+  const issueData = JSON.parse(
+    execSync(`gh issue view ${stepNumber} --json body`, { encoding: 'utf-8' })
+  );
+  let body = issueData.body;
+
+  // Build new Execution Log content
+  let newExecutionLog;
+  if (results.pass) {
+    const actionCount = results.actions.filter(a => a.success).length;
+    newExecutionLog = `## Execution Log
+
+- [x] Pass / ~~Fail~~
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** ${timestamp}
+- **Notes:** All ${actionCount} actions completed successfully`;
+  } else {
+    const failedIndex = results.actions.findIndex(a => a.error);
+    const notes = bugNumber
+      ? `Failed at action ${failedIndex + 1}: ${results.error} - Bug #${bugNumber} created`
+      : `Failed at action ${failedIndex + 1}: ${results.error}`;
+    newExecutionLog = `## Execution Log
+
+- [ ] ~~Pass~~ / Fail
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** ${timestamp}
+- **Notes:** ${notes}`;
+  }
+
+  // Replace Execution Log section in body
+  // Match from "## Execution Log" to next "##" or end of string
+  const executionLogRegex = /## Execution Log[\s\S]*?(?=##[^#]|$)/;
+
+  if (executionLogRegex.test(body)) {
+    body = body.replace(executionLogRegex, newExecutionLog + '\n\n');
+  } else {
+    // If no Execution Log section exists, append it
+    body = body + '\n\n' + newExecutionLog;
+  }
+
+  // Update issue body
+  // Write body to temp file to avoid shell escaping issues
+  const fs = require('fs');
+  const tempFile = `/tmp/qa-step-body-${stepNumber}.md`;
+  fs.writeFileSync(tempFile, body);
+
+  execSync(`gh issue edit ${stepNumber} --body-file "${tempFile}"`, {
+    stdio: 'inherit'
+  });
+
+  // Clean up temp file
+  fs.unlinkSync(tempFile);
+
+  console.log(`Updated Execution Log for QA Step #${stepNumber}`);
+}
+```
+
+### Update Notes
+
+1. **Preserve other sections**: Only replace the Execution Log section
+2. **Shell escaping**: Use temp file to avoid issues with special characters
+3. **Pass/Fail checkbox**: Use strikethrough to indicate the opposite result
+4. **Bug reference**: Include bug number in notes when applicable
+
 </workflow>
 
 Proceed now.
