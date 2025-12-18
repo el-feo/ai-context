@@ -52,6 +52,7 @@ Implement a GitHub Task issue using disciplined TDD (Red -> Green -> Refactor), 
 
 <operating_rules>
 
+- Always create a feature branch before making changes. Never commit directly to main/master.
 - No local markdown artifacts. Do not write local status files; only code changes + GitHub issue/PR updates.
 - Do NOT use the TodoWrite tool to track tasks during this session.
 - Do not silently expand scope. If you must, create a new follow-up Task issue and link it.
