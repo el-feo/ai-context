@@ -289,4 +289,37 @@ STEP_TITLES["$STEP_NUM"]="$STEP_TITLE"
 - If any step creation fails, log the error and continue with remaining steps
 - Track created step numbers for sub-issue linking and checklist generation
 
+## Step 5: Link QA Steps as Sub-Issues of QA Issue
+
+**IMPORTANT:** QA Steps MUST be linked as sub-issues of the QA Issue, not just listed in a comment.
+
+For each created QA Step, link it as a sub-issue:
+
+```bash
+# Get the QA Step's internal issue ID
+STEP_ID=$(gh api repos/$OWNER/$REPO/issues/$STEP_NUM --jq .id)
+
+# Add QA Step as sub-issue of QA Issue
+gh api repos/$OWNER/$REPO/issues/$QA/sub_issues \
+  -X POST \
+  -F sub_issue_id=$STEP_ID \
+  --silent && echo "Linked QA Step #$STEP_NUM as sub-issue of QA #$QA" \
+  || echo "Warning: Could not link QA Step #$STEP_NUM as sub-issue"
+```
+
+### Sub-Issue Linking Notes
+
+- Link all steps after creation completes
+- If linking fails for a step, log warning and continue with remaining steps
+- Sub-issues should appear in the QA Issue's "Sub-issues" section
+- Verify linking with: `gh api repos/$OWNER/$REPO/issues/$QA/sub_issues --jq '.[] | [.number, .title] | @tsv'`
+
+### Fallback if Sub-Issues Not Supported
+
+If the sub-issues API is not available (older GitHub Enterprise, etc.):
+
+1. Log a warning that sub-issue linking is not available
+2. Continue to Step 6 (checklist comment) which provides alternative tracking
+3. Consider adding a comment on each QA Step referencing the parent QA Issue
+
 </workflow>
