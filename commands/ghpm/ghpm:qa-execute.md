@@ -152,6 +152,110 @@ for STEP in $STEPS_TO_EXECUTE; do
 done
 ```
 
+## Step 2: Parse Given/When/Then into Playwright Actions
+
+Parse the Scenario section to extract actionable Playwright commands.
+
+### Parser Pattern Reference
+
+| Pattern | Playwright Action |
+|---------|-------------------|
+| `Given I am on <URL>` | `await page.goto('<URL>')` |
+| `Given I am on the <page> page` | `await page.goto(baseUrl + '/<page>')` |
+| `When I click <element>` | `await page.click('<selector>')` |
+| `When I click the <text> button` | `await page.click('button:has-text("<text>")')` |
+| `When I click the <text> link` | `await page.click('a:has-text("<text>")')` |
+| `When I type <text> into <field>` | `await page.fill('<selector>', '<text>')` |
+| `When I enter <text> in the <field> field` | `await page.fill('[name="<field>"], [placeholder*="<field>"]', '<text>')` |
+| `When I select <option> from <dropdown>` | `await page.selectOption('<selector>', '<option>')` |
+| `When I check <checkbox>` | `await page.check('<selector>')` |
+| `When I uncheck <checkbox>` | `await page.uncheck('<selector>')` |
+| `When I wait for <seconds> seconds` | `await page.waitForTimeout(<seconds> * 1000)` |
+| `Then I should see <text>` | `await expect(page.locator('body')).toContainText('<text>')` |
+| `Then I should see the <text> button` | `await expect(page.locator('button:has-text("<text>")')).toBeVisible()` |
+| `Then I should be on <URL>` | `await expect(page).toHaveURL('<URL>')` |
+| `Then I should be redirected to <page>` | `await expect(page).toHaveURL(/<page>/)` |
+| `Then the <field> field should contain <value>` | `await expect(page.locator('<selector>')).toHaveValue('<value>')` |
+| `Then I should not see <text>` | `await expect(page.locator('body')).not.toContainText('<text>')` |
+
+### Parsing Logic
+
+```javascript
+function parseScenario(scenario) {
+  const actions = [];
+  const lines = scenario.split('\n').map(l => l.trim()).filter(l => l);
+
+  for (const line of lines) {
+    // Given - Setup/Navigation
+    if (/^Given I am on (.+)$/i.test(line)) {
+      const url = line.match(/^Given I am on (.+)$/i)[1];
+      actions.push({ type: 'navigate', url: url.replace(/['"]/g, '') });
+    }
+
+    // When - Actions
+    else if (/^When I click (?:the )?(.+?) button$/i.test(line)) {
+      const text = line.match(/^When I click (?:the )?(.+?) button$/i)[1];
+      actions.push({ type: 'click', selector: `button:has-text("${text}")` });
+    }
+    else if (/^When I click (?:the )?(.+?) link$/i.test(line)) {
+      const text = line.match(/^When I click (?:the )?(.+?) link$/i)[1];
+      actions.push({ type: 'click', selector: `a:has-text("${text}")` });
+    }
+    else if (/^When I click (.+)$/i.test(line)) {
+      const element = line.match(/^When I click (.+)$/i)[1];
+      actions.push({ type: 'click', selector: element });
+    }
+    else if (/^When I (?:type|enter) ['""]?(.+?)['""]? (?:into|in) (?:the )?(.+?)(?: field)?$/i.test(line)) {
+      const match = line.match(/^When I (?:type|enter) ['""]?(.+?)['""]? (?:into|in) (?:the )?(.+?)(?: field)?$/i);
+      actions.push({ type: 'fill', selector: match[2], value: match[1] });
+    }
+    else if (/^When I select ['""]?(.+?)['""]? from (.+)$/i.test(line)) {
+      const match = line.match(/^When I select ['""]?(.+?)['""]? from (.+)$/i);
+      actions.push({ type: 'select', selector: match[2], value: match[1] });
+    }
+    else if (/^When I wait for (\d+) seconds?$/i.test(line)) {
+      const seconds = line.match(/^When I wait for (\d+) seconds?$/i)[1];
+      actions.push({ type: 'wait', duration: parseInt(seconds) * 1000 });
+    }
+
+    // Then - Assertions
+    else if (/^Then I should see ['""]?(.+?)['""]?$/i.test(line)) {
+      const text = line.match(/^Then I should see ['""]?(.+?)['""]?$/i)[1];
+      actions.push({ type: 'assertText', text });
+    }
+    else if (/^Then I should be on (.+)$/i.test(line)) {
+      const url = line.match(/^Then I should be on (.+)$/i)[1];
+      actions.push({ type: 'assertURL', url: url.replace(/['"]/g, '') });
+    }
+    else if (/^Then I should be redirected to (.+)$/i.test(line)) {
+      const page = line.match(/^Then I should be redirected to (.+)$/i)[1];
+      actions.push({ type: 'assertURLContains', pattern: page });
+    }
+    else if (/^Then I should not see ['""]?(.+?)['""]?$/i.test(line)) {
+      const text = line.match(/^Then I should not see ['""]?(.+?)['""]?$/i)[1];
+      actions.push({ type: 'assertNoText', text });
+    }
+
+    // Unparseable line
+    else if (line && !line.startsWith('As a')) {
+      console.warn(`Warning: Could not parse line: "${line}"`);
+      actions.push({ type: 'unparseable', line });
+    }
+  }
+
+  return actions;
+}
+```
+
+### Handling Unparseable Steps
+
+When a step cannot be parsed:
+
+1. Log warning with the unparseable line
+2. Add to actions array with type `unparseable`
+3. During execution, skip unparseable actions but include in report
+4. Do not fail the entire step for unparseable clauses
+
 </workflow>
 
 Proceed now.
