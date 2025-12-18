@@ -389,6 +389,83 @@ async function executeStep(stepNumber, actions, options = {}) {
 - Explicit waits via `When I wait for X seconds`
 - Assertions have configurable timeout
 
+## Step 4: Capture Screenshot on Failure
+
+When a QA Step fails, capture a screenshot of the current page state for inclusion in bug reports.
+
+### Screenshot Capture Implementation
+
+Update the executeStep function to capture screenshots on failure:
+
+```javascript
+async function executeStep(stepNumber, actions, options = {}) {
+  // ... browser launch code from Step 3 ...
+
+  try {
+    for (const action of actions) {
+      const actionResult = { action, success: false, error: null };
+
+      try {
+        // ... action execution code from Step 3 ...
+      } catch (actionError) {
+        actionResult.error = actionError.message;
+        results.pass = false;
+        results.error = actionError.message;
+
+        // Capture screenshot on failure
+        const screenshotPath = `/tmp/qa-screenshot-step-${stepNumber}-${Date.now()}.png`;
+        try {
+          await page.screenshot({
+            path: screenshotPath,
+            fullPage: true
+          });
+          results.screenshot = screenshotPath;
+          console.log(`Screenshot captured: ${screenshotPath}`);
+        } catch (screenshotError) {
+          console.warn(`Failed to capture screenshot: ${screenshotError.message}`);
+        }
+
+        break; // Stop execution on first failure
+      }
+
+      results.actions.push(actionResult);
+    }
+  } finally {
+    await browser.close();
+  }
+
+  return results;
+}
+```
+
+### Screenshot Configuration
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `fullPage` | `true` | Capture entire scrollable page |
+| `path` | `/tmp/qa-screenshot-step-{N}-{timestamp}.png` | File path |
+| `type` | `png` | Image format (png for quality) |
+
+### Screenshot Handling Notes
+
+1. **Temp directory**: Screenshots saved to `/tmp/` for accessibility
+2. **Naming convention**: `qa-screenshot-step-{stepNumber}-{timestamp}.png`
+3. **Full page**: Captures entire page, not just viewport
+4. **Error resilience**: Screenshot failure doesn't fail the test (warns only)
+5. **No screenshot on pass**: Only captured when test fails
+
+### Accessing Screenshots
+
+The screenshot path is returned in the results object:
+
+```javascript
+const results = await executeStep(42, actions);
+if (!results.pass && results.screenshot) {
+  console.log(`Failure screenshot: ${results.screenshot}`);
+  // Pass to bug creation workflow
+}
+```
+
 </workflow>
 
 Proceed now.
