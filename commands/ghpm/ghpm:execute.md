@@ -63,6 +63,7 @@ Both workflows produce identical outputs: conventional commits, Task Report, and
 - All commits and PR titles MUST follow Conventional Commits format for changelog generation.
 - When routing to TDD, delegate fully to `/ghpm:tdd-task` - do not duplicate its workflow.
 - When handling an Epic, process tasks sequentially (one PR per task, not batched).
+  - **Exception:** If multiple tasks modify the same file(s), batch them into a single PR with separate commits per task. Each commit must reference its task number.
 - Minimize noise: comment at meaningful milestones.
 </operating_rules>
 
@@ -76,9 +77,27 @@ Read the Task issue body and extract the **Commit Type** field:
 - Commit Type: `<type>`
 ```
 
+### Step 1: Check for Non-TDD Patterns (Override)
+
+Before applying commit-type routing, check if the task matches these Non-TDD patterns:
+
+**Auto-route to Non-TDD if:**
+
+- Target files are non-code: `*.md`, `*.yml`, `*.yaml`, `*.json`, `*.toml`, `*.txt`
+- Task creates/modifies slash commands: path matches `commands/**/*.md` or `.claude/commands/**/*.md`
+- Task creates/modifies skills: path matches `skills/**/*.md` or `.claude/skills/**/*.md`
+- Task title contains: "Create ... command", "Add ... slash command", "Update ... documentation"
+- Scope indicates non-code: `docs`, `commands`, `skills`, `config`
+
+These patterns indicate work where TDD is not applicable (tests cannot be written for markdown/config files).
+
+### Step 2: Apply Commit-Type Routing
+
+If no Non-TDD pattern matched, route based on commit type:
+
 **Route to TDD workflow (`/ghpm:tdd-task`):**
 
-- `feat` - New features benefit from test-first development
+- `feat` - New features benefit from test-first development (when targeting code files)
 - `fix` - Bug fixes need tests to verify the fix
 - `refactor` - Refactoring requires tests to ensure behavior is preserved
 
@@ -93,8 +112,9 @@ Read the Task issue body and extract the **Commit Type** field:
 **If Commit Type is missing or unclear:**
 
 - Analyze the Task title and objective
-- Default to TDD workflow for code changes
-- Default to Non-TDD for non-code changes
+- Check target file extensions to determine if code or non-code
+- Default to TDD workflow for code changes (`.rb`, `.js`, `.ts`, `.py`, `.go`, etc.)
+- Default to Non-TDD for non-code changes (`.md`, `.yml`, `.json`, etc.)
 
 </routing_logic>
 
@@ -165,7 +185,28 @@ gh api graphql -F owner="$OWNER" -F repo="$REPO" -F number=$EPIC \
   --jq '.data.repository.issue.subIssues.nodes[] | select(.state == "OPEN") | select(.labels.nodes[].name == "Task") | [.number, .title] | @tsv'
 ```
 
-Process each task sequentially using Steps 1-6.
+## Step 0.5: Analyze Task Dependencies (Epic Mode Only)
+
+Before processing tasks, analyze all task bodies to detect interdependencies:
+
+1. **Fetch all task bodies** for the Epic
+2. **Extract target file paths** from each task (look for file paths in Implementation Notes, Scope, or infer from task title/objective)
+3. **Group tasks by target file** - if multiple tasks modify the same file, they are interdependent
+4. **Determine execution strategy:**
+
+| Scenario | Strategy |
+|----------|----------|
+| All tasks target different files | Process sequentially, one PR per task |
+| Multiple tasks target same file | Batch into single PR with separate commits |
+| Tasks have explicit dependencies | Process in dependency order |
+
+**For batched tasks:**
+- Create a single branch named after the first task: `ghpm/task-$FIRST_TASK-<epic-slug>`
+- Make separate commits per task, each referencing its task number
+- Create single PR that closes all batched tasks
+- Comment PR URL on all batched task issues
+
+Process tasks using Steps 1-6, applying batching strategy where applicable.
 
 ### If `task=#N` provided
 
@@ -198,19 +239,27 @@ gh issue view "$TASK" --json title,body,url,labels,comments -q '.'
 
 - Commit Type (from body: `Commit Type: \`<type>\``)
 - Scope (from body: `Scope: \`<scope>\``)
+- Target file paths (from Implementation Notes or infer from task)
 - Acceptance criteria
 - Test plan (or infer if missing)
 - Epic/PRD links
 
-**Determine workflow:**
+**Determine workflow (see <routing_logic> for details):**
 
 ```
-If Commit Type in [feat, fix, refactor]:
-    → Route to TDD workflow (Step 2A)
-Else if Commit Type in [test, docs, chore, style, perf]:
-    → Route to Non-TDD workflow (Step 2B)
-Else:
-    → Analyze task content and make best judgment
+1. Check Non-TDD Patterns (Override):
+   If target files are non-code (*.md, *.yml, *.json, etc.):
+       → Route to Non-TDD workflow (Step 2B)
+   If task creates slash commands or skills:
+       → Route to Non-TDD workflow (Step 2B)
+
+2. Apply Commit-Type Routing:
+   If Commit Type in [feat, fix, refactor] AND targeting code files:
+       → Route to TDD workflow (Step 2A)
+   Else if Commit Type in [test, docs, chore, style, perf]:
+       → Route to Non-TDD workflow (Step 2B)
+   Else:
+       → Analyze task content and make best judgment
 ```
 
 ## Step 2A: TDD Workflow (Delegate)
@@ -371,19 +420,34 @@ Command completes when:
 - PR is created with `Closes #$TASK` in the body
 - PR URL is commented back to the Task
 
-**For epic:**
+**For epic (independent tasks):**
 
 - All open tasks under the Epic are processed
 - Each task has its own PR
 - Summary comment posted on Epic with all PR URLs
+
+**For epic (interdependent tasks - same target file):**
+
+- All interdependent tasks batched into single PR
+- Each task has its own commit referencing its task number
+- PR closes all batched tasks (`Closes #T1, Closes #T2, ...`)
+- PR URL commented on all batched task issues
+- Summary comment on Epic shows task-to-PR mapping
 </success_criteria>
 
 <error_handling>
 **If Commit Type cannot be determined:**
 
+- Check target file extensions first (Non-TDD patterns take priority)
 - Analyze task title and objective
-- Look for keywords: "add", "implement", "create" → TDD; "update docs", "fix CI" → Non-TDD
-- Default to TDD for safety (tests are rarely wrong to have)
+- Look for keywords: "add", "implement", "create" → TDD (if code); "update docs", "fix CI" → Non-TDD
+- Default to TDD for code files, Non-TDD for non-code files
+
+**If target files cannot be determined:**
+
+- Check task scope field for hints (`ghpm`, `commands`, `docs` → Non-TDD)
+- Look for file paths in Implementation Notes section
+- Ask in task comment if truly ambiguous (rare - most tasks indicate target)
 
 **If task is already in progress (branch exists):**
 
@@ -406,9 +470,14 @@ Command completes when:
 After completion, report:
 
 1. **Tasks executed:** Issue numbers and workflow type used
-2. **PRs created:** PR numbers and URLs
-3. **Routing decisions:** Why each task was routed to TDD or Non-TDD
-4. **Warnings:** Any issues encountered
+2. **PRs created:** PR numbers and URLs (note batched tasks if applicable)
+3. **Routing decisions:** For each task, explain:
+   - Commit type detected
+   - Target file type (code vs non-code)
+   - Pattern matched (if Non-TDD override applied)
+   - Final workflow chosen and why
+4. **Batching decisions:** If tasks were batched, explain why (shared target files)
+5. **Warnings:** Any issues encountered
 </output>
 
 Proceed now.
