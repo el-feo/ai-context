@@ -133,8 +133,35 @@ All commits and PR titles must follow the [Conventional Commits](https://www.con
 ```bash
 EPIC=$N
 
-# Fetch all open tasks referencing this Epic
-gh issue list -l Task -S "#$EPIC" -s open --json number,title,body -q '.[] | [.number,.title] | @tsv'
+# Get repository owner and name
+OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO=$(gh repo view --json name -q '.name')
+
+# Fetch all open sub-issues (Tasks) under this Epic using GraphQL API
+# GitHub sub-issues are linked via parent-child relationship, NOT by text mention
+# NOTE: Use heredoc to avoid shell escaping issues with '!' characters
+cat > /tmp/ghpm-subissues.graphql << 'GRAPHQL'
+query($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      subIssues(first: 50) {
+        nodes {
+          number
+          title
+          state
+          labels(first: 10) {
+            nodes { name }
+          }
+        }
+      }
+    }
+  }
+}
+GRAPHQL
+
+gh api graphql -F owner="$OWNER" -F repo="$REPO" -F number=$EPIC \
+  -f query="$(cat /tmp/ghpm-subissues.graphql)" \
+  --jq '.data.repository.issue.subIssues.nodes[] | select(.state == "OPEN") | select(.labels.nodes[].name == "Task") | [.number, .title] | @tsv'
 ```
 
 Process each task sequentially using Steps 1-6.

@@ -144,8 +144,33 @@ The **Commit Type** field determines the conventional commit prefix used during 
 # If epic=#N provided, use N
 EPIC={provided_epic_number}
 
-# Else if prd=#N provided, find Epics referencing the PRD
-gh issue list -l Epic -S "#$PRD" -s open --json number,title -q '.[] | [.number,.title] | @tsv'
+# Else if prd=#N provided, find Epics as sub-issues of the PRD
+# NOTE: Use heredoc to avoid shell escaping issues with '!' characters
+OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO=$(gh repo view --json name -q '.name')
+
+cat > /tmp/ghpm-subissues.graphql << 'GRAPHQL'
+query($owner: String!, $repo: String!, $number: Int!) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      subIssues(first: 50) {
+        nodes {
+          number
+          title
+          state
+          labels(first: 10) {
+            nodes { name }
+          }
+        }
+      }
+    }
+  }
+}
+GRAPHQL
+
+gh api graphql -F owner="$OWNER" -F repo="$REPO" -F number=$PRD \
+  -f query="$(cat /tmp/ghpm-subissues.graphql)" \
+  --jq '.data.repository.issue.subIssues.nodes[] | select(.state == "OPEN") | select(.labels.nodes[].name == "Epic") | [.number, .title] | @tsv'
 
 # Else pick most recent open Epic
 gh issue list -l Epic -s open --limit 1 --json number -q '.[0].number'
