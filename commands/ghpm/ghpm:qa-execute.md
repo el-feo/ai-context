@@ -838,4 +838,184 @@ async function updateExecutionLog(stepNumber, results, bugNumber = null) {
 
 </workflow>
 
+<operating_rules>
+
+- Do not ask clarifying questions. Make reasonable assumptions and proceed.
+- Do not create local markdown files. All output goes into GitHub issues/comments.
+- Execute steps sequentially, posting results after each step completes.
+- If a step fails, continue to the next step (don't abort entire QA run).
+- Minimize noise: only comment at meaningful milestones (pass/fail results).
+- Never retry failed steps automatically (manual retry or bug triage expected).
+
+</operating_rules>
+
+<prerequisites>
+
+Before execution, verify:
+
+```bash
+# 1. Check gh CLI authentication
+gh auth status || { echo "ERROR: Not authenticated. Run 'gh auth login'"; exit 1; }
+
+# 2. Check Playwright installation
+npx playwright --version || { echo "ERROR: Playwright not installed. Run 'npm install -D @playwright/test'"; exit 1; }
+
+# 3. Check browser availability
+npx playwright install chromium --dry-run 2>/dev/null || {
+  echo "WARNING: Chromium may not be installed. Run 'npx playwright install chromium'"
+}
+```
+
+</prerequisites>
+
+<input_validation>
+
+## Validation Checks
+
+```bash
+# Validate step number format (if provided)
+if [[ -n "$STEP" && ! "$STEP" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: Invalid step number. Use format: step=#123"
+  exit 1
+fi
+
+# Validate QA number format (if provided)
+if [[ -n "$QA" && ! "$QA" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: Invalid QA number. Use format: qa=#123"
+  exit 1
+fi
+
+# Verify issue exists and is accessible
+if [[ -n "$STEP" ]]; then
+  gh issue view "$STEP" > /dev/null 2>&1 || { echo "ERROR: Cannot access QA Step #$STEP"; exit 1; }
+fi
+
+if [[ -n "$QA" ]]; then
+  gh issue view "$QA" > /dev/null 2>&1 || { echo "ERROR: Cannot access QA Issue #$QA"; exit 1; }
+fi
+```
+
+</input_validation>
+
+<error_handling>
+
+## Common Errors and Recovery
+
+**If gh CLI not authenticated:**
+
+- Check: `gh auth status`
+- Fix: `gh auth login`
+
+**If Playwright not installed:**
+
+- Check: `npx playwright --version`
+- Fix: `npm install -D @playwright/test && npx playwright install chromium`
+
+**If browser not installed:**
+
+- Check: `npx playwright install chromium --dry-run`
+- Fix: `npx playwright install chromium`
+
+**If QA Step/Issue not found:**
+
+- Verify issue number is correct
+- Check repository access permissions
+- Confirm issue is not closed/deleted
+
+**If no QA Steps found for QA Issue:**
+
+- Verify QA Steps are linked as sub-issues
+- Check that QA Steps have the `QA-Step` label
+- Confirm QA Steps are in OPEN state
+
+**If Given/When/Then parsing fails:**
+
+- Log warning with unparseable line
+- Skip unparseable actions during execution
+- Include unparseable lines in execution report
+
+**If Playwright action fails:**
+
+- Capture screenshot before closing browser
+- Post failure comment with error details
+- Create bug issue with context
+- Continue to next QA Step (don't abort run)
+
+**If screenshot capture fails:**
+
+- Log warning but don't fail the step
+- Note "No screenshot available" in bug report
+
+**If GitHub API rate limited:**
+
+- Check: `gh api rate_limit`
+- Wait and retry, or authenticate with higher-privilege token
+
+</error_handling>
+
+<success_criteria>
+
+Command completes successfully when:
+
+1. Target QA Steps have been resolved (from argument or auto-resolved)
+2. Each QA Step has been executed through Playwright
+3. Pass results: ✅ comment posted, Execution Log updated
+4. Fail results: ❌ comment posted, bug created, Execution Log updated
+5. All steps processed (failures don't abort the run)
+
+**Verification:**
+
+```bash
+# Check execution comments on QA Steps
+gh issue view "$STEP" --json comments -q '.comments[-1].body'
+
+# Check Execution Log was updated
+gh issue view "$STEP" --json body -q '.body' | grep -A5 "## Execution Log"
+
+# Check bugs created for failures
+gh issue list -l Bug --json number,title
+```
+
+</success_criteria>
+
+<output>
+
+After completion, report:
+
+1. **QA Steps executed:** Count and issue numbers
+2. **Results:**
+   - Passed: Count and step numbers
+   - Failed: Count, step numbers, and bug numbers created
+3. **Unparseable steps:** Count and warnings
+4. **Execution time:** Total duration
+5. **Errors:** Any issues encountered
+
+**Example output:**
+
+```
+## QA Execution Complete
+
+- **QA Issue:** #42
+- **Steps executed:** 5
+
+### Results
+
+| Step | Title | Result | Bug |
+|------|-------|--------|-----|
+| #101 | Valid login | ✅ Pass | - |
+| #102 | Invalid password | ✅ Pass | - |
+| #103 | Form validation | ❌ Fail | #150 |
+| #104 | Password reset | ✅ Pass | - |
+| #105 | Logout | ✅ Pass | - |
+
+### Summary
+
+- **Passed:** 4
+- **Failed:** 1
+- **Bugs created:** 1 (#150)
+- **Execution time:** 2m 34s
+```
+
+</output>
+
 Proceed now.
