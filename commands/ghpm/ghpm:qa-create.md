@@ -142,3 +142,18 @@ if [ -n "$GHPM_PROJECT" ]; then
 fi
 ```
 
+### Step 7: Comment on PRD with QA Issue link
+
+```bash
+gh issue comment "$PRD" --body "$(cat <<COMMENT
+## QA
+
+- [ ] #$QA_NUMBER $QA_TITLE
+
+QA Issue created for acceptance testing.
+COMMENT
+)"
+
+echo "Posted QA link comment on PRD #$PRD"
+```
+
