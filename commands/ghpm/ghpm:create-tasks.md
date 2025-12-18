@@ -173,25 +173,51 @@ For each Epic, generate 5-25 atomic tasks that fully cover the Epic scope.
 Create each task:
 
 ```bash
-gh issue create \
+# Create the task issue
+TASK_URL=$(gh issue create \
   --title "Task: <Name>" \
   --label "Task" \
-  --body "<Task markdown from template>"
+  --body "<Task markdown from template>")
+
+# Extract task number from URL
+TASK_NUM=$(echo "$TASK_URL" | grep -oE '[0-9]+$')
 ```
 
 If `$GHPM_PROJECT` is set, include `--project "$GHPM_PROJECT"` (best-effort; continue if fails).
 
-## Step 4: Link Tasks to Epic
+## Step 4: Link Tasks as Sub-Issues of Epic
 
-Comment on the Epic with a checklist of created tasks:
+**IMPORTANT:** Tasks MUST be linked as sub-issues of the Epic, not just listed in a comment.
+
+For each created task, link it as a sub-issue:
+
+```bash
+# Get the Epic's internal issue ID
+EPIC_ID=$(gh api repos/{owner}/{repo}/issues/$EPIC --jq .id)
+
+# Get the Task's internal issue ID
+TASK_ID=$(gh api repos/{owner}/{repo}/issues/$TASK_NUM --jq .id)
+
+# Add task as sub-issue of Epic
+gh api repos/{owner}/{repo}/issues/$EPIC/sub_issues \
+  -X POST \
+  -F sub_issue_id=$TASK_ID \
+  --silent || echo "Warning: Could not link Task #$TASK_NUM as sub-issue"
+```
+
+After all tasks are created and linked, optionally comment on the Epic with a summary:
 
 ```bash
 gh issue comment "$EPIC" --body "$(cat <<'EOF'
-## Tasks
+## Tasks Created
 
-- [ ] #<TASK_1> Task: <Name>
-- [ ] #<TASK_2> Task: <Name>
+Created and linked as sub-issues:
+
+- #<TASK_1> Task: <Name>
+- #<TASK_2> Task: <Name>
 ...
+
+View sub-issues in the Epic's "Sub-issues" section.
 EOF
 )"
 ```
@@ -224,6 +250,13 @@ gh issue comment "$PRD" --body "Tasks created for Epic #$EPIC - see checklist on
 - Verify label "Task" exists or omit label
 - Check repository write permissions
 
+**If sub-issue linking fails:**
+
+- Continue with next task (don't block on linking failures)
+- Log warning in output summary with specific task number
+- Common causes: task already has a parent, duplicate sub-issue, API error
+- Verify with: `gh api repos/{owner}/{repo}/issues/$EPIC/sub_issues`
+
 **If project association fails:**
 
 - Continue without project association
@@ -237,7 +270,7 @@ Command completes successfully when:
 1. All target Epics have been processed
 2. Each Epic has 5-25 Task issues created
 3. Each Task issue contains complete context (Epic/PRD links, acceptance criteria)
-4. Each Epic has a comment with the task checklist
+4. Each Task is linked as a sub-issue of its Epic
 5. PRD is notified (if applicable)
 
 **Verification:**
@@ -246,7 +279,10 @@ Command completes successfully when:
 # List created tasks
 gh issue list -l Task -s open --limit 50 --json number,title
 
-# View Epic to confirm task checklist
+# Verify sub-issues are linked to Epic
+gh api repos/{owner}/{repo}/issues/$EPIC/sub_issues --jq '.[] | [.number, .title] | @tsv'
+
+# View Epic to confirm (sub-issues appear in issue view)
 gh issue view "$EPIC"
 ```
 
@@ -257,9 +293,10 @@ After completion, report:
 
 1. **Epic(s) processed:** # and URL for each
 2. **Tasks created:** Issue numbers and URLs
-3. **Total tasks:** Count per Epic
-4. **Project association:** Success/failure status (if `$GHPM_PROJECT` set)
-5. **Warnings:** Any issues encountered (e.g., project add failed, PRD not found)
+3. **Sub-issue linking:** Success/failure for each task linked to Epic
+4. **Total tasks:** Count per Epic
+5. **Project association:** Success/failure status (if `$GHPM_PROJECT` set)
+6. **Warnings:** Any issues encountered (e.g., sub-issue linking failed, project add failed, PRD not found)
 </output>
 
 Proceed now.

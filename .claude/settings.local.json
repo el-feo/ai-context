@@ -1,13 +1,17 @@
 {
   "permissions": {
     "allow": [
+      "Bash(gh api --help:*)",
+      "Bash(gh help:*)",
+      "Bash(gh issue --help:*)",
       "Bash(gh issue comment:*)",
       "Bash(gh issue create-comment:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh issue view:*)",
       "Bash(gh label create:*)",
-      "Bash(gh project item-add:*)"
+      "Bash(gh project item-add:*)",
+      "WebSearch"
     ]
   }
 }
