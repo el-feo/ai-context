@@ -157,3 +157,42 @@ COMMENT
 echo "Posted QA link comment on PRD #$PRD"
 ```
 
+## Operating rules
+
+- Do not ask clarifying questions. If the PRD has ambiguity, derive a reasonable overview from the PRD objective.
+- Do not create local markdown files. All output goes into GitHub issues/comments.
+- Execute all `gh` commands directly via bash tool.
+- If sub-issue linking fails, continue with the remaining steps (best-effort).
+
+## Error handling
+
+| Error | Action |
+|-------|--------|
+| `gh auth` not authenticated | Print error: "GitHub CLI not authenticated. Run `gh auth login` first." |
+| PRD number invalid (not a positive integer) | Print error: "Invalid PRD number. Use format: prd=#123" |
+| PRD not found or inaccessible | Print error: "Could not fetch PRD #N. Check if it exists and you have access." |
+| QA Issue creation fails | Print error and stop. Do not proceed with linking or comments. |
+| Sub-issue linking fails | Print warning, continue with remaining steps. |
+| Project add fails | Print warning, continue with remaining steps. |
+
+## Output requirements
+
+Execute all `gh` commands yourself (via bash tool). Print a summary at completion:
+
+- PRD #, title, URL
+- QA Issue #, title, URL
+- Sub-issue linking: success/warning
+- Project association: success/warning/skipped
+- PRD comment: posted
+
+## Success criteria
+
+Command completes successfully when:
+
+- [ ] QA Issue created with correct title format and QA label
+- [ ] QA Issue body contains all required sections
+- [ ] QA Issue linked as sub-issue of PRD (or warning printed)
+- [ ] PRD has comment linking to QA Issue
+- [ ] Summary printed with all relevant URLs
+
+Proceed now.
