@@ -545,6 +545,185 @@ ${actionSummary}`;
 | Result | All assertions passed |
 | Actions | Bulleted list of executed actions |
 
+## Step 6: Handle Fail Result and Trigger Bug Creation
+
+When a QA Step fails, post a failure comment and trigger the bug creation workflow.
+
+### Fail Comment Template
+
+```bash
+gh issue comment "$STEP" --body "$(cat <<'COMMENT'
+## ❌ Failed
+
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+- **Error:** <error message>
+
+### Failed Action
+
+- **Action:** <action that failed>
+- **Expected:** <what was expected>
+- **Actual:** <what happened>
+
+### Screenshot
+
+📸 Screenshot captured for bug report
+
+### Bug Report
+
+🐛 Creating bug issue...
+COMMENT
+)"
+```
+
+### Fail Handler Implementation
+
+```javascript
+async function handleFailResult(stepNumber, stepTitle, stepBody, results, qaNumber) {
+  const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC');
+
+  // Find the failed action
+  const failedAction = results.actions.find(a => a.error);
+  const failedActionDesc = failedAction
+    ? describeAction(failedAction.action)
+    : 'Unknown action';
+
+  // Extract scenario from step body
+  const scenarioMatch = stepBody.match(/## Scenario\s+([\s\S]*?)(?=##|$)/);
+  const scenario = scenarioMatch ? scenarioMatch[1].trim() : 'Scenario not found';
+
+  // Build failure comment
+  const comment = `## ❌ Failed
+
+- **Executed by:** AI (Claude Code)
+- **Timestamp:** ${timestamp}
+- **Error:** ${results.error}
+
+### Failed Action
+
+\`\`\`
+${failedActionDesc}
+\`\`\`
+
+### Scenario
+
+\`\`\`
+${scenario}
+\`\`\`
+
+### Screenshot
+
+${results.screenshot ? '📸 Screenshot captured: `' + results.screenshot + '`' : '⚠️ No screenshot available'}
+
+### Bug Report
+
+🐛 Creating bug issue...`;
+
+  // Post failure comment
+  const { execSync } = require('child_process');
+  execSync(`gh issue comment ${stepNumber} --body "${comment.replace(/"/g, '\\"').replace(/`/g, '\\`')}"`, {
+    stdio: 'inherit'
+  });
+
+  // Trigger bug creation workflow (Epic #9)
+  // Pass context: step number, error, screenshot path, scenario
+  const bugContext = {
+    qaStep: stepNumber,
+    qaIssue: qaNumber,
+    title: `Bug: ${stepTitle.replace('QA Step: ', '')} - Failed`,
+    error: results.error,
+    scenario: scenario,
+    screenshot: results.screenshot,
+    timestamp: timestamp
+  };
+
+  // Create bug issue (simplified - full implementation in Epic #9)
+  const bugBody = `# Bug: QA Step #${stepNumber} Failed
+
+## Source
+
+- **QA Step:** #${stepNumber}
+- **QA Issue:** #${qaNumber}
+- **Detected:** ${timestamp}
+
+## Error
+
+\`\`\`
+${results.error}
+\`\`\`
+
+## Reproduction Steps
+
+${scenario}
+
+## Screenshot
+
+${results.screenshot ? '📸 See attached screenshot' : 'No screenshot available'}
+
+## Expected Behavior
+
+The QA Step should pass according to its assertions.
+
+## Actual Behavior
+
+${results.error}
+`;
+
+  const bugUrl = execSync(
+    `gh issue create --title "Bug: ${stepTitle.replace('QA Step: ', '')} - Failed" --label "Bug" --body "${bugBody.replace(/"/g, '\\"').replace(/`/g, '\\`')}"`,
+    { encoding: 'utf-8' }
+  ).trim();
+
+  const bugNumber = bugUrl.match(/\/(\d+)$/)?.[1];
+
+  // Update the failure comment with bug link
+  execSync(`gh issue comment ${stepNumber} --body "🐛 Bug created: ${bugUrl}"`, {
+    stdio: 'inherit'
+  });
+
+  console.log(`Posted fail comment and created bug #${bugNumber} for QA Step #${stepNumber}`);
+
+  return bugNumber;
+}
+
+function describeAction(action) {
+  switch (action.type) {
+    case 'navigate': return `Navigate to ${action.url}`;
+    case 'click': return `Click ${action.selector}`;
+    case 'fill': return `Fill ${action.selector} with "${action.value}"`;
+    case 'select': return `Select "${action.value}" from ${action.selector}`;
+    case 'assertText': return `Assert text "${action.text}" is visible`;
+    case 'assertNoText': return `Assert text "${action.text}" is not visible`;
+    case 'assertURL': return `Assert URL is ${action.url}`;
+    case 'assertURLContains': return `Assert URL contains "${action.pattern}"`;
+    default: return JSON.stringify(action);
+  }
+}
+```
+
+### Fail Comment Format
+
+| Field | Value |
+|-------|-------|
+| Emoji | ❌ |
+| Executed by | AI (Claude Code) |
+| Timestamp | UTC timestamp |
+| Error | Error message from Playwright |
+| Failed Action | Description of the action that failed |
+| Scenario | The Given/When/Then from the step |
+| Screenshot | Path to captured screenshot |
+| Bug Report | Link to created bug issue |
+
+### Bug Issue Contents
+
+The created bug issue includes:
+
+1. **Source**: Links to QA Step and QA Issue
+2. **Error**: Full error message
+3. **Reproduction Steps**: Given/When/Then scenario
+4. **Screenshot**: Reference to captured screenshot
+5. **Expected vs Actual**: Comparison of expected and actual behavior
+
 </workflow>
 
 Proceed now.
