@@ -113,3 +113,21 @@ QA_NUMBER=$(echo "$QA_URL" | grep -oE '[0-9]+$')
 echo "Created QA Issue #$QA_NUMBER: $QA_URL"
 ```
 
+### Step 5: Link QA Issue as sub-issue of PRD
+
+```bash
+# Get repository owner and name
+OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO=$(gh repo view --json name -q '.name')
+
+# Get the QA Issue's internal ID
+QA_ID=$(gh api repos/$OWNER/$REPO/issues/$QA_NUMBER --jq .id)
+
+# Add QA Issue as sub-issue of PRD
+gh api repos/$OWNER/$REPO/issues/$PRD/sub_issues \
+  -X POST \
+  -F sub_issue_id=$QA_ID \
+  --silent && echo "Linked QA Issue #$QA_NUMBER as sub-issue of PRD #$PRD" \
+  || echo "Warning: Could not link QA Issue as sub-issue (feature may not be available)"
+```
+
