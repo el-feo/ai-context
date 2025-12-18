@@ -131,3 +131,14 @@ gh api repos/$OWNER/$REPO/issues/$PRD/sub_issues \
   || echo "Warning: Could not link QA Issue as sub-issue (feature may not be available)"
 ```
 
+### Step 6: Add to GitHub Project (optional)
+
+```bash
+# If GHPM_PROJECT is set, add QA Issue to project (best-effort)
+if [ -n "$GHPM_PROJECT" ]; then
+  gh project item-add "$GHPM_PROJECT" --owner "$OWNER" --url "$QA_URL" \
+    && echo "Added QA Issue to project: $GHPM_PROJECT" \
+    || echo "Warning: Could not add QA Issue to project"
+fi
+```
+
