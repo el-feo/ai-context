@@ -322,4 +322,58 @@ If the sub-issues API is not available (older GitHub Enterprise, etc.):
 2. Continue to Step 6 (checklist comment) which provides alternative tracking
 3. Consider adding a comment on each QA Step referencing the parent QA Issue
 
+## Step 6: Add QA Issue Comment with QA Steps Checklist
+
+Post a comment on the QA Issue with a checklist of all created QA Steps for tracking:
+
+```bash
+# Build checklist from created steps
+CHECKLIST=""
+for step_num in "${STEP_NUMBERS[@]}"; do
+  step_title="${STEP_TITLES[$step_num]}"
+  CHECKLIST="$CHECKLIST
+- [ ] #$step_num $step_title"
+done
+
+# Post comment on QA Issue
+gh issue comment "$QA" --body "$(cat <<COMMENT
+## QA Steps
+
+The following QA Steps have been created for acceptance testing:
+$CHECKLIST
+
+### Execution Instructions
+
+1. Execute each step in order
+2. Mark the checkbox when the step passes
+3. If a step fails, create a Bug issue and link it in the step's "Bugs Found" section
+4. Update each step's Execution Log with results
+COMMENT
+)"
+
+echo "Posted QA Steps checklist comment on QA Issue #$QA"
+```
+
+### Checklist Format
+
+The checklist follows this format for consistent tracking:
+
+```markdown
+## QA Steps
+
+The following QA Steps have been created for acceptance testing:
+
+- [ ] #101 QA Step: Valid login with correct credentials
+- [ ] #102 QA Step: Login with invalid password
+- [ ] #103 QA Step: Login form validation
+...
+
+### Execution Instructions
+
+1. Execute each step in order
+2. Mark the checkbox when the step passes
+3. If a step fails, create a Bug issue and link it in the step's "Bugs Found" section
+4. Update each step's Execution Log with results
+```
+
 </workflow>
