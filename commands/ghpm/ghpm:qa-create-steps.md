@@ -377,3 +377,117 @@ The following QA Steps have been created for acceptance testing:
 ```
 
 </workflow>
+
+<operating_rules>
+
+- Do not ask clarifying questions. Make assumptions and record them in the QA Steps.
+- Do not create local markdown files. All output goes into GitHub issues/comments.
+- QA Steps must be atomic and independently testable.
+- Each QA Step must follow the Given/When/Then format consistently.
+- Generate 5-20 QA Steps per QA Issue that fully cover the acceptance criteria.
+- Each QA Step MUST be linked as a sub-issue of the parent QA Issue.
+
+</operating_rules>
+
+<input_validation>
+
+## Validation Checks
+
+Before proceeding, validate:
+
+```bash
+# 1. Check gh CLI authentication
+gh auth status || { echo "ERROR: Not authenticated. Run 'gh auth login'"; exit 1; }
+
+# 2. Validate QA issue number format (if provided)
+# QA number must be a positive integer
+if [[ -n "$QA" && ! "$QA" =~ ^[0-9]+$ ]]; then
+  echo "ERROR: Invalid QA number. Use format: qa=#123"
+  exit 1
+fi
+
+# 3. Verify QA issue exists and is accessible
+gh issue view "$QA" > /dev/null 2>&1 || { echo "ERROR: Cannot access QA issue #$QA"; exit 1; }
+```
+
+</input_validation>
+
+<error_handling>
+
+**If gh CLI not authenticated:**
+
+- Check: `gh auth status`
+- Fix: `gh auth login`
+
+**If QA Issue not found:**
+
+- Verify issue number is correct
+- Check repository access permissions
+- Confirm issue is not closed/deleted
+
+**If no open QA Issue found (auto-resolve):**
+
+- Create a QA Issue first using `/ghpm:qa-create`
+- Or specify an explicit QA number with `qa=#N`
+
+**If PRD reference not found in QA Issue:**
+
+- Continue with QA Issue context only
+- Log warning: "No PRD reference found. Generating steps from QA Issue context only."
+
+**If QA Step creation fails:**
+
+- Check rate limits: `gh api rate_limit`
+- Verify label "QA-Step" exists or create it
+- Check repository write permissions
+- Log error and continue with remaining steps
+
+**If sub-issue linking fails:**
+
+- Continue with next step (don't block on linking failures)
+- Log warning in output summary with specific step number
+- Common causes: step already has a parent, duplicate sub-issue, API error
+- Checklist comment provides alternative tracking
+
+</error_handling>
+
+<success_criteria>
+
+Command completes successfully when:
+
+1. Target QA Issue has been resolved (explicit or auto-detected)
+2. PRD context has been fetched (if available)
+3. 5-20 QA Step issues have been created with `QA-Step` label
+4. Each QA Step follows the Given/When/Then format
+5. Each QA Step is linked as a sub-issue of the QA Issue
+6. Checklist comment has been posted on the QA Issue
+
+**Verification:**
+
+```bash
+# List created QA Steps
+gh issue list -l QA-Step -s open --limit 50 --json number,title
+
+# Verify sub-issues are linked to QA Issue
+gh api repos/{owner}/{repo}/issues/$QA/sub_issues --jq '.[] | [.number, .title] | @tsv'
+
+# View QA Issue to confirm (sub-issues and checklist appear)
+gh issue view "$QA"
+```
+
+</success_criteria>
+
+<output>
+
+After completion, report:
+
+1. **QA Issue processed:** # and URL
+2. **PRD context:** # and title (if found)
+3. **QA Steps created:** Issue numbers and titles
+4. **Sub-issue linking:** Success/failure for each step
+5. **Total steps:** Count
+6. **Warnings:** Any issues encountered (PRD not found, linking failures, etc.)
+
+</output>
+
+Proceed now.
