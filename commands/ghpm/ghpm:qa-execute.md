@@ -682,10 +682,39 @@ ${results.screenshot ? '📸 Screenshot attached below' : '⚠️ No screenshot 
 - **Executor:** AI (Claude Code)
 `;
 
+  // Ensure required labels exist (create if missing)
+  try {
+    execSync('gh label create bug --color D73A4A --description "Something isn\'t working" 2>/dev/null || true', { stdio: 'pipe' });
+    execSync('gh label create QA-Bug --color B60205 --description "Bug found via QA automation" 2>/dev/null || true', { stdio: 'pipe' });
+  } catch (e) {
+    // Labels may already exist, continue
+  }
+
+  // Generate error summary for title (truncate if too long)
+  const errorSummary = results.error.length > 50
+    ? results.error.substring(0, 47) + '...'
+    : results.error;
+
+  // Clean step title for bug title
+  const cleanStepTitle = stepTitle
+    .replace(/^QA Step:\s*/i, '')
+    .replace(/^Step:\s*/i, '');
+
+  const bugTitle = `Bug: ${cleanStepTitle} - ${errorSummary}`;
+
+  // Write body to temp file to avoid shell escaping issues
+  const fs = require('fs');
+  const tempBodyFile = `/tmp/bug-body-${stepNumber}-${Date.now()}.md`;
+  fs.writeFileSync(tempBodyFile, bugBody);
+
+  // Create bug issue with both labels
   const bugUrl = execSync(
-    `gh issue create --title "Bug: ${stepTitle.replace('QA Step: ', '')} - Failed" --label "Bug" --body "${bugBody.replace(/"/g, '\\"').replace(/`/g, '\\`')}"`,
+    `gh issue create --title "${bugTitle.replace(/"/g, '\\"')}" --label "bug,QA-Bug" --body-file "${tempBodyFile}"`,
     { encoding: 'utf-8' }
   ).trim();
+
+  // Clean up temp file
+  fs.unlinkSync(tempBodyFile);
 
   const bugNumber = bugUrl.match(/\/(\d+)$/)?.[1];
 
