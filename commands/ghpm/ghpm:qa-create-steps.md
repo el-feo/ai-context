@@ -314,6 +314,19 @@ gh api repos/$OWNER/$REPO/issues/$QA/sub_issues \
 - Sub-issues should appear in the QA Issue's "Sub-issues" section
 - Verify linking with: `gh api repos/$OWNER/$REPO/issues/$QA/sub_issues --jq '.[] | [.number, .title] | @tsv'`
 
+### Add QA Steps to GitHub Project (Optional)
+
+For each created QA Step, add it to the GitHub Project if `GHPM_PROJECT` is set:
+
+```bash
+# If GHPM_PROJECT is set, add QA Step to project (best-effort)
+if [ -n "$GHPM_PROJECT" ]; then
+  gh project item-add "$GHPM_PROJECT" --owner "$OWNER" --url "$STEP_URL" \
+    && echo "Added QA Step #$STEP_NUM to project: $GHPM_PROJECT" \
+    || echo "Warning: Could not add QA Step #$STEP_NUM to project"
+fi
+```
+
 ### Fallback if Sub-Issues Not Supported
 
 If the sub-issues API is not available (older GitHub Enterprise, etc.):
@@ -449,6 +462,12 @@ gh issue view "$QA" > /dev/null 2>&1 || { echo "ERROR: Cannot access QA issue #$
 - Common causes: step already has a parent, duplicate sub-issue, API error
 - Checklist comment provides alternative tracking
 
+**If project add fails:**
+
+- Print warning and continue (best-effort)
+- Common causes: project not found, user lacks project permissions
+- Do not block QA Step creation on project failures
+
 </error_handling>
 
 <success_criteria>
@@ -460,7 +479,8 @@ Command completes successfully when:
 3. 5-20 QA Step issues have been created with `QA-Step` label
 4. Each QA Step follows the Given/When/Then format
 5. Each QA Step is linked as a sub-issue of the QA Issue
-6. Checklist comment has been posted on the QA Issue
+6. QA Steps added to `GHPM_PROJECT` when set (best-effort)
+7. Checklist comment has been posted on the QA Issue
 
 **Verification:**
 
@@ -485,8 +505,9 @@ After completion, report:
 2. **PRD context:** # and title (if found)
 3. **QA Steps created:** Issue numbers and titles
 4. **Sub-issue linking:** Success/failure for each step
-5. **Total steps:** Count
-6. **Warnings:** Any issues encountered (PRD not found, linking failures, etc.)
+5. **Project association:** Success/warning/skipped for each step
+6. **Total steps:** Count
+7. **Warnings:** Any issues encountered (PRD not found, linking failures, project failures, etc.)
 
 </output>
 

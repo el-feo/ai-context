@@ -836,6 +836,30 @@ ${screenshotSection}
     console.log('Skipping Bugs Found update to meet 30s target');
   }
 
+  // Add Bug to GitHub Project if GHPM_PROJECT is set (Task #48)
+  // Skip if we're running low on time (Task #43)
+  const elapsedBeforeProjectAdd = checkTimeout('before project add');
+  if (elapsedBeforeProjectAdd < BUG_CREATION_TIMEOUT_MS * 0.85) {
+    if (process.env.GHPM_PROJECT) {
+      try {
+        const repoInfo = JSON.parse(
+          execSync('gh repo view --json owner,name', { encoding: 'utf-8' })
+        );
+        const owner = repoInfo.owner.login;
+        execSync(
+          `gh project item-add "${process.env.GHPM_PROJECT}" --owner "${owner}" --url "${bugUrl}"`,
+          { stdio: 'pipe' }
+        );
+        console.log(`Added Bug #${bugNumber} to project: ${process.env.GHPM_PROJECT}`);
+      } catch (projectError) {
+        console.warn(`Warning: Could not add Bug #${bugNumber} to project: ${projectError.message}`);
+        // Non-critical - continue without project association
+      }
+    }
+  } else {
+    console.log('Skipping project add to meet 30s target');
+  }
+
   // Log total bug creation time (Task #43 - NFR2 compliance)
   const totalTime = Date.now() - startTime;
   const timeStatus = totalTime <= BUG_CREATION_TIMEOUT_MS ? '✅' : '⚠️';
@@ -1331,7 +1355,8 @@ Command completes successfully when:
 2. Each QA Step has been executed through Playwright
 3. Pass results: ✅ comment posted, Execution Log updated
 4. Fail results: ❌ comment posted, bug created, Execution Log updated
-5. All steps processed (failures don't abort the run)
+5. Bug issues added to `GHPM_PROJECT` when set (best-effort)
+6. All steps processed (failures don't abort the run)
 
 **Verification:**
 
@@ -1356,9 +1381,10 @@ After completion, report:
 2. **Results:**
    - Passed: Count and step numbers
    - Failed: Count, step numbers, and bug numbers created
-3. **Unparseable steps:** Count and warnings
-4. **Execution time:** Total duration
-5. **Errors:** Any issues encountered
+3. **Project association:** Success/warning/skipped for bugs
+4. **Unparseable steps:** Count and warnings
+5. **Execution time:** Total duration
+6. **Errors:** Any issues encountered
 
 **Example output:**
 
