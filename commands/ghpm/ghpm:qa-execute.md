@@ -771,9 +771,65 @@ ${screenshotSection}
     stdio: 'inherit'
   });
 
+  // Update QA Step's Bugs Found section with bug link (Task #41)
+  try {
+    await updateBugsFoundSection(stepNumber, bugNumber, stepTitle);
+    console.log(`Updated Bugs Found section in QA Step #${stepNumber}`);
+  } catch (updateError) {
+    console.warn(`Warning: Could not update Bugs Found section: ${updateError.message}`);
+    // Non-critical - the comment already links to the bug
+  }
+
   console.log(`Posted fail comment and created bug #${bugNumber} for QA Step #${stepNumber}`);
 
   return bugNumber;
+}
+
+// Update QA Step's Bugs Found section with bug link (Task #41)
+async function updateBugsFoundSection(stepNumber, bugNumber, bugTitle) {
+  const fs = require('fs');
+
+  // Fetch current step body
+  const stepData = JSON.parse(
+    execSync(`gh issue view ${stepNumber} --json body`, { encoding: 'utf-8' })
+  );
+  let body = stepData.body;
+
+  // Format: - #<BUG_NUMBER> Bug: <Title>
+  const cleanBugTitle = bugTitle
+    .replace(/^QA Step:\s*/i, '')
+    .replace(/^Step:\s*/i, '');
+  const bugLink = `- #${bugNumber} Bug: ${cleanBugTitle}`;
+
+  // Find Bugs Found section and update it
+  // Pattern: ## Bugs Found\n\n(None) or ## Bugs Found\n\n- #123 ...
+  const bugsFoundRegex = /## Bugs Found\s*\n\n(\(None\)|[-*][\s\S]*?)(?=\n##|\n*$)/;
+
+  if (bugsFoundRegex.test(body)) {
+    body = body.replace(bugsFoundRegex, (match, existingContent) => {
+      if (existingContent.trim() === '(None)') {
+        // Replace "(None)" with bug link
+        return `## Bugs Found\n\n${bugLink}`;
+      } else {
+        // Append to existing bug list
+        return `## Bugs Found\n\n${existingContent.trim()}\n${bugLink}`;
+      }
+    });
+  } else {
+    // If no Bugs Found section exists, append it
+    body = body.trimEnd() + `\n\n## Bugs Found\n\n${bugLink}`;
+  }
+
+  // Write updated body to temp file and update issue
+  const tempFile = `/tmp/qa-step-body-${stepNumber}-${Date.now()}.md`;
+  fs.writeFileSync(tempFile, body);
+
+  execSync(`gh issue edit ${stepNumber} --body-file "${tempFile}"`, {
+    stdio: 'pipe'
+  });
+
+  // Clean up temp file
+  fs.unlinkSync(tempFile);
 }
 
 // Upload screenshot to GitHub and return markdown image embed (Task #38)
