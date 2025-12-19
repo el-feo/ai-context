@@ -638,12 +638,35 @@ ${results.screenshot ? '📸 Screenshot captured: `' + results.screenshot + '`' 
   };
 
   // Create bug issue with full template (Epic #9 implementation)
-  // Extract PRD number from QA Issue body for traceability chain
+  // Build traceability chain: Bug → QA Step → QA Issue → PRD (Task #42)
+  // Chain traversal:
+  //   1. Bug knows QA Step number (passed in as stepNumber)
+  //   2. QA Step body contains QA Issue reference (passed in as qaNumber)
+  //   3. QA Issue body contains PRD reference (extracted below)
   const qaIssueData = JSON.parse(
-    execSync(`gh issue view ${qaNumber} --json body`, { encoding: 'utf-8' })
+    execSync(`gh issue view ${qaNumber} --json body,title`, { encoding: 'utf-8' })
   );
-  const prdMatch = qaIssueData.body.match(/PRD[:\s#]+(\d+)/i);
-  const prdNumber = prdMatch ? prdMatch[1] : 'Unknown';
+  // Look for PRD reference in various formats: "PRD: #123", "PRD #123", "PRD: 123"
+  const prdPatterns = [
+    /PRD:\s*#(\d+)/i,
+    /PRD\s*#(\d+)/i,
+    /PRD:\s*(\d+)/i,
+    /-\s*PRD:\s*#(\d+)/i,
+    /\*\*PRD:\*\*\s*#(\d+)/i
+  ];
+  let prdNumber = null;
+  for (const pattern of prdPatterns) {
+    const match = qaIssueData.body.match(pattern);
+    if (match) {
+      prdNumber = match[1];
+      break;
+    }
+  }
+  // If still not found, it might be in the title or not linked
+  if (!prdNumber) {
+    console.warn('Warning: Could not find PRD reference in QA Issue body');
+    prdNumber = 'Not linked';
+  }
 
   // Extract Then clause for expected behavior
   const thenMatch = scenario.match(/Then\s+(.+?)(?:\n|$)/i);
@@ -663,13 +686,15 @@ ${results.screenshot ? '📸 Screenshot captured: `' + results.screenshot + '`' 
   }
 
   // Build bug body with full template structure (FR6 from PRD #5)
+  // All references use #<NUMBER> format for clickable GitHub links
+  const prdReference = /^\d+$/.test(prdNumber) ? `#${prdNumber}` : prdNumber;
   const bugBody = `# Bug: ${stepTitle.replace('QA Step: ', '')}
 
 ## Source
 
 - **QA Step:** #${stepNumber}
 - **QA Issue:** #${qaNumber}
-- **PRD:** #${prdNumber}
+- **PRD:** ${prdReference}
 
 ## Reproduction Steps
 
