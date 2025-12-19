@@ -731,8 +731,43 @@ ${screenshotSection}
 
   const bugNumber = bugUrl.match(/\/(\d+)$/)?.[1];
 
+  // Link Bug as sub-issue of QA Step (Task #39)
+  // This creates third-level nesting: PRD → QA → Step → Bug
+  let subIssueLinkSuccess = false;
+  try {
+    // Get repo info
+    const repoInfo = JSON.parse(
+      execSync('gh repo view --json owner,name', { encoding: 'utf-8' })
+    );
+    const owner = repoInfo.owner.login;
+    const repo = repoInfo.name;
+
+    // Get the Bug's internal issue ID (different from issue number)
+    const bugId = JSON.parse(
+      execSync(`gh api repos/${owner}/${repo}/issues/${bugNumber} --jq '.id'`, { encoding: 'utf-8' }).trim()
+    );
+
+    // Add Bug as sub-issue of QA Step
+    execSync(
+      `gh api repos/${owner}/${repo}/issues/${stepNumber}/sub_issues -X POST -F sub_issue_id=${bugId} --silent`,
+      { stdio: 'pipe' }
+    );
+    subIssueLinkSuccess = true;
+    console.log(`Linked Bug #${bugNumber} as sub-issue of QA Step #${stepNumber}`);
+  } catch (linkError) {
+    // Sub-issue linking may fail if:
+    // - Feature not available in this GitHub instance
+    // - Third-level nesting not supported
+    // - Bug already has a parent
+    console.warn(`Warning: Could not link Bug #${bugNumber} as sub-issue of Step #${stepNumber}: ${linkError.message}`);
+    // Continue without sub-issue link - the body reference is sufficient
+  }
+
   // Update the failure comment with bug link
-  execSync(`gh issue comment ${stepNumber} --body "🐛 Bug created: ${bugUrl}"`, {
+  const linkNote = subIssueLinkSuccess
+    ? '(linked as sub-issue)'
+    : '(sub-issue link failed, see bug body for traceability)';
+  execSync(`gh issue comment ${stepNumber} --body "🐛 Bug created: ${bugUrl} ${linkNote}"`, {
     stdio: 'inherit'
   });
 
