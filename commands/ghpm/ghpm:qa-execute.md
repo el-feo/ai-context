@@ -637,36 +637,49 @@ ${results.screenshot ? '📸 Screenshot captured: `' + results.screenshot + '`' 
     timestamp: timestamp
   };
 
-  // Create bug issue (simplified - full implementation in Epic #9)
-  const bugBody = `# Bug: QA Step #${stepNumber} Failed
+  // Create bug issue with full template (Epic #9 implementation)
+  // Extract PRD number from QA Issue body for traceability chain
+  const qaIssueData = JSON.parse(
+    execSync(`gh issue view ${qaNumber} --json body`, { encoding: 'utf-8' })
+  );
+  const prdMatch = qaIssueData.body.match(/PRD[:\s#]+(\d+)/i);
+  const prdNumber = prdMatch ? prdMatch[1] : 'Unknown';
+
+  // Extract Then clause for expected behavior
+  const thenMatch = scenario.match(/Then\s+(.+?)(?:\n|$)/i);
+  const expectedBehavior = thenMatch ? thenMatch[1].trim() : 'As specified in the QA Step assertions';
+
+  // Build bug body with full template structure (FR6 from PRD #5)
+  const bugBody = `# Bug: ${stepTitle.replace('QA Step: ', '')}
 
 ## Source
 
 - **QA Step:** #${stepNumber}
 - **QA Issue:** #${qaNumber}
-- **Detected:** ${timestamp}
-
-## Error
-
-\`\`\`
-${results.error}
-\`\`\`
+- **PRD:** #${prdNumber}
 
 ## Reproduction Steps
 
-${scenario}
-
-## Screenshot
-
-${results.screenshot ? '📸 See attached screenshot' : 'No screenshot available'}
+${generateReproductionSteps(scenario, results.error)}
 
 ## Expected Behavior
 
-The QA Step should pass according to its assertions.
+${expectedBehavior}
 
 ## Actual Behavior
 
 ${results.error}
+
+## Screenshot
+
+${results.screenshot ? '📸 Screenshot attached below' : '⚠️ No screenshot available'}
+
+## Environment
+
+- **Browser:** Chromium (Playwright)
+- **Viewport:** 1280x720
+- **Timestamp:** ${timestamp}
+- **Executor:** AI (Claude Code)
 `;
 
   const bugUrl = execSync(
@@ -699,6 +712,38 @@ function describeAction(action) {
     default: return JSON.stringify(action);
   }
 }
+
+// Generate numbered reproduction steps from Given/When/Then scenario (Task #40)
+function generateReproductionSteps(scenario, error) {
+  const steps = [];
+  const lines = scenario.split('\n').map(l => l.trim()).filter(l => l);
+
+  let stepNum = 1;
+  for (const line of lines) {
+    if (/^Given\s+/i.test(line)) {
+      // Convert Given to setup step
+      const action = line.replace(/^Given\s+/i, '');
+      steps.push(`${stepNum}. ${action.replace(/^I am on /, 'Navigate to ')}`);
+      stepNum++;
+    } else if (/^When\s+/i.test(line)) {
+      // Convert When to action step
+      const action = line.replace(/^When\s+/i, '');
+      steps.push(`${stepNum}. ${action.charAt(0).toUpperCase() + action.slice(1)}`);
+      stepNum++;
+    } else if (/^And\s+/i.test(line)) {
+      // And clauses continue previous context
+      const action = line.replace(/^And\s+/i, '');
+      steps.push(`${stepNum}. ${action.charAt(0).toUpperCase() + action.slice(1)}`);
+      stepNum++;
+    }
+    // Skip Then clauses - they are expectations, not steps
+  }
+
+  // Add failure observation as final step
+  steps.push(`${stepNum}. **Observe:** ${error}`);
+
+  return steps.join('\n');
+}
 ```
 
 ### Fail Comment Format
@@ -714,15 +759,48 @@ function describeAction(action) {
 | Screenshot | Path to captured screenshot |
 | Bug Report | Link to created bug issue |
 
-### Bug Issue Contents
+### Bug Issue Template Structure (FR6 from PRD #5)
 
-The created bug issue includes:
+The created bug issue follows this template:
 
-1. **Source**: Links to QA Step and QA Issue
-2. **Error**: Full error message
-3. **Reproduction Steps**: Given/When/Then scenario
-4. **Screenshot**: Reference to captured screenshot
-5. **Expected vs Actual**: Comparison of expected and actual behavior
+```markdown
+# Bug: <Brief Description>
+
+## Source
+- QA Step: #<step_number>
+- QA Issue: #<qa_number>
+- PRD: #<prd_number>
+
+## Reproduction Steps
+1. Navigate to <URL>
+2. <action from When clause>
+3. <additional actions>
+4. **Observe:** <error message>
+
+## Expected Behavior
+<from the QA Step's Then clause>
+
+## Actual Behavior
+<what actually happened / error message>
+
+## Screenshot
+📸 Screenshot attached below (or warning if unavailable)
+
+## Environment
+- Browser: Chromium (Playwright)
+- Viewport: 1280x720
+- Timestamp: <execution time>
+- Executor: AI (Claude Code)
+```
+
+The bug issue includes:
+
+1. **Source**: Full traceability chain (QA Step → QA Issue → PRD)
+2. **Reproduction Steps**: Numbered list generated from Given/When/Then + failure observation
+3. **Expected Behavior**: Extracted from Then clause
+4. **Actual Behavior**: Error message from Playwright
+5. **Screenshot**: Attached screenshot (when available)
+6. **Environment**: Browser, viewport, timestamp details
 
 ## Step 7: Update QA Step Execution Log Section
 
