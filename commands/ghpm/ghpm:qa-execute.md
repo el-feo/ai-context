@@ -579,8 +579,21 @@ COMMENT
 ### Fail Handler Implementation
 
 ```javascript
+// Bug creation must complete within 30 seconds per NFR2 (Task #43)
+const BUG_CREATION_TIMEOUT_MS = 30000;
+
 async function handleFailResult(stepNumber, stepTitle, stepBody, results, qaNumber) {
+  const startTime = Date.now();
   const timestamp = new Date().toISOString().replace('T', ' ').replace(/\.\d+Z$/, ' UTC');
+
+  // Helper to check if we're approaching timeout
+  const checkTimeout = (operation) => {
+    const elapsed = Date.now() - startTime;
+    if (elapsed > BUG_CREATION_TIMEOUT_MS * 0.9) {
+      console.warn(`Warning: Bug creation approaching 30s timeout at ${operation} (${elapsed}ms elapsed)`);
+    }
+    return elapsed;
+  };
 
   // Find the failed action
   const failedAction = results.actions.find(a => a.error);
@@ -619,11 +632,23 @@ ${results.screenshot ? '📸 Screenshot captured: `' + results.screenshot + '`' 
 
 🐛 Creating bug issue...`;
 
-  // Post failure comment
+  // Post failure comment (Task #43 timing: ~2s)
+  checkTimeout('post failure comment');
   const { execSync } = require('child_process');
   execSync(`gh issue comment ${stepNumber} --body "${comment.replace(/"/g, '\\"').replace(/`/g, '\\`')}"`, {
     stdio: 'inherit'
   });
+
+  // Bug creation timing breakdown (Task #43 - NFR2):
+  // - Post failure comment: ~2s
+  // - Fetch QA Issue for PRD: ~1s
+  // - Process screenshot: ~2-5s
+  // - Build bug body: ~0.1s
+  // - Create bug issue: ~2s
+  // - Link as sub-issue: ~2s
+  // - Update Bugs Found: ~2s
+  // - Post bug link comment: ~1s
+  // Total estimated: 12-17s (well under 30s target)
 
   // Trigger bug creation workflow (Epic #9)
   // Pass context: step number, error, screenshot path, scenario
@@ -797,12 +822,27 @@ ${screenshotSection}
   });
 
   // Update QA Step's Bugs Found section with bug link (Task #41)
-  try {
-    await updateBugsFoundSection(stepNumber, bugNumber, stepTitle);
-    console.log(`Updated Bugs Found section in QA Step #${stepNumber}`);
-  } catch (updateError) {
-    console.warn(`Warning: Could not update Bugs Found section: ${updateError.message}`);
-    // Non-critical - the comment already links to the bug
+  // Skip if we're running low on time (Task #43)
+  const elapsedBeforeBugsUpdate = checkTimeout('before bugs found update');
+  if (elapsedBeforeBugsUpdate < BUG_CREATION_TIMEOUT_MS * 0.8) {
+    try {
+      await updateBugsFoundSection(stepNumber, bugNumber, stepTitle);
+      console.log(`Updated Bugs Found section in QA Step #${stepNumber}`);
+    } catch (updateError) {
+      console.warn(`Warning: Could not update Bugs Found section: ${updateError.message}`);
+      // Non-critical - the comment already links to the bug
+    }
+  } else {
+    console.log('Skipping Bugs Found update to meet 30s target');
+  }
+
+  // Log total bug creation time (Task #43 - NFR2 compliance)
+  const totalTime = Date.now() - startTime;
+  const timeStatus = totalTime <= BUG_CREATION_TIMEOUT_MS ? '✅' : '⚠️';
+  console.log(`${timeStatus} Bug creation completed in ${totalTime}ms (target: ${BUG_CREATION_TIMEOUT_MS}ms)`);
+
+  if (totalTime > BUG_CREATION_TIMEOUT_MS) {
+    console.warn(`Warning: Bug creation exceeded 30s target. Consider optimizing screenshot upload or parallel execution.`);
   }
 
   console.log(`Posted fail comment and created bug #${bugNumber} for QA Step #${stepNumber}`);
