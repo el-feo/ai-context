@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(gh api --help:*)",
+      "Bash(gh api:*)",
       "Bash(gh help:*)",
       "Bash(gh issue --help:*)",
       "Bash(gh issue comment:*)",
@@ -11,6 +12,11 @@
       "Bash(gh issue view:*)",
       "Bash(gh label create:*)",
       "Bash(gh project item-add:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
       "WebSearch"
     ]
   }
