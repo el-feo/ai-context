@@ -1,85 +1,391 @@
 ---
 description: Break a PRD issue into Epic issues and link them back to the PRD.
+argument-hint: prd=#123
+allowed-tools: [Read, Bash, Grep, Glob]
+arguments:
+  prd:
+    description: "PRD issue number (format: prd=#123)"
+    required: false
 ---
-# /ghpm:create-epics
 
-You are GHPM (GitHub Project Manager). Break a PRD into Epics and publish each Epic as a GitHub Issue using `gh`.
+<objective>
+You are GHPM (GitHub Project Manager). Break a PRD into Epics and publish each Epic as a GitHub Issue. Each Epic is linked as a sub-issue of the PRD. This is the second step in the GHPM workflow (PRD -> Epics -> Tasks -> TDD).
+</objective>
 
-## Arguments
+<prerequisites>
+- `gh` CLI installed and authenticated (`gh auth status`)
+- Working directory is a git repository with GitHub remote
+- User has write access to repository issues
+- PRD issue exists with label "PRD"
+- Optional: `GHPM_PROJECT` environment variable set for project association
+- Optional: Repository has "Epic" label created
+</prerequisites>
 
-- Optional: `prd=#123`
-If omitted, choose the most recent open issue labeled `PRD`.
+<arguments>
+**Optional:**
+- `prd=#123` - PRD issue number to break into Epics
 
-## Operating rules
+**Resolution order if omitted:**
 
-- Do not ask clarifying questions. If the PRD has ambiguity, encode it as assumptions within each epic and/or add open questions.
+1. Most recent open issue labeled `PRD`
+
+**Optional environment variables:**
+
+- `GHPM_PROJECT` - GitHub Project name to associate Epics with (e.g., "OrgName/ProjectName" or "ProjectName")
+</arguments>
+
+<usage_examples>
+**With PRD number:**
+
+```
+/ghpm:create-epics prd=#42
+```
+
+**Auto-resolve most recent PRD:**
+
+```
+/ghpm:create-epics
+```
+
+**With project association:**
+
+```bash
+export GHPM_PROJECT="MyOrg/Q1 Roadmap"
+/ghpm:create-epics prd=#42
+```
+
+</usage_examples>
+
+<operating_rules>
+
+- Do not ask clarifying questions. If the PRD has ambiguity, encode it as assumptions within each Epic and/or add open questions.
 - Do not create local markdown files. All output goes into GitHub issues/comments.
 - Each Epic issue must be self-contained for its scope and must reference the PRD by number/link.
+- Generate 3-10 Epics based on PRD complexity:
+  - Small PRD (single feature): 3-5 Epics
+  - Medium PRD (multiple features): 5-7 Epics
+  - Large PRD (system/platform): 7-10 Epics
+- Epics should collectively cover the entire PRD scope without gaps or overlaps.
+</operating_rules>
 
-## Epic issue format (body)
+<epic_issue_format>
 
+## Required Epic Structure (Issue Body)
+
+Use this exact outline:
+
+```markdown
 # Epic: <Name>
 
 ## Objective
+<What this Epic accomplishes>
 
 ## Scope (In)
+<Specific deliverables included>
 
 ## Out of Scope
+<What is NOT part of this Epic>
 
 ## Key Requirements (from PRD)
+<Requirements from PRD that this Epic addresses>
 
 ## Acceptance Criteria (Epic-level)
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] ...
 
 ## Dependencies
+<Other Epics, external systems, or prerequisites>
 
 ## Risks / Edge Cases
+<Known risks and edge cases to address>
 
 ## Notes / Open Questions
+<Any assumptions or questions>
 
 ## Links
-
 - PRD: #<PRD_NUMBER>
+```
 
-## GitHub publishing steps (execute via bash)
+</epic_issue_format>
 
-1) Resolve PRD number:
-   - If `prd=#N` is provided, use N.
-   - Else: `gh issue list -l PRD -s open --limit 1 --json number -q '.[0].number'`
-2) Fetch PRD title/body:
-   - `gh issue view "$PRD" --json title,body,url -q '.title,.body,.url'`
-3) Generate 3–10 epics (best effort) covering the PRD end-to-end.
-4) Create each epic issue with label `Epic`:
-   - `gh issue create --title "Epic: <Name>" --label "Epic" --body "<Epic markdown>"`
-   - If `GHPM_PROJECT` is set, include `--project "$GHPM_PROJECT"` (best-effort; ignore failure).
-   - Capture the epic number from the returned URL.
-5) Link each Epic as a sub-issue of the PRD:
+<input_validation>
 
-   ```bash
-   # Get the PRD's internal issue ID
-   PRD_ID=$(gh api repos/{owner}/{repo}/issues/$PRD --jq .id)
+## Validation Checks
 
-   # Get the Epic's internal issue ID
-   EPIC_ID=$(gh api repos/{owner}/{repo}/issues/$EPIC_NUM --jq .id)
+Before proceeding, verify:
 
-   # Add Epic as sub-issue of PRD
-   gh api repos/{owner}/{repo}/issues/$PRD/sub_issues \
-     -X POST \
-     -F sub_issue_id=$EPIC_ID \
-     --silent || echo "Warning: Could not link Epic #$EPIC_NUM as sub-issue"
-   ```
+```bash
+# 1. Verify gh CLI authentication
+gh auth status || { echo "ERROR: Not authenticated. Run 'gh auth login'"; exit 1; }
 
-6) Post a PRD comment with a summary of created epics:
-   - Comment heading: `## Epics Created`
-   - Each line: `- #<EPIC_NUMBER> Epic: <Name>`
-   - Note: `View sub-issues in the PRD's "Sub-issues" section.`
+# 2. Verify in git repository
+git rev-parse --git-dir > /dev/null 2>&1 || { echo "ERROR: Not in a git repository"; exit 1; }
 
-## Output requirements
+# 3. Verify GitHub remote exists and get repo info
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner) || { echo "ERROR: No GitHub remote found"; exit 1; }
 
-- Execute the `gh` commands yourself (via bash tool).
-- Print a summary:
-  - PRD #, URL
-  - Epic issue numbers and URLs
-  - Sub-issue linking: success/failure for each Epic linked to PRD
-  - Any warnings (sub-issue linking failures, project add failures, etc.)
+# 4. Get owner and repo for API calls
+OWNER=$(gh repo view --json owner -q '.owner.login')
+REPO_NAME=$(gh repo view --json name -q '.name')
+```
 
-Proceed now.
+</input_validation>
+
+<workflow>
+
+## Step 1: Validate Environment
+
+Run input validation checks from previous section.
+
+## Step 2: Resolve PRD Number
+
+```bash
+# If prd=#N provided, extract N
+if [[ "$ARGUMENTS" =~ prd=#([0-9]+) ]]; then
+  PRD="${BASH_REMATCH[1]}"
+else
+  # Find most recent open PRD
+  PRD=$(gh issue list -l PRD -s open --limit 1 --json number -q '.[0].number')
+  if [ -z "$PRD" ]; then
+    echo "ERROR: No open PRD issues found. Create one with /ghpm:create-prd"
+    exit 1
+  fi
+fi
+
+echo "Using PRD #$PRD"
+```
+
+## Step 3: Fetch PRD Content
+
+```bash
+# Verify PRD exists and get content
+PRD_DATA=$(gh issue view "$PRD" --json title,body,url,number)
+if [ -z "$PRD_DATA" ]; then
+  echo "ERROR: PRD #$PRD not found"
+  exit 1
+fi
+
+PRD_TITLE=$(echo "$PRD_DATA" | jq -r '.title')
+PRD_BODY=$(echo "$PRD_DATA" | jq -r '.body')
+PRD_URL=$(echo "$PRD_DATA" | jq -r '.url')
+
+echo "PRD: $PRD_TITLE"
+echo "URL: $PRD_URL"
+```
+
+## Step 4: Generate Epics
+
+Based on PRD content, generate 3-10 Epics following the Epic structure template. Each Epic should:
+
+- Cover a distinct, cohesive area of functionality
+- Be independently implementable (with dependencies noted)
+- Reference the PRD by number
+
+## Step 5: Create Epic Issues
+
+```bash
+# For each Epic, create an issue
+gh issue create \
+  --repo "$REPO" \
+  --title "Epic: <Name>" \
+  --label "Epic" \
+  --body "$(cat <<'EOF'
+<Generated Epic Content>
+EOF
+)"
+
+# Capture issue number from output
+EPIC_NUM=<captured from gh issue create output>
+EPIC_URL=<captured from gh issue create output>
+
+# Track created Epics
+CREATED_EPICS+=("$EPIC_NUM|Epic: <Name>|$EPIC_URL")
+```
+
+## Step 6: Add to GitHub Project (Optional)
+
+```bash
+if [ -n "$GHPM_PROJECT" ]; then
+  gh issue edit "$EPIC_NUM" --add-project "$GHPM_PROJECT" 2>/dev/null || {
+    echo "WARNING: Failed to add Epic #$EPIC_NUM to project '$GHPM_PROJECT'"
+  }
+fi
+```
+
+## Step 7: Link Epics as Sub-Issues of PRD
+
+```bash
+# Get the PRD's internal issue ID
+PRD_ID=$(gh api "repos/$OWNER/$REPO_NAME/issues/$PRD" --jq .id)
+
+for epic_info in "${CREATED_EPICS[@]}"; do
+  EPIC_NUM=$(echo "$epic_info" | cut -d'|' -f1)
+
+  # Get the Epic's internal issue ID
+  EPIC_ID=$(gh api "repos/$OWNER/$REPO_NAME/issues/$EPIC_NUM" --jq .id)
+
+  # Add Epic as sub-issue of PRD
+  gh api "repos/$OWNER/$REPO_NAME/issues/$PRD/sub_issues" \
+    -X POST \
+    -F sub_issue_id="$EPIC_ID" \
+    --silent && echo "✓ Linked Epic #$EPIC_NUM as sub-issue of PRD #$PRD" \
+    || echo "WARNING: Could not link Epic #$EPIC_NUM as sub-issue"
+done
+```
+
+## Step 8: Post PRD Comment with Summary
+
+```bash
+COMMENT_BODY="## Epics Created
+
+The following Epics have been created from this PRD:
+
+$(for epic_info in "${CREATED_EPICS[@]}"; do
+  EPIC_NUM=$(echo "$epic_info" | cut -d'|' -f1)
+  EPIC_TITLE=$(echo "$epic_info" | cut -d'|' -f2)
+  echo "- #$EPIC_NUM $EPIC_TITLE"
+done)
+
+View sub-issues in the PRD's \"Sub-issues\" section.
+
+---
+*Generated by GHPM*"
+
+gh issue comment "$PRD" --body "$COMMENT_BODY"
+```
+
+</workflow>
+
+<error_handling>
+**If gh CLI not authenticated:**
+
+- Check: `gh auth status`
+- Fix: `gh auth login`
+
+**If not in git repository:**
+
+- Navigate to repository directory
+- Verify with: `git status`
+
+**If no GitHub remote:**
+
+- Check remote: `git remote -v`
+- Add remote if needed: `git remote add origin <url>`
+
+**If PRD not found:**
+
+- Verify PRD number: `gh issue view <number>`
+- Check PRD label exists: `gh issue list -l PRD`
+- Create PRD first: `/ghpm:create-prd <description>`
+
+**If label "Epic" doesn't exist:**
+
+- Create it: `gh label create Epic --description "Epic issue" --color 1D76DB`
+- Or omit `--label "Epic"` from issue creation and continue
+
+**If issue creation fails:**
+
+- Check rate limits: `gh api rate_limit`
+- Verify write permissions: `gh repo view --json viewerPermission -q .viewerPermission`
+- Check repository exists and is accessible
+
+**If sub-issue linking fails:**
+
+- Sub-issues API may not be available for all repositories
+- Command continues with warning
+- Epics are still created and reference PRD in their body
+
+**If project association fails:**
+
+- Verify `GHPM_PROJECT` format is correct
+- Check project exists: `gh project list`
+- Command continues with warning
+</error_handling>
+
+<success_criteria>
+Command completes successfully when:
+
+1. All Epic issues are created with "Epic" label
+2. Each Epic body contains all required sections from Epic structure
+3. Each Epic references the PRD by number in Links section
+4. All Epics are linked as sub-issues of the PRD (or warnings issued)
+5. Summary comment is posted to PRD
+6. If `GHPM_PROJECT` set, Epics are added to project (or warnings issued)
+
+**Verification:**
+
+```bash
+# View created Epics
+gh issue list -l Epic --json number,title,url
+
+# Verify sub-issues are linked to PRD
+gh api "repos/$OWNER/$REPO_NAME/issues/$PRD/sub_issues" --jq '.[] | "#\(.number) \(.title)"'
+
+# View PRD comments
+gh issue view "$PRD" --comments
+```
+
+</success_criteria>
+
+<output>
+After completion, report:
+
+1. **PRD:** #<number> - <URL>
+2. **Epics Created:**
+   - #<number> Epic: <Name> - <URL>
+   - #<number> Epic: <Name> - <URL>
+   - ...
+3. **Sub-Issue Linking:**
+   - Success count / Total count
+   - Any warnings
+4. **Project Association:**
+   - Success: "Added to project '<GHPM_PROJECT>'"
+   - Failure: "WARNING: Could not add to project"
+   - N/A: "No project specified"
+5. **Next Step:** "Run `/ghpm:create-tasks epic=#<number>` to break an Epic into Tasks"
+
+**Example Output:**
+
+```
+Epics Created Successfully
+
+PRD: #42 - https://github.com/owner/repo/issues/42
+
+Epics Created:
+- #43 Epic: User Authentication - https://github.com/owner/repo/issues/43
+- #44 Epic: Database Schema - https://github.com/owner/repo/issues/44
+- #45 Epic: API Endpoints - https://github.com/owner/repo/issues/45
+- #46 Epic: Frontend Integration - https://github.com/owner/repo/issues/46
+- #47 Epic: Testing & QA - https://github.com/owner/repo/issues/47
+
+Sub-Issue Linking: 5/5 successful
+Project Association: Added to project 'Q1 Roadmap'
+
+Next Step: Run `/ghpm:create-tasks epic=#43` to break an Epic into Tasks
+```
+
+</output>
+
+<related_commands>
+**GHPM Workflow:**
+
+1. **Previous:** `/ghpm:create-prd` - Create PRD from user input
+2. **Current:** `/ghpm:create-epics` - Break PRD into Epics
+3. **Next:** `/ghpm:create-tasks epic=#N` - Break Epics into Tasks
+4. **Finally:** `/ghpm:tdd-task [task=#N]` - Implement Tasks with TDD
+
+**Related:**
+
+- `/ghpm:execute epic=#N` - Execute all tasks in an Epic
+- `/ghpm:qa-create` - Create QA issue for testing
+</related_commands>
+
+Now proceed:
+
+- Resolve PRD number from $ARGUMENTS or find most recent.
+- Fetch PRD content and analyze scope.
+- Generate Epics covering the entire PRD.
+- Create each Epic issue via `gh issue create`.
+- Link Epics as sub-issues of the PRD.
+- Post summary comment to PRD.
