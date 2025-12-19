@@ -854,33 +854,64 @@ function describeAction(action) {
 }
 
 // Generate numbered reproduction steps from Given/When/Then scenario (Task #40)
+// Converts Given/When clauses to numbered action steps and adds failure observation
 function generateReproductionSteps(scenario, error) {
   const steps = [];
   const lines = scenario.split('\n').map(l => l.trim()).filter(l => l);
+  let expectedBehavior = null;
 
   let stepNum = 1;
   for (const line of lines) {
     if (/^Given\s+/i.test(line)) {
       // Convert Given to setup step
-      const action = line.replace(/^Given\s+/i, '');
-      steps.push(`${stepNum}. ${action.replace(/^I am on /, 'Navigate to ')}`);
+      let action = line.replace(/^Given\s+/i, '');
+      // Transform common patterns to clearer language
+      action = action.replace(/^I am on the /, 'Navigate to the ');
+      action = action.replace(/^I am on /, 'Navigate to ');
+      action = action.replace(/^I have /, 'Ensure ');
+      action = action.replace(/^the /, 'Ensure the ');
+      steps.push(`${stepNum}. ${action.charAt(0).toUpperCase() + action.slice(1)}`);
       stepNum++;
     } else if (/^When\s+/i.test(line)) {
       // Convert When to action step
-      const action = line.replace(/^When\s+/i, '');
+      let action = line.replace(/^When\s+/i, '');
+      // Transform first-person to imperative
+      action = action.replace(/^I click /, 'Click ');
+      action = action.replace(/^I type /, 'Type ');
+      action = action.replace(/^I enter /, 'Enter ');
+      action = action.replace(/^I select /, 'Select ');
+      action = action.replace(/^I submit /, 'Submit ');
+      action = action.replace(/^I scroll /, 'Scroll ');
+      action = action.replace(/^I wait /, 'Wait ');
       steps.push(`${stepNum}. ${action.charAt(0).toUpperCase() + action.slice(1)}`);
       stepNum++;
     } else if (/^And\s+/i.test(line)) {
       // And clauses continue previous context
-      const action = line.replace(/^And\s+/i, '');
+      let action = line.replace(/^And\s+/i, '');
+      // Apply same transformations
+      action = action.replace(/^I click /, 'Click ');
+      action = action.replace(/^I type /, 'Type ');
+      action = action.replace(/^I enter /, 'Enter ');
+      action = action.replace(/^I select /, 'Select ');
+      action = action.replace(/^I should see /, 'Should see ');
       steps.push(`${stepNum}. ${action.charAt(0).toUpperCase() + action.slice(1)}`);
       stepNum++;
+    } else if (/^Then\s+/i.test(line)) {
+      // Capture expected behavior from Then clause (used in step observation)
+      expectedBehavior = line.replace(/^Then\s+/i, '').replace(/^I should /, 'Should ');
     }
-    // Skip Then clauses - they are expectations, not steps
+    // Skip other lines (comments, blank, etc.)
   }
 
-  // Add failure observation as final step
-  steps.push(`${stepNum}. **Observe:** ${error}`);
+  // Handle empty scenario
+  if (steps.length === 0) {
+    steps.push('1. (Scenario steps could not be parsed)');
+    stepNum = 2;
+  }
+
+  // Add failure observation as final step, including what was expected
+  const expectedNote = expectedBehavior ? ` (expected: ${expectedBehavior})` : '';
+  steps.push(`${stepNum}. **Observe:** ${error}${expectedNote}`);
 
   return steps.join('\n');
 }
