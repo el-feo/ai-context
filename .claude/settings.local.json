@@ -1,16 +1,21 @@
 {
   "permissions": {
     "allow": [
+      "Bash(do gh issue close:*)",
+      "Bash(done)",
+      "Bash(for i in:*)",
       "Bash(gh api --help:*)",
       "Bash(gh api:*)",
       "Bash(gh help:*)",
       "Bash(gh issue --help:*)",
+      "Bash(gh issue close:*)",
       "Bash(gh issue comment:*)",
       "Bash(gh issue create-comment:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh issue view:*)",
       "Bash(gh label create:*)",
+      "Bash(gh pr create:*)",
       "Bash(gh project item-add:*)",
       "Bash(git add:*)",
       "Bash(git checkout:*)",
