@@ -42,10 +42,10 @@ This installs the following commands to `.claude/commands/`:
 
 ### GitHub Project Association
 
-Set an environment variable to automatically add issues to a GitHub Project:
+Set an environment variable to automatically add issues to a GitHub Project (use project number):
 
 ```bash
-export GHPM_PROJECT="Your Project Name"
+export GHPM_PROJECT=7  # Your project number (visible in project URL)
 ```
 
 ### Recommended Labels
@@ -177,6 +177,35 @@ These sections are excluded to reduce noise:
 | Notes / Open Questions | Use issue comments instead |
 | Key Requirements | Merged into Scope |
 | Implementation Notes | Use issue comments if needed |
+
+## Task Estimation
+
+Tasks are assigned Fibonacci estimates (1, 2, 3, 5, 8) to enable sprint planning and velocity tracking. Estimates reflect relative complexity, not hours.
+
+### Estimation Scale
+
+| Estimate | Complexity | Examples |
+|----------|------------|----------|
+| **1** | Trivial | Update README, fix typo, change config value |
+| **2** | Simple | Add a single test, update documentation section |
+| **3** | Moderate | Add simple feature, refactor small module |
+| **5** | Complex | Multi-file feature, significant refactor |
+| **8** | Very Complex | Cross-cutting feature, complex integration |
+
+### Decomposition Rule
+
+**Tasks that would exceed an estimate of 8 must be broken into smaller tasks.** This ensures all work is tractable and can be completed in a reasonable timeframe.
+
+### GitHub Project Setup
+
+To track estimates in GitHub Projects, add a Number field named "Estimate":
+
+1. Open your GitHub Project
+2. Click **+** to add a new field
+3. Select **Number** as the field type
+4. Name it exactly: `Estimate`
+
+When `GHPM_PROJECT` is set, `/ghpm:create-tasks` will automatically populate this field for each task.
 
 ## Conventional Commits
 
