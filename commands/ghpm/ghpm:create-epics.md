@@ -61,10 +61,12 @@ export GHPM_PROJECT="MyOrg/Q1 Roadmap"
 - Do not ask clarifying questions. If the PRD has ambiguity, encode it as assumptions within each Epic and/or add open questions.
 - Do not create local markdown files. All output goes into GitHub issues/comments.
 - Each Epic issue must be self-contained for its scope and must reference the PRD by number/link.
-- Generate 3-10 Epics based on PRD complexity:
-  - Small PRD (single feature): 3-5 Epics
-  - Medium PRD (multiple features): 5-7 Epics
-  - Large PRD (system/platform): 7-10 Epics
+- Generate the minimum number of Epics needed to cover distinct work areas:
+  - Minimal PRD (documentation, config, single-file changes): 1 Epic
+  - Small PRD (single feature): 1-3 Epics
+  - Medium PRD (multiple features): 3-5 Epics
+  - Large PRD (system/platform): 5-10 Epics
+- Prefer fewer, well-scoped Epics over many granular ones. If the PRD scope can be covered by a single Epic, use one Epic.
 - Epics should collectively cover the entire PRD scope without gaps or overlaps.
 </operating_rules>
 
@@ -176,11 +178,12 @@ echo "URL: $PRD_URL"
 
 ## Step 4: Generate Epics
 
-Based on PRD content, generate 3-10 Epics following the Epic structure template. Each Epic should:
+Analyze the PRD scope and generate the minimum number of Epics needed. For narrow-scope PRDs (documentation updates, configuration changes, single-file modifications), a single Epic is often sufficient. Each Epic should:
 
 - Cover a distinct, cohesive area of functionality
 - Be independently implementable (with dependencies noted)
 - Reference the PRD by number
+- Represent meaningful, separable work (not artificial subdivisions)
 
 ## Step 5: Create Epic Issues
 
@@ -345,7 +348,23 @@ After completion, report:
    - N/A: "No project specified"
 5. **Next Step:** "Run `/ghpm:create-tasks epic=#<number>` to break an Epic into Tasks"
 
-**Example Output:**
+**Example Output (Minimal PRD - single epic):**
+
+```
+Epics Created Successfully
+
+PRD: #42 - https://github.com/owner/repo/issues/42
+
+Epics Created:
+- #43 Epic: Update README Documentation - https://github.com/owner/repo/issues/43
+
+Sub-Issue Linking: 1/1 successful
+Project Association: No project specified
+
+Next Step: Run `/ghpm:create-tasks epic=#43` to break an Epic into Tasks
+```
+
+**Example Output (Large PRD - multiple epics):**
 
 ```
 Epics Created Successfully
@@ -385,7 +404,8 @@ Now proceed:
 
 - Resolve PRD number from $ARGUMENTS or find most recent.
 - Fetch PRD content and analyze scope.
-- Generate Epics covering the entire PRD.
+- Determine appropriate Epic count based on scope complexity (1 Epic for narrow PRDs, more for larger scope).
+- Generate Epics covering the entire PRD without artificial subdivision.
 - Create each Epic issue via `gh issue create`.
 - Link Epics as sub-issues of the PRD.
 - Post summary comment to PRD.
