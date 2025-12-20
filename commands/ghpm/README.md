@@ -116,6 +116,68 @@ GHPM supports two parallel workflows that start from a PRD:
 
 The QA workflow runs **parallel** to implementation - you can start QA testing as soon as a PRD is created, without waiting for implementation to complete. Bugs found during QA become new Tasks that feed back into the implementation workflow
 
+## Issue Templates
+
+GHPM creates GitHub issues using streamlined templates designed to minimize verbosity while providing all context needed for implementation.
+
+### Design Principles
+
+1. **Single Parent Link**: Each issue links only to its direct parent (Task → Epic, Epic → PRD). Ancestor context is reachable via navigation.
+2. **No Redundancy**: Information in parent issues is not duplicated in children.
+3. **Conditional Sections**: Optional sections are omitted when empty.
+4. **Agent-Ready**: Tasks contain everything needed to begin implementation without reading parent issues.
+
+### Epic Template
+
+```markdown
+# Epic: <Name>
+
+**PRD:** #<number>
+
+## Objective
+<1-3 sentences: what this Epic accomplishes>
+
+## Scope
+<Bulleted list of specific deliverables>
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Dependencies
+<Only if external dependencies exist; omit if none>
+```
+
+### Task Template
+
+```markdown
+# Task: <Name>
+
+**Epic:** #<number> | **Type:** `<feat|fix|refactor|test|docs|chore>` | **Scope:** `<module>`
+
+## Objective
+<1-2 sentences: what to implement>
+
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+
+## Test Plan
+<How to verify completion>
+```
+
+### Sections Intentionally Omitted
+
+These sections are excluded to reduce noise:
+
+| Section | Reason |
+|---------|--------|
+| Out of Scope | Inherited from parent issue |
+| Risks / Edge Cases | Inherited from PRD |
+| Notes / Open Questions | Use issue comments instead |
+| Key Requirements | Merged into Scope |
+| Implementation Notes | Use issue comments if needed |
+
 ## Conventional Commits
 
 All commits and PR titles follow [Conventional Commits](https://www.conventionalcommits.org/) format:
