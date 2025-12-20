@@ -121,31 +121,39 @@ gh issue view "$EPIC" > /dev/null 2>&1 || { echo "ERROR: Cannot access issue #$E
 
 ## Task Issue Body Template
 
+Use this streamlined template. Tasks link to Epic only (PRD reachable via Epic).
+
 ```markdown
 # Task: <Name>
 
-## Context
-- Epic: #<EPIC_NUMBER>
-- PRD: #<PRD_NUMBER> (if known)
-- Commit Type: `<type>` (feat|fix|refactor|test|docs|chore)
-- Scope: `<scope>` (module/component affected)
+**Epic:** #<EPIC_NUMBER> | **Type:** `<type>` | **Scope:** `<scope>`
 
 ## Objective
+<1-2 sentences: what to implement>
 
-## Scope (In)
-
-## Out of Scope
-
-## Acceptance Criteria (task-level, testable)
-
-## Implementation Notes (non-binding)
+## Acceptance Criteria
+- [ ] Criterion 1
+- [ ] Criterion 2
+- [ ] ...
 
 ## Test Plan
-
-## Risks / Edge Cases
-
-## Notes / Open Questions
+<How to verify completion - manual steps, test commands, or verification approach>
 ```
+
+### Template Guidance
+
+- **Context line**: Single line with Epic link, commit type, and scope (no PRD link - navigate via Epic)
+- **Objective**: Concise statement merging previous "Objective" and "Scope (In)" sections
+- **Acceptance Criteria**: Task-level, testable criteria
+- **Test Plan**: How to verify the task is complete
+
+**Omit these sections** (redundant or rarely populated):
+- PRD link (reachable via Epic)
+- Scope (In) (merge into Objective)
+- Out of Scope (inherit from Epic)
+- Implementation Notes (use comments if needed)
+- Risks / Edge Cases (inherit from Epic/PRD)
+- Notes / Open Questions (use issue comments instead)
 
 ### Commit Type Guidelines
 
@@ -329,9 +337,10 @@ Command completes successfully when:
 
 1. All target Epics have been processed
 2. Each Epic has an appropriate number of Task issues (per task count guidance)
-3. Each Task issue contains complete context (Epic/PRD links, acceptance criteria)
+3. Each Task issue contains required sections: Context line (Epic, Type, Scope), Objective, Acceptance Criteria, Test Plan
 4. Each Task is linked as a sub-issue of its Epic
 5. PRD is notified (if applicable)
+6. Optional sections omitted when not populated with meaningful content
 
 **Verification:**
 

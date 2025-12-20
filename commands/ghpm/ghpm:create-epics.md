@@ -74,40 +74,41 @@ export GHPM_PROJECT="MyOrg/Q1 Roadmap"
 
 ## Required Epic Structure (Issue Body)
 
-Use this exact outline:
+Use this streamlined template. Omit optional sections if empty.
 
 ```markdown
 # Epic: <Name>
 
+**PRD:** #<PRD_NUMBER>
+
 ## Objective
-<What this Epic accomplishes>
+<1-3 sentences: what this Epic accomplishes and delivers>
 
-## Scope (In)
-<Specific deliverables included>
+## Scope
+<Bulleted list of specific deliverables - merge any "Key Requirements" here>
 
-## Out of Scope
-<What is NOT part of this Epic>
-
-## Key Requirements (from PRD)
-<Requirements from PRD that this Epic addresses>
-
-## Acceptance Criteria (Epic-level)
+## Acceptance Criteria
 - [ ] Criterion 1
 - [ ] Criterion 2
 - [ ] ...
 
 ## Dependencies
-<Other Epics, external systems, or prerequisites>
-
-## Risks / Edge Cases
-<Known risks and edge cases to address>
-
-## Notes / Open Questions
-<Any assumptions or questions>
-
-## Links
-- PRD: #<PRD_NUMBER>
+<Only include if external dependencies exist; omit section entirely if none>
 ```
+
+### Template Guidance
+
+- **PRD link**: Single line at top, not a separate "Links" section
+- **Objective**: Concise statement of what this Epic delivers (not duplicating PRD content)
+- **Scope**: Specific deliverables; merge "Key Requirements" here rather than separate section
+- **Acceptance Criteria**: Checkboxes for Epic-level verification
+- **Dependencies**: Only include if there are actual dependencies; omit if none
+
+**Omit these sections** (redundant with PRD or rarely populated):
+- Out of Scope (inherit from PRD)
+- Risks / Edge Cases (inherit from PRD)
+- Notes / Open Questions (use issue comments instead)
+- Key Requirements (merge into Scope)
 
 </epic_issue_format>
 
@@ -310,11 +311,12 @@ gh issue comment "$PRD" --body "$COMMENT_BODY"
 Command completes successfully when:
 
 1. All Epic issues are created with "Epic" label
-2. Each Epic body contains all required sections from Epic structure
-3. Each Epic references the PRD by number in Links section
+2. Each Epic body contains required sections: PRD link, Objective, Scope, Acceptance Criteria
+3. Each Epic references the PRD at the top of the body
 4. All Epics are linked as sub-issues of the PRD (or warnings issued)
 5. Summary comment is posted to PRD
 6. If `GHPM_PROJECT` set, Epics are added to project (or warnings issued)
+7. Optional sections (Dependencies) only included when populated with meaningful content
 
 **Verification:**
 
