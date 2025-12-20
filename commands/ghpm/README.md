@@ -133,4 +133,4 @@ All commits and PR titles follow [Conventional Commits](https://www.conventional
 | `docs` | Documentation |
 | `chore` | Build/CI/tooling |
 
-This enables automated changelog generation via `/ghpm:changelog` or tools like [standard-version](https://github.com/conventional-changelog/standard-version).
+This enables automated changelog generation via `/ghpm:changelog` or tools like [release-please](https://github.com/googleapis/release-please).
