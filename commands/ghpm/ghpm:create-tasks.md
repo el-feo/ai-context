@@ -18,7 +18,8 @@ You are GHPM (GitHub Project Manager). Convert an Epic into a set of atomic Task
 - `gh` CLI installed and authenticated (`gh auth status`)
 - Working directory is a git repository with GitHub remote
 - Target Epic or PRD issue exists and is accessible
-- Optional: `GHPM_PROJECT` environment variable set for project association
+- Optional: `GHPM_PROJECT` environment variable set to project number (e.g., `export GHPM_PROJECT=7`)
+- Optional: GitHub Project has an "Estimate" field (Number type) for task sizing
 </prerequisites>
 
 <arguments>
@@ -61,7 +62,40 @@ You are GHPM (GitHub Project Manager). Convert an Epic into a set of atomic Task
 - Each Task must include all context needed for its scope (plus links to Epic/PRD).
 - Each Task MUST include a **Commit Type** (`feat`, `fix`, `refactor`, etc.) and **Scope** for conventional commits.
 - **Task count must be proportional to Epic scope** - see guidance below.
+- **Each Task MUST have a Fibonacci estimate** (1, 2, 3, 5, or 8) - see estimation guidance below.
 </operating_rules>
+
+<estimation_guidance>
+
+## Fibonacci Estimation Scale
+
+Assign a Fibonacci estimate to each Task based on relative complexity. Estimates reflect effort/complexity, not hours.
+
+| Estimate | Complexity | Examples |
+|----------|------------|----------|
+| **1** | Trivial | Update README, fix typo, change config value |
+| **2** | Simple | Add a single test, update documentation section, simple refactor |
+| **3** | Moderate | Add simple feature, refactor small module, add validation |
+| **5** | Complex | Multi-file feature, significant refactor, new API endpoint |
+| **8** | Very Complex | Cross-cutting feature, complex integration, architectural change |
+
+### Decomposition Rule
+
+**Tasks estimated >8 MUST be decomposed.** If a task would be estimated higher than 8:
+
+1. Do NOT create the task as-is
+2. Break it into smaller, independent tasks
+3. Each sub-task should be estimable at 8 or below
+4. Re-analyze scope to find natural boundaries
+
+### Estimation Heuristics
+
+- **File count**: 1 file = 1-2, 2-3 files = 3, 4+ files = 5-8
+- **Test requirements**: No tests = lower, comprehensive tests = higher
+- **Dependencies**: Self-contained = lower, cross-cutting = higher
+- **Unknowns**: Clear requirements = lower, exploration needed = higher
+
+</estimation_guidance>
 
 <task_count_guidance>
 
@@ -251,7 +285,33 @@ TASK_URL=$(gh issue create \
 TASK_NUM=$(echo "$TASK_URL" | grep -oE '[0-9]+$')
 ```
 
-If `$GHPM_PROJECT` is set, include `--project "$GHPM_PROJECT"` (best-effort; continue if fails).
+If `$GHPM_PROJECT` is set (project number), add the task to the project and set the Estimate field:
+
+```bash
+# Add task to project and set estimate (if GHPM_PROJECT is set)
+if [ -n "$GHPM_PROJECT" ]; then
+  # Add to project (GHPM_PROJECT should be the project number, e.g., "7")
+  ITEM_ID=$(gh project item-add "$GHPM_PROJECT" --owner "$OWNER" --url "$TASK_URL" --format json 2>/dev/null | jq -r '.id')
+
+  if [ -n "$ITEM_ID" ] && [ "$ITEM_ID" != "null" ]; then
+    # Get project ID and Estimate field ID
+    PROJECT_DATA=$(gh project view "$GHPM_PROJECT" --owner "$OWNER" --format json 2>/dev/null)
+    PROJECT_ID=$(echo "$PROJECT_DATA" | jq -r '.id')
+    ESTIMATE_FIELD_ID=$(gh project field-list "$GHPM_PROJECT" --owner "$OWNER" --format json 2>/dev/null | jq -r '.fields[] | select(.name == "Estimate") | .id')
+
+    if [ -n "$ESTIMATE_FIELD_ID" ] && [ "$ESTIMATE_FIELD_ID" != "null" ]; then
+      # Set estimate value (ESTIMATE is the Fibonacci number assigned to this task)
+      gh project item-edit --project-id "$PROJECT_ID" --id "$ITEM_ID" --field-id "$ESTIMATE_FIELD_ID" --number "$ESTIMATE" 2>/dev/null \
+        && echo "✓ Set estimate $ESTIMATE for Task #$TASK_NUM" \
+        || echo "WARNING: Could not set estimate for Task #$TASK_NUM"
+    else
+      echo "WARNING: Estimate field not found in project. Add a Number field named 'Estimate'."
+    fi
+  else
+    echo "WARNING: Could not add Task #$TASK_NUM to project '$GHPM_PROJECT'"
+  fi
+fi
+```
 
 ## Step 4: Link Tasks as Sub-Issues of Epic
 
@@ -330,6 +390,20 @@ gh issue comment "$PRD" --body "Tasks created for Epic #$EPIC - see checklist on
 - Continue without project association
 - Log warning in output summary
 - Verify `$GHPM_PROJECT` value is correct
+
+**If Estimate field is missing from project:**
+
+- Log warning: "Estimate field not found in project. Add a Number field named 'Estimate'."
+- Continue without setting estimate
+- Tasks are still created and linked correctly
+- Provide setup instructions in warning
+
+**If task would exceed estimate of 8:**
+
+- Do NOT create the task
+- Log: "Task scope too large (would be >8). Decomposing into smaller tasks."
+- Break task into smaller units (each ≤8)
+- Create the smaller tasks instead
 </error_handling>
 
 <success_criteria>
@@ -338,9 +412,11 @@ Command completes successfully when:
 1. All target Epics have been processed
 2. Each Epic has an appropriate number of Task issues (per task count guidance)
 3. Each Task issue contains required sections: Context line (Epic, Type, Scope), Objective, Acceptance Criteria, Test Plan
-4. Each Task is linked as a sub-issue of its Epic
-5. PRD is notified (if applicable)
-6. Optional sections omitted when not populated with meaningful content
+4. Each Task has a Fibonacci estimate (1, 2, 3, 5, or 8) - no task exceeds 8
+5. Each Task is linked as a sub-issue of its Epic
+6. If `GHPM_PROJECT` set, Estimate field is populated (or warning issued if field missing)
+7. PRD is notified (if applicable)
+8. Optional sections omitted when not populated with meaningful content
 
 **Verification:**
 
@@ -361,11 +437,17 @@ gh issue view "$EPIC"
 After completion, report:
 
 1. **Epic(s) processed:** # and URL for each
-2. **Tasks created:** Issue numbers and URLs
+2. **Tasks created:** Issue numbers, URLs, and estimates
+
+   | Task | Title | Estimate |
+   |------|-------|----------|
+   | #N | Task: Name | 3 |
+
 3. **Sub-issue linking:** Success/failure for each task linked to Epic
-4. **Total tasks:** Count per Epic
+4. **Total tasks:** Count per Epic, total estimate points
 5. **Project association:** Success/failure status (if `$GHPM_PROJECT` set)
-6. **Warnings:** Any issues encountered (e.g., sub-issue linking failed, project add failed, PRD not found)
+6. **Estimate field:** Success/failure for setting estimates (if `$GHPM_PROJECT` set)
+7. **Warnings:** Any issues encountered (e.g., sub-issue linking failed, project add failed, Estimate field missing)
 </output>
 
 Proceed now.
