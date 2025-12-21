@@ -102,7 +102,7 @@ Infer the type from the Task context:
 
 ### Breaking Changes
 
-For breaking changes, add `!` after the type or include `BREAKING CHANGE:` in the footer:
+For breaking changes, add \`!\` after the type or include \`BREAKING CHANGE:\` in the footer:
 
 ```
 feat!: remove deprecated API endpoint (#123)

@@ -139,6 +139,119 @@ Before generating the PRD, evaluate whether user input is sufficiently detailed.
 
 </vagueness_detection>
 
+<clarification_questions>
+
+## Clarifying Questions
+
+When vague input is detected, use the `AskUserQuestion` tool to gather context. Select 2-4 questions based on what's missing from the input.
+
+### Question Templates
+
+**Q1: Target Users** (use when 'who' is missing)
+```json
+{
+  "question": "Who is the primary user of this feature?",
+  "header": "Users",
+  "multiSelect": false,
+  "options": [
+    {"label": "End users/customers", "description": "People using the product directly"},
+    {"label": "Internal team members", "description": "Employees within the organization"},
+    {"label": "Administrators", "description": "Users who configure or manage the system"},
+    {"label": "Developers/API consumers", "description": "Technical users integrating with the system"}
+  ]
+}
+```
+
+**Q2: Problem Being Solved** (use when 'why' is missing)
+```json
+{
+  "question": "What problem does this solve for users?",
+  "header": "Problem",
+  "multiSelect": false,
+  "options": [
+    {"label": "Efficiency/speed", "description": "Reduce time or effort to complete tasks"},
+    {"label": "Missing capability", "description": "Enable something users currently cannot do"},
+    {"label": "User experience", "description": "Improve usability, accessibility, or satisfaction"},
+    {"label": "Compliance/security", "description": "Meet regulatory or security requirements"}
+  ]
+}
+```
+
+**Q3: Core Capabilities** (use when 'what' is vague)
+```json
+{
+  "question": "Which capabilities are most important?",
+  "header": "Features",
+  "multiSelect": true,
+  "options": [
+    {"label": "View/display data", "description": "Read-only access to information"},
+    {"label": "Create/edit content", "description": "CRUD operations on data"},
+    {"label": "Automation/workflows", "description": "Automated processes or triggers"},
+    {"label": "Reporting/analytics", "description": "Insights, charts, or exports"}
+  ]
+}
+```
+
+**Q4: Technical Constraints** (use when scope is ambiguous)
+```json
+{
+  "question": "Are there specific technical constraints?",
+  "header": "Constraints",
+  "multiSelect": true,
+  "options": [
+    {"label": "Must integrate with existing system", "description": "Needs to work with current infrastructure"},
+    {"label": "Performance-critical", "description": "High throughput or low latency required"},
+    {"label": "Mobile support required", "description": "Must work on mobile devices"},
+    {"label": "No constraints", "description": "Greenfield implementation"}
+  ]
+}
+```
+
+**Q5: Scope/Priority** (use when input could mean many things)
+```json
+{
+  "question": "What's the scope for the initial version?",
+  "header": "Scope",
+  "multiSelect": false,
+  "options": [
+    {"label": "MVP/proof of concept", "description": "Minimal viable version to validate the idea"},
+    {"label": "Feature complete for core use case", "description": "Fully functional for primary scenario"},
+    {"label": "Production-ready with edge cases", "description": "Robust handling of all scenarios"},
+    {"label": "Enterprise-grade", "description": "Scalability, security, and compliance built-in"}
+  ]
+}
+```
+
+### Selecting Questions
+
+Based on vagueness detection results, select appropriate questions:
+
+| Missing Element | Questions to Ask |
+|-----------------|------------------|
+| Who (users) | Q1 (Target Users) |
+| Why (problem) | Q2 (Problem Being Solved) |
+| What (features) | Q3 (Core Capabilities) |
+| Scope unclear | Q4 (Technical Constraints), Q5 (Scope/Priority) |
+| Multiple missing | Combine up to 4 questions maximum |
+
+### Incorporating Responses
+
+After receiving user responses, append them to the original input before generating the PRD:
+
+```
+Original input: "I want a dashboard"
+
+Enriched context from clarification:
+- Target users: Internal team members
+- Problem: Efficiency/speed - reduce time to complete tasks
+- Capabilities: Reporting/analytics, View/display data
+- Scope: Feature complete for core use case
+
+Generate PRD using both original input AND enriched context.
+```
+
+</clarification_questions>
+
 <workflow>
 ## Step 1: Validate Environment
 
