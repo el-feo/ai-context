@@ -111,6 +111,34 @@ Usage: /ghpm:create-prd <description>
 
 </input_validation>
 
+<vagueness_detection>
+
+## Detecting Vague Input
+
+Before generating the PRD, evaluate whether user input is sufficiently detailed. Input is considered **vague** if ANY of the following criteria are met:
+
+### Vagueness Criteria
+
+| Criterion | Threshold | Example (Vague) | Example (Detailed) |
+|-----------|-----------|-----------------|-------------------|
+| **Too short** | < 20 words | "I want a dashboard" | "Build an analytics dashboard for sales managers to track quarterly revenue, pipeline metrics, and team performance with drill-down by region" |
+| **Missing 'who'** | No target user/audience mentioned | "Add authentication" | "Add OAuth2 authentication for enterprise customers who need SSO" |
+| **Missing 'what'** | No specific functionality described | "Improve performance" | "Optimize database queries in the user search endpoint to reduce p95 latency below 200ms" |
+| **Missing 'why'** | No problem/goal articulated | "Add export feature" | "Add CSV export for compliance reports so auditors can analyze data offline" |
+| **Ambiguous scope** | Could mean vastly different things | "Make it mobile-friendly" | "Create responsive layouts for the checkout flow that work on screens 320px to 768px wide" |
+
+### Evaluation Process
+
+1. Count words in input (excluding common stop words for accuracy assessment)
+2. Scan for user/audience indicators: "users", "customers", "admins", "managers", "developers", etc.
+3. Scan for problem/goal indicators: "so that", "in order to", "because", "to enable", "to reduce", etc.
+4. Assess specificity: Does the input contain concrete details (numbers, specific features, constraints)?
+
+**If 2+ criteria are triggered:** Proceed to clarification step
+**If 0-1 criteria triggered:** Skip clarification, proceed directly to PRD generation
+
+</vagueness_detection>
+
 <workflow>
 ## Step 1: Validate Environment
 
