@@ -162,6 +162,42 @@ gh issue view "$TASK" --json title,body,url,labels,comments -q '.'
 - Test plan (or infer if missing)
 - Epic/PRD links
 
+## Step 0.5: Validate Task Status
+
+Before proceeding, check if the task is already closed or marked as done:
+
+```bash
+# Fetch issue state and labels
+ISSUE_DATA=$(gh issue view "$TASK" --json state,labels,projectItems -q '.')
+STATE=$(echo "$ISSUE_DATA" | jq -r '.state')
+
+# Check if issue is closed
+if [ "$STATE" = "CLOSED" ]; then
+  echo "Task #$TASK is already CLOSED. Cannot proceed with TDD."
+  exit 0
+fi
+
+# Check for "Done" label
+DONE_LABEL=$(echo "$ISSUE_DATA" | jq -r '.labels[]?.name | select(. == "Done" or . == "done" or . == "DONE")')
+if [ -n "$DONE_LABEL" ]; then
+  echo "Task #$TASK has 'Done' label. Cannot proceed with TDD."
+  exit 0
+fi
+
+# Check project status field (if linked to a project)
+PROJECT_STATUS=$(echo "$ISSUE_DATA" | jq -r '.projectItems[]?.status?.name // empty')
+if [ "$PROJECT_STATUS" = "Done" ] || [ "$PROJECT_STATUS" = "Completed" ]; then
+  echo "Task #$TASK has project status '$PROJECT_STATUS'. Cannot proceed with TDD."
+  exit 0
+fi
+```
+
+**Behavior:**
+
+- If task is CLOSED → exit with message "Task #N is already closed. Cannot proceed with TDD."
+- If task has "Done" label → exit with message "Task #N is marked as done. Cannot proceed with TDD."
+- If task's project status is "Done" or "Completed" → exit with status message
+
 ## Step 1: Post a TDD Plan comment
 
 Comment on the Task with your implementation plan:
