@@ -444,6 +444,9 @@ Next Step: Run `/ghpm:create-epics prd=#42` to break this PRD into Epics
 
 Now proceed:
 
-- Draft the PRD from $ARGUMENTS.
-- Create the issue via `gh issue create`.
-- Add it to the GitHub project if configured.
+1. Validate environment prerequisites.
+2. Evaluate input against vagueness criteria.
+3. If vague (2+ criteria triggered): Use AskUserQuestion to gather context.
+4. Draft the PRD from $ARGUMENTS (and enriched context if clarified).
+5. Create the issue via `gh issue create`.
+6. Add it to the GitHub project if configured.
