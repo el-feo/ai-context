@@ -228,6 +228,44 @@ TASK=$(gh issue list -l Task -a @me -s open --limit 1 --json number -q '.[0].num
 TASK=$(gh issue list -l Task -s open --limit 1 --json number -q '.[0].number')
 ```
 
+## Step 0.9: Validate Task Status
+
+Before proceeding with any task, check if it's already closed or marked as done:
+
+```bash
+# Fetch issue state and labels
+ISSUE_DATA=$(gh issue view "$TASK" --json state,labels,projectItems -q '.')
+STATE=$(echo "$ISSUE_DATA" | jq -r '.state')
+
+# Check if issue is closed
+if [ "$STATE" = "CLOSED" ]; then
+  echo "Task #$TASK is already CLOSED. Skipping."
+  # If processing an Epic, continue to next task; otherwise exit
+  exit 0  # or continue to next task in Epic mode
+fi
+
+# Check for "Done" label
+DONE_LABEL=$(echo "$ISSUE_DATA" | jq -r '.labels[]?.name | select(. == "Done" or . == "done" or . == "DONE")')
+if [ -n "$DONE_LABEL" ]; then
+  echo "Task #$TASK has 'Done' label. Skipping."
+  exit 0
+fi
+
+# Check project status field (if linked to a project)
+PROJECT_STATUS=$(echo "$ISSUE_DATA" | jq -r '.projectItems[]?.status?.name // empty')
+if [ "$PROJECT_STATUS" = "Done" ] || [ "$PROJECT_STATUS" = "Completed" ]; then
+  echo "Task #$TASK has project status '$PROJECT_STATUS'. Skipping."
+  exit 0
+fi
+```
+
+**Behavior:**
+- If task is CLOSED → skip and report "Task #N is already closed"
+- If task has "Done" label → skip and report "Task #N is marked as done"
+- If task's project status is "Done" or "Completed" → skip and report status
+- For Epic mode: continue to next task after skipping
+- For single task mode: exit with informational message
+
 ## Step 1: Hydrate Context and Determine Routing
 
 ```bash
