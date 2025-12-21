@@ -263,11 +263,45 @@ Run input validation checks from previous section.
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
 ```
 
-## Step 3: Draft PRD Content
+## Step 3: Evaluate Input & Clarify (if needed)
 
-Based on user input ($ARGUMENTS), generate comprehensive PRD following the structure template.
+Evaluate user input against the vagueness criteria in `<vagueness_detection>`.
 
-## Step 4: Create GitHub Issue
+**If input is sufficiently detailed (0-1 criteria triggered):**
+- Skip to Step 4 (Draft PRD Content)
+
+**If input is vague (2+ criteria triggered):**
+
+1. Identify which elements are missing (who, what, why, scope)
+2. Select appropriate questions from `<clarification_questions>` (max 4)
+3. Use `AskUserQuestion` tool to present questions:
+
+```
+Use the AskUserQuestion tool with the selected question templates.
+Wait for user responses before proceeding.
+```
+
+4. Combine original input with user responses to form enriched context
+5. Proceed to Step 4 with enriched context
+
+**Example clarification flow:**
+
+Input: "I want a dashboard"
+
+Vagueness analysis:
+- ✗ Too short (4 words < 20)
+- ✗ Missing 'who' (no user mentioned)
+- ✗ Missing 'why' (no problem stated)
+- ✓ Has 'what' (dashboard is a feature)
+- ✗ Ambiguous scope (dashboard could mean many things)
+
+→ 4 criteria triggered → Ask Q1 (Users), Q2 (Problem), Q5 (Scope)
+
+## Step 4: Draft PRD Content
+
+Based on user input ($ARGUMENTS) and any enriched context from clarification, generate comprehensive PRD following the structure template.
+
+## Step 5: Create GitHub Issue
 
 ```bash
 # Use heredoc to safely handle multiline content
@@ -281,7 +315,7 @@ EOF
 )"
 ```
 
-## Step 5: Add to GitHub Project (Optional)
+## Step 6: Add to GitHub Project (Optional)
 
 ```bash
 if [ -n "$GHPM_PROJECT" ]; then
