@@ -71,13 +71,13 @@ You are GHPM (GitHub Project Manager). Convert an Epic into a set of atomic Task
 
 Assign a Fibonacci estimate to each Task based on relative complexity. Estimates reflect effort/complexity, not hours.
 
-| Estimate | Complexity | Examples |
-|----------|------------|----------|
-| **1** | Trivial | Update README, fix typo, change config value |
-| **2** | Simple | Add a single test, update documentation section, simple refactor |
-| **3** | Moderate | Add simple feature, refactor small module, add validation |
-| **5** | Complex | Multi-file feature, significant refactor, new API endpoint |
-| **8** | Very Complex | Cross-cutting feature, complex integration, architectural change |
+| Estimate | Complexity   | Examples                                                         |
+| -------- | ------------ | ---------------------------------------------------------------- |
+| **1**    | Trivial      | Update README, fix typo, change config value                     |
+| **2**    | Simple       | Add a single test, update documentation section, simple refactor |
+| **3**    | Moderate     | Add simple feature, refactor small module, add validation        |
+| **5**    | Complex      | Multi-file feature, significant refactor, new API endpoint       |
+| **8**    | Very Complex | Cross-cutting feature, complex integration, architectural change |
 
 ### Decomposition Rule
 
@@ -105,13 +105,13 @@ Assign a Fibonacci estimate to each Task based on relative complexity. Estimates
 
 ### Heuristics
 
-| Epic Scope | Task Count | Example |
-|------------|------------|---------|
-| Single file, simple change | 1 task | Update README, fix typo, change config |
-| Single file, multiple changes | 1-2 tasks | Refactor a module, update docs with verification |
-| Multiple related files | 2-4 tasks | Add feature touching model + controller + view |
-| Cross-cutting feature | 4-8 tasks | New API endpoint with auth, tests, docs |
-| Large architectural change | 8-15 tasks | Database migration, new service layer |
+| Epic Scope                    | Task Count | Example                                          |
+| ----------------------------- | ---------- | ------------------------------------------------ |
+| Single file, simple change    | 1 task     | Update README, fix typo, change config           |
+| Single file, multiple changes | 1-2 tasks  | Refactor a module, update docs with verification |
+| Multiple related files        | 2-4 tasks  | Add feature touching model + controller + view   |
+| Cross-cutting feature         | 4-8 tasks  | New API endpoint with auth, tests, docs          |
+| Large architectural change    | 8-15 tasks | Database migration, new service layer            |
 
 ### Signs of Over-Decomposition
 
@@ -182,6 +182,7 @@ Use this streamlined template. Tasks link to Epic only (PRD reachable via Epic).
 - **Test Plan**: How to verify the task is complete
 
 **Omit these sections** (redundant or rarely populated):
+
 - PRD link (reachable via Epic)
 - Scope (In) (merge into Objective)
 - Out of Scope (inherit from Epic)
@@ -193,14 +194,14 @@ Use this streamlined template. Tasks link to Epic only (PRD reachable via Epic).
 
 The **Commit Type** field determines the conventional commit prefix used during implementation:
 
-| Type | Use When |
-|------|----------|
-| `feat` | Adding new functionality, features, or capabilities |
-| `fix` | Fixing bugs, errors, or incorrect behavior |
-| `refactor` | Restructuring code without changing behavior |
-| `test` | Adding or improving tests only |
-| `docs` | Documentation changes only |
-| `chore` | Build, CI, dependencies, or tooling changes |
+| Type       | Use When                                            |
+| ---------- | --------------------------------------------------- |
+| `feat`     | Adding new functionality, features, or capabilities |
+| `fix`      | Fixing bugs, errors, or incorrect behavior          |
+| `refactor` | Restructuring code without changing behavior        |
+| `test`     | Adding or improving tests only                      |
+| `docs`     | Documentation changes only                          |
+| `chore`    | Build, CI, dependencies, or tooling changes         |
 
 **How to determine:**
 
@@ -283,6 +284,9 @@ TASK_URL=$(gh issue create \
 
 # Extract task number from URL
 TASK_NUM=$(echo "$TASK_URL" | grep -oE '[0-9]+$')
+
+# Set the estimate value determined during task planning (1, 2, 3, 5, or 8)
+ESTIMATE=<fibonacci_number>  # Replace with actual estimate, e.g., ESTIMATE=3
 ```
 
 If `$GHPM_PROJECT` is set (project number), add the task to the project and set the Estimate field:
@@ -439,9 +443,9 @@ After completion, report:
 1. **Epic(s) processed:** # and URL for each
 2. **Tasks created:** Issue numbers, URLs, and estimates
 
-   | Task | Title | Estimate |
-   |------|-------|----------|
-   | #N | Task: Name | 3 |
+   | Task | Title      | Estimate |
+   | ---- | ---------- | -------- |
+   | #N   | Task: Name | 3        |
 
 3. **Sub-issue linking:** Success/failure for each task linked to Epic
 4. **Total tasks:** Count per Epic, total estimate points
