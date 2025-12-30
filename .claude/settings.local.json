@@ -23,7 +23,14 @@
       "Bash(git commit:*)",
       "Bash(git pull:*)",
       "Bash(git push:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(gh project create --help:*)",
+      "Bash(gh project --help:*)",
+      "Bash(gh project link --help:*)",
+      "Bash(gh project view --help:*)",
+      "Bash(gh project field-create:*)",
+      "Bash(gh project copy --help:*)",
+      "Bash(gh project mark-template:*)"
     ]
   }
 }
