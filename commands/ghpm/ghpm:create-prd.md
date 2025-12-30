@@ -12,7 +12,7 @@ You are GHPM (GitHub Project Manager). Convert user input into a high-quality Pr
 - `gh` CLI installed and authenticated (`gh auth status`)
 - Working directory is a git repository with GitHub remote
 - User has write access to repository issues
-- Optional: `GHPM_PROJECT` environment variable set for project association
+- Optional: `GHPM_PROJECT` environment variable pre-set (if not set, user will be prompted to select a project)
 - Optional: Repository has "PRD" label created
 </prerequisites>
 
@@ -22,7 +22,7 @@ You are GHPM (GitHub Project Manager). Convert user input into a high-quality Pr
 
 **Optional environment variables:**
 
-- `GHPM_PROJECT` - GitHub Project name to associate issue with (e.g., "OrgName/ProjectName" or "ProjectName")
+- `GHPM_PROJECT` - GitHub Project name to associate issue with. If not set, the command will query available projects for the repository owner and prompt for selection.
 </arguments>
 
 <usage_examples>
@@ -42,6 +42,7 @@ You are GHPM (GitHub Project Manager). Convert user input into a high-quality Pr
 ```
 
 → Vague input (4 words, missing who/why/scope) → Presents clarifying questions:
+
 1. Who is the primary user? (Internal team, Customers, Admins, Developers)
 2. What problem does this solve? (Efficiency, Missing capability, UX, Compliance)
 3. What's the scope? (MVP, Feature complete, Production-ready, Enterprise-grade)
@@ -56,12 +57,22 @@ After user responds → Generates PRD with enriched context
 
 → Detailed input → Proceeds directly to PRD generation
 
-**With project association:**
+**With project association (auto-prompt):**
+
+```
+/ghpm:create-prd Implement dark mode across the application for users with visual sensitivities to reduce eye strain
+```
+
+→ If `GHPM_PROJECT` not set, prompts: "Which GitHub Project should this PRD be added to?" with available projects
+
+**With project pre-set (skip prompt):**
 
 ```bash
 export GHPM_PROJECT="MyOrg/Q1 Roadmap"
 /ghpm:create-prd Implement dark mode across the application for users with visual sensitivities to reduce eye strain
 ```
+
+→ Skips project selection prompt and uses pre-set project
 
 </usage_examples>
 
@@ -139,13 +150,13 @@ Before generating the PRD, evaluate whether user input is sufficiently detailed.
 
 ### Vagueness Criteria
 
-| Criterion | Threshold | Example (Vague) | Example (Detailed) |
-|-----------|-----------|-----------------|-------------------|
-| **Too short** | < 20 words | "I want a dashboard" | "Build an analytics dashboard for sales managers to track quarterly revenue, pipeline metrics, and team performance with drill-down by region" |
-| **Missing 'who'** | No target user/audience mentioned | "Add authentication" | "Add OAuth2 authentication for enterprise customers who need SSO" |
-| **Missing 'what'** | No specific functionality described | "Improve performance" | "Optimize database queries in the user search endpoint to reduce p95 latency below 200ms" |
-| **Missing 'why'** | No problem/goal articulated | "Add export feature" | "Add CSV export for compliance reports so auditors can analyze data offline" |
-| **Ambiguous scope** | Could mean vastly different things | "Make it mobile-friendly" | "Create responsive layouts for the checkout flow that work on screens 320px to 768px wide" |
+| Criterion           | Threshold                           | Example (Vague)           | Example (Detailed)                                                                                                                             |
+| ------------------- | ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Too short**       | < 20 words                          | "I want a dashboard"      | "Build an analytics dashboard for sales managers to track quarterly revenue, pipeline metrics, and team performance with drill-down by region" |
+| **Missing 'who'**   | No target user/audience mentioned   | "Add authentication"      | "Add OAuth2 authentication for enterprise customers who need SSO"                                                                              |
+| **Missing 'what'**  | No specific functionality described | "Improve performance"     | "Optimize database queries in the user search endpoint to reduce p95 latency below 200ms"                                                      |
+| **Missing 'why'**   | No problem/goal articulated         | "Add export feature"      | "Add CSV export for compliance reports so auditors can analyze data offline"                                                                   |
+| **Ambiguous scope** | Could mean vastly different things  | "Make it mobile-friendly" | "Create responsive layouts for the checkout flow that work on screens 320px to 768px wide"                                                     |
 
 ### Evaluation Process
 
@@ -168,6 +179,7 @@ When vague input is detected, use the `AskUserQuestion` tool to gather context. 
 ### Question Templates
 
 **Q1: Target Users** (use when 'who' is missing)
+
 ```json
 {
   "question": "Who is the primary user of this feature?",
@@ -183,6 +195,7 @@ When vague input is detected, use the `AskUserQuestion` tool to gather context. 
 ```
 
 **Q2: Problem Being Solved** (use when 'why' is missing)
+
 ```json
 {
   "question": "What problem does this solve for users?",
@@ -198,6 +211,7 @@ When vague input is detected, use the `AskUserQuestion` tool to gather context. 
 ```
 
 **Q3: Core Capabilities** (use when 'what' is vague)
+
 ```json
 {
   "question": "Which capabilities are most important?",
@@ -213,6 +227,7 @@ When vague input is detected, use the `AskUserQuestion` tool to gather context. 
 ```
 
 **Q4: Technical Constraints** (use when scope is ambiguous)
+
 ```json
 {
   "question": "Are there specific technical constraints?",
@@ -228,6 +243,7 @@ When vague input is detected, use the `AskUserQuestion` tool to gather context. 
 ```
 
 **Q5: Scope/Priority** (use when input could mean many things)
+
 ```json
 {
   "question": "What's the scope for the initial version?",
@@ -246,13 +262,13 @@ When vague input is detected, use the `AskUserQuestion` tool to gather context. 
 
 Based on vagueness detection results, select appropriate questions:
 
-| Missing Element | Questions to Ask |
-|-----------------|------------------|
-| Who (users) | Q1 (Target Users) |
-| Why (problem) | Q2 (Problem Being Solved) |
-| What (features) | Q3 (Core Capabilities) |
-| Scope unclear | Q4 (Technical Constraints), Q5 (Scope/Priority) |
-| Multiple missing | Combine up to 4 questions maximum |
+| Missing Element  | Questions to Ask                                |
+| ---------------- | ----------------------------------------------- |
+| Who (users)      | Q1 (Target Users)                               |
+| Why (problem)    | Q2 (Problem Being Solved)                       |
+| What (features)  | Q3 (Core Capabilities)                          |
+| Scope unclear    | Q4 (Technical Constraints), Q5 (Scope/Priority) |
+| Multiple missing | Combine up to 4 questions maximum               |
 
 ### Incorporating Responses
 
@@ -277,18 +293,61 @@ Generate PRD using both original input AND enriched context.
 
 Run input validation checks from previous section.
 
-## Step 2: Determine Repository
+## Step 2: Determine Repository and Owner
 
 ```bash
 REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+OWNER=$(gh repo view --json owner -q .owner.login)
 ```
 
-## Step 3: Evaluate Input & Clarify (if needed)
+## Step 3: Select GitHub Project (if not pre-set)
+
+If `GHPM_PROJECT` environment variable is already set, skip to Step 4.
+
+Otherwise, query available projects for the repository owner and prompt the user to select one:
+
+```bash
+# Get list of projects for the repo owner
+PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 20)
+```
+
+**If projects exist:** Use `AskUserQuestion` to let the user select a project.
+
+Build the question dynamically based on available projects:
+
+```json
+{
+  "question": "Which GitHub Project should this PRD be added to?",
+  "header": "Project",
+  "multiSelect": false,
+  "options": [
+    {"label": "<Project Title 1>", "description": "Project #<number>"},
+    {"label": "<Project Title 2>", "description": "Project #<number>"},
+    ...
+    {"label": "None", "description": "Do not add to any project"}
+  ]
+}
+```
+
+- Include up to 4 projects (the most recently updated, or first 4 returned)
+- Always include "None" as the last option
+- If user selects a project, set `GHPM_PROJECT` to the selected project title
+- If user selects "None", leave `GHPM_PROJECT` unset
+
+**If no projects exist:** Skip project selection and inform the user:
+
+```
+No GitHub Projects found for owner '$OWNER'. Skipping project association.
+To create a project, visit: https://github.com/<owner>?tab=projects
+```
+
+## Step 4: Evaluate Input & Clarify (if needed)
 
 Evaluate user input against the vagueness criteria in `<vagueness_detection>`.
 
 **If input is sufficiently detailed (0-1 criteria triggered):**
-- Skip to Step 4 (Draft PRD Content)
+
+- Skip to Step 5 (Draft PRD Content)
 
 **If input is vague (2+ criteria triggered):**
 
@@ -301,14 +360,15 @@ Use the AskUserQuestion tool with the selected question templates.
 Wait for user responses before proceeding.
 ```
 
-4. Combine original input with user responses to form enriched context
-5. Proceed to Step 4 with enriched context
+1. Combine original input with user responses to form enriched context
+2. Proceed to Step 5 with enriched context
 
 **Example clarification flow:**
 
 Input: "I want a dashboard"
 
 Vagueness analysis:
+
 - ✗ Too short (4 words < 20)
 - ✗ Missing 'who' (no user mentioned)
 - ✗ Missing 'why' (no problem stated)
@@ -317,11 +377,11 @@ Vagueness analysis:
 
 → 4 criteria triggered → Ask Q1 (Users), Q2 (Problem), Q5 (Scope)
 
-## Step 4: Draft PRD Content
+## Step 5: Draft PRD Content
 
 Based on user input ($ARGUMENTS) and any enriched context from clarification, generate comprehensive PRD following the structure template.
 
-## Step 5: Create GitHub Issue
+## Step 6: Create GitHub Issue
 
 ```bash
 # Use heredoc to safely handle multiline content
@@ -335,7 +395,7 @@ EOF
 )"
 ```
 
-## Step 6: Add to GitHub Project (Optional)
+## Step 7: Add to GitHub Project
 
 ```bash
 if [ -n "$GHPM_PROJECT" ]; then
@@ -445,8 +505,10 @@ Next Step: Run `/ghpm:create-epics prd=#42` to break this PRD into Epics
 Now proceed:
 
 1. Validate environment prerequisites.
-2. Evaluate input against vagueness criteria.
-3. If vague (2+ criteria triggered): Use AskUserQuestion to gather context.
-4. Draft the PRD from $ARGUMENTS (and enriched context if clarified).
-5. Create the issue via `gh issue create`.
-6. Add it to the GitHub project if configured.
+2. Determine repository and owner.
+3. If `GHPM_PROJECT` not set: Query projects for owner and prompt user to select one.
+4. Evaluate input against vagueness criteria.
+5. If vague (2+ criteria triggered): Use AskUserQuestion to gather context.
+6. Draft the PRD from $ARGUMENTS (and enriched context if clarified).
+7. Create the issue via `gh issue create`.
+8. Add it to the GitHub project if `GHPM_PROJECT` is set.
