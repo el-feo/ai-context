@@ -4,5 +4,7 @@
   "description": "JavaScript and TypeScript development toolkit with ESLint, Vitest, and unit testing best practices",
   "author": {
     "name": "Jeb Coleman"
-  }
+  },
+  "commands": "./commands/",
+  "skills": "./skills/"
 }

@@ -4,5 +4,6 @@
   "description": "GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning",
   "author": {
     "name": "Jeb Coleman"
-  }
+  },
+  "commands": "./commands/"
 }

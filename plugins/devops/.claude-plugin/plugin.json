@@ -4,5 +4,7 @@
   "description": "DevOps and infrastructure toolkit with GitHub Actions, Kamal deployment, and Tailscale VPN configuration",
   "author": {
     "name": "Jeb Coleman"
-  }
+  },
+  "commands": "./commands/",
+  "skills": "./skills/"
 }
