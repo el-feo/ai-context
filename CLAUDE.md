@@ -56,14 +56,18 @@ JavaScript/TypeScript toolkit with ESLint, Vitest, and unit testing skills.
 
 DevOps toolkit with GitHub Actions, Kamal deployment, and Tailscale skills.
 
-## Usage
+## Installation
 
-To use a plugin in another project:
+To use plugins from this repository:
 
 ```bash
-# Install via plugin directory
-cc --plugin-dir /path/to/ai-context/plugins/ruby-rails
+# Add the marketplace (from GitHub)
+/plugin marketplace add el-feo/ai-context
 
-# Or copy to your project
-cp -r plugins/ruby-rails/.claude-plugin /your/project/
+# Install individual plugins
+/plugin install ruby-rails@jebs-dev-tools
+/plugin install ghpm@jebs-dev-tools
+
+# Or use a plugin directory directly
+cc --plugin-dir /path/to/ai-context/plugins/ruby-rails
 ```

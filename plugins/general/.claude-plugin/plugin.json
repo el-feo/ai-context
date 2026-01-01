@@ -1,5 +1,5 @@
 {
-  "name": "jebs-dev-tools:general",
+  "name": "general",
   "version": "0.1.0",
   "description": "General development utilities including Mermaid diagram creation for software documentation",
   "author": {

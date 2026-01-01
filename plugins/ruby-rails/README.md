@@ -1,6 +1,17 @@
-# jebs-dev-tools:ruby-rails
+# ruby-rails
 
 Ruby on Rails development toolkit for Claude Code.
+
+## Installation
+
+```bash
+# From GitHub
+/plugin marketplace add el-feo/ai-context
+/plugin install ruby-rails@jebs-dev-tools
+
+# Or use directly
+cc --plugin-dir /path/to/plugins/ruby-rails
+```
 
 ## Features
 
@@ -27,21 +38,6 @@ Ruby on Rails development toolkit for Claude Code.
 ### Agents (1)
 
 - **rails-generator** - Specialized agent for creating Rails generators
-
-## Installation
-
-To use this plugin with Claude Code:
-
-```bash
-# Install via plugin directory
-cc --plugin-dir /path/to/plugins/ruby-rails
-```
-
-Or copy to your project:
-
-```bash
-cp -r plugins/ruby-rails/.claude-plugin /your/project/
-```
 
 ## Usage
 

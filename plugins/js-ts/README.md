@@ -1,6 +1,17 @@
-# jebs-dev-tools:js-ts
+# js-ts
 
 JavaScript and TypeScript development toolkit for Claude Code.
+
+## Installation
+
+```bash
+# From GitHub
+/plugin marketplace add el-feo/ai-context
+/plugin install js-ts@jebs-dev-tools
+
+# Or use directly
+cc --plugin-dir /path/to/plugins/js-ts
+```
 
 ## Features
 
@@ -11,12 +22,6 @@ JavaScript and TypeScript development toolkit for Claude Code.
 
 ### Commands (1)
 - `/vitest` - Migrate from Jest to Vitest
-
-## Installation
-
-```bash
-cc --plugin-dir /path/to/plugins/js-ts
-```
 
 ## Usage
 

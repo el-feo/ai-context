@@ -1,5 +1,5 @@
 {
-  "name": "jebs-dev-tools:devops",
+  "name": "devops",
   "version": "0.1.0",
   "description": "DevOps and infrastructure toolkit with GitHub Actions, Kamal deployment, and Tailscale VPN configuration",
   "author": {

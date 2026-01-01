@@ -1,6 +1,17 @@
-# jebs-dev-tools:devops
+# devops
 
 DevOps and infrastructure toolkit for Claude Code.
+
+## Installation
+
+```bash
+# From GitHub
+/plugin marketplace add el-feo/ai-context
+/plugin install devops@jebs-dev-tools
+
+# Or use directly
+cc --plugin-dir /path/to/plugins/devops
+```
 
 ## Features
 
@@ -11,12 +22,6 @@ DevOps and infrastructure toolkit for Claude Code.
 
 ### Commands (1)
 - `/github-actions` - Create or evaluate GitHub Actions workflows
-
-## Installation
-
-```bash
-cc --plugin-dir /path/to/plugins/devops
-```
 
 ## Usage
 

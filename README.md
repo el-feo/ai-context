@@ -1,4 +1,4 @@
-# AI Context
+# AI Context (aka jebs-dev-tools)
 
 A collection of Claude Code plugins for enhancing developer productivity with AI-assisted development workflows.
 
@@ -10,35 +10,60 @@ AI Context provides modular Claude Code plugins that can be installed into your 
 
 This repository contains 5 modular Claude Code plugins under `plugins/`:
 
-| Plugin                      | Description                        | Skills | Commands | Agents |
-| --------------------------- | ---------------------------------- | ------ | -------- | ------ |
-| `jebs-dev-tools:ruby-rails` | Ruby on Rails development toolkit  | 11     | 3        | 1      |
-| `jebs-dev-tools:ghpm`       | GitHub Project Management workflow | 0      | 10       | 0      |
-| `jebs-dev-tools:js-ts`      | JavaScript/TypeScript toolkit      | 3      | 1        | 0      |
-| `jebs-dev-tools:devops`     | DevOps & infrastructure toolkit    | 3      | 1        | 0      |
-| `jebs-dev-tools:general`    | General development utilities      | 1      | 0        | 0      |
+| Plugin       | Description                        | Skills | Commands | Agents |
+| ------------ | ---------------------------------- | ------ | -------- | ------ |
+| `ruby-rails` | Ruby on Rails development toolkit  | 11     | 3        | 1      |
+| `ghpm`       | GitHub Project Management workflow | 0      | 10       | 0      |
+| `js-ts`      | JavaScript/TypeScript toolkit      | 3      | 1        | 0      |
+| `devops`     | DevOps & infrastructure toolkit    | 3      | 1        | 0      |
+| `general`    | General development utilities      | 1      | 0        | 0      |
 
-### Installing Plugins
+## Installation
+
+### From GitHub (Recommended)
 
 ```bash
-# Install a specific plugin
-cc --plugin-dir /path/to/ai-context/plugins/ruby-rails
+# Add the marketplace
+/plugin marketplace add el-feo/ai-context
 
-# Or copy to your project
-cp -r plugins/ruby-rails/.claude-plugin /your/project/
+# Install individual plugins
+/plugin install ruby-rails@jebs-dev-tools
+/plugin install ghpm@jebs-dev-tools
+/plugin install js-ts@jebs-dev-tools
+/plugin install devops@jebs-dev-tools
+/plugin install general@jebs-dev-tools
+```
+
+### Local Installation
+
+```bash
+# Add local marketplace
+/plugin marketplace add /path/to/ai-context
+
+# Then install plugins
+/plugin install ruby-rails@jebs-dev-tools
+```
+
+### Direct Plugin Directory
+
+```bash
+# Use a specific plugin directly
+cc --plugin-dir /path/to/ai-context/plugins/ruby-rails
 ```
 
 ## Repository Structure
 
 ```text
 ai-context/
+├── .claude-plugin/
+│   └── marketplace.json  # Marketplace index
 ├── plugins/
-│   ├── ruby-rails/      # Ruby/Rails development
-│   ├── ghpm/            # GitHub Project Management
-│   ├── js-ts/           # JavaScript/TypeScript
-│   ├── devops/          # DevOps & infrastructure
-│   └── general/         # General utilities
-└── tools/               # Helper scripts
+│   ├── ruby-rails/       # Ruby/Rails development
+│   ├── ghpm/             # GitHub Project Management
+│   ├── js-ts/            # JavaScript/TypeScript
+│   ├── devops/           # DevOps & infrastructure
+│   └── general/          # General utilities
+└── tools/                # Helper scripts
 ```
 
 ## Plugin Details

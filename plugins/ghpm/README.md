@@ -1,17 +1,16 @@
-# jebs-dev-tools:ghpm
+# ghpm
 
-GitHub Project Management workflow for Claude Code. Provides slash commands for managing product development workflows in GitHub with a structured flow from PRD → Epics → Tasks → TDD implementation, with conventional commits for automated changelog generation.
+GitHub Project Management workflow for Claude Code. Provides slash commands for managing product development workflows in GitHub with a structured flow from PRD -> Epics -> Tasks -> TDD implementation, with conventional commits for automated changelog generation.
 
 ## Installation
 
 ```bash
+# From GitHub
+/plugin marketplace add el-feo/ai-context
+/plugin install ghpm@jebs-dev-tools
+
+# Or use directly
 cc --plugin-dir /path/to/plugins/ghpm
-```
-
-Or copy to your project:
-
-```bash
-cp -r plugins/ghpm/.claude-plugin /your/project/
 ```
 
 ## Commands (10)
@@ -74,30 +73,30 @@ gh label create QA-Bug  --description "Bug found via QA automation" --color B602
 GHPM supports two parallel workflows that start from a PRD:
 
 ```
-                              ┌─────────────────┐
-                              │      PRD        │
-                              └────────┬────────┘
-                                       │
-              ┌────────────────────────┼────────────────────────┐
-              │                        │                        │
-              ▼                        ▼                        ▼
-       ┌────────────┐           ┌────────────┐           ┌────────────┐
-       │   Epic 1   │           │   Epic 2   │           │     QA     │
-       └─────┬──────┘           └─────┬──────┘           └─────┬──────┘
-             │                        │                        │
-             ▼                        ▼                        ▼
-       ┌────────────┐           ┌────────────┐           ┌────────────┐
-       │   Tasks    │           │   Tasks    │           │  QA Steps  │
-       └─────┬──────┘           └─────┬──────┘           └─────┬──────┘
-             │                        │                        │
-             ▼                        ▼                        ▼
-       ┌────────────┐           ┌────────────┐           ┌────────────┐
-       │Execute/TDD │           │Execute/TDD │           │ QA Execute │
-       └────────────┘           └────────────┘           └─────┬──────┘
-                                                               │
-                                                        ┌──────┴──────┐
-                                                        │    Bugs     │
-                                                        └─────────────┘
+                              +------------------+
+                              |      PRD         |
+                              +---------+--------+
+                                        |
+              +-------------------------+-------------------------+
+              |                         |                         |
+              v                         v                         v
+       +------------+            +------------+            +------------+
+       |   Epic 1   |            |   Epic 2   |            |     QA     |
+       +-----+------+            +-----+------+            +-----+------+
+             |                         |                         |
+             v                         v                         v
+       +------------+            +------------+            +------------+
+       |   Tasks    |            |   Tasks    |            |  QA Steps  |
+       +-----+------+            +-----+------+            +-----+------+
+             |                         |                         |
+             v                         v                         v
+       +------------+            +------------+            +------------+
+       |Execute/TDD |            |Execute/TDD |            | QA Execute |
+       +------------+            +------------+            +-----+------+
+                                                                 |
+                                                          +------+------+
+                                                          |    Bugs     |
+                                                          +-------------+
 ```
 
 ### Implementation Workflow (Left Path)
@@ -158,7 +157,7 @@ GHPM creates GitHub issues using streamlined templates designed to minimize verb
 
 ### Design Principles
 
-1. **Single Parent Link**: Each issue links only to its direct parent (Task → Epic, Epic → PRD)
+1. **Single Parent Link**: Each issue links only to its direct parent (Task -> Epic, Epic -> PRD)
 2. **No Redundancy**: Information in parent issues is not duplicated in children
 3. **Conditional Sections**: Optional sections are omitted when empty
 4. **Agent-Ready**: Tasks contain everything needed to begin implementation

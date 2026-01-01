@@ -1,17 +1,22 @@
-# jebs-dev-tools:general
+# general
 
 General development utilities for Claude Code.
+
+## Installation
+
+```bash
+# From GitHub
+/plugin marketplace add el-feo/ai-context
+/plugin install general@jebs-dev-tools
+
+# Or use directly
+cc --plugin-dir /path/to/plugins/general
+```
 
 ## Features
 
 ### Skills (1)
 - **mermaid-diagrams** - Creating software diagrams with Mermaid syntax
-
-## Installation
-
-```bash
-cc --plugin-dir /path/to/plugins/general
-```
 
 ## Usage
 
