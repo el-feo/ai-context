@@ -1,10 +1,16 @@
 {
   "name": "js-ts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "JavaScript and TypeScript development toolkit with ESLint, Vitest, and unit testing best practices",
   "author": {
     "name": "Jeb Coleman"
   },
-  "commands": "./commands/",
-  "skills": "./skills/"
+  "commands": [
+    "./.claude-plugin/commands/vitest.md"
+  ],
+  "skills": [
+    "./.claude-plugin/skills/eslint",
+    "./.claude-plugin/skills/javascript-unit-testing",
+    "./.claude-plugin/skills/vitest"
+  ]
 }
