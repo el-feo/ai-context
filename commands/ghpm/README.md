@@ -106,7 +106,7 @@ GHPM supports two parallel workflows that start from a PRD:
              │                        │                        │
              ▼                        ▼                        ▼
        ┌────────────┐           ┌────────────┐           ┌────────────┐
-       │    TDD     │           │    TDD     │           │  Execute   │
+       │  Execute   │           │  Execute   │           │ QA Execute │
        └────────────┘           └────────────┘           └─────┬──────┘
                                                                │
                                                         ┌──────┴──────┐
@@ -120,8 +120,33 @@ GHPM supports two parallel workflows that start from a PRD:
 2. **Create PRD** - Define product requirements with `/ghpm:create-prd`
 3. **Create Epics** - Break down PRD into epics with `/ghpm:create-epics`
 4. **Create Tasks** - Decompose epics into tasks with `/ghpm:create-tasks`
-5. **Implement** - Execute tasks using TDD with `/ghpm:tdd-task`
+5. **Execute** - Implement tasks with `/ghpm:execute` (routes to appropriate workflow)
 6. **Generate Changelog** - Create release notes with `/ghpm:changelog`
+
+### Execute Command Routing
+
+`/ghpm:execute` intelligently routes tasks to the appropriate workflow based on commit type and target files:
+
+| Route To | Commit Types | Target Files |
+| -------- | ------------ | ------------ |
+| **TDD** (`/ghpm:tdd-task`) | `feat`, `fix`, `refactor` | Code files (`.rb`, `.js`, `.ts`, `.py`, etc.) |
+| **Non-TDD** | `test`, `docs`, `chore`, `style`, `perf` | Any |
+| **Non-TDD** | Any | Non-code files (`.md`, `.yml`, `.json`, etc.) |
+
+**Usage:**
+
+```bash
+# Execute a single task (auto-routes based on commit type)
+/ghpm:execute task=#42
+
+# Execute all tasks under an epic
+/ghpm:execute epic=#10
+
+# Auto-resolve task from branch name or GitHub
+/ghpm:execute
+```
+
+For tasks requiring TDD, use `/ghpm:tdd-task` directly if you want to bypass routing logic.
 
 ### QA Workflow (Right Path)
 
