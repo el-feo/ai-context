@@ -1,93 +1,69 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with code in this repository.
 
 ## Repository Purpose
 
-AI Context is a collection of tools, prompts, rules, skills, and commands designed to enhance developer productivity when working with LLMs. The content here is meant to be copied or installed into other projects to provide standardized AI interaction patterns.
+AI Context is a collection of Claude Code plugins designed to enhance developer productivity when working with LLMs. The plugins can be installed into other projects to provide standardized AI interaction patterns.
 
 ## Repository Structure
 
-```
+```text
 ai-context/
-├── skills/          # Claude Code skills (SKILL.md + references/)
-├── commands/        # Slash command definitions (.md files)
-├── rules/           # Editor-agnostic coding rules and guidelines
-├── agents/          # Agent configurations for specialized tasks
-├── prompts/         # Reusable prompt templates
-├── tools/           # Helper scripts (e.g., analyze_coverage.rb)
-└── config/          # Configuration files (e.g., mcp.json)
+├── plugins/
+│   ├── ruby-rails/      # Ruby/Rails development (11 skills, 3 commands, 1 agent)
+│   ├── ghpm/            # GitHub Project Management (10 commands, 1 agent)
+│   ├── js-ts/           # JavaScript/TypeScript (3 skills, 1 command)
+│   ├── devops/          # DevOps & infrastructure (3 skills, 1 command)
+│   └── general/         # General utilities (1 skill)
+└── tools/               # Helper scripts
 ```
 
-### Skills
+### Plugin Structure
 
-Skills are organized as directories containing a `SKILL.md` file with optional `references/` subdirectory for detailed documentation. Major skills include:
+Each plugin follows this structure:
 
-- **rails**: Ruby on Rails v8.1 development guide
-- **rspec**: RSpec testing patterns and best practices
-- **ruby**: Ruby language fundamentals and design patterns
-- **rubocop/rubycritic/simplecov**: Code quality tools
-- **github-actions**: CI/CD workflow creation
-- **kamal**: Deployment configuration
+```text
+plugins/<name>/
+├── README.md
+└── .claude-plugin/
+    ├── plugin.json      # Plugin manifest
+    ├── skills/          # SKILL.md files with references/
+    ├── commands/        # Slash command definitions
+    └── agents/          # Agent configurations
+```
 
-### Commands
+## Key Plugins
 
-Slash commands for Claude Code workflows:
+### ruby-rails
 
-- `gh-*` commands: GitHub project management (create epics, execute tasks, TDD workflow)
-- `ghpm/*` commands: GitHub PM workflow (PRD → Epics → Tasks → TDD)
-- `red-green-refactor`: TDD session management
-- `review-ruby-code`: Code review with Sandi Metz principles
+Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, code quality tools, and Sandi Metz principles.
 
-### Rules
+### ghpm
 
-Coding guidelines and best practices:
-
-- `ruby_rules.md`: Rails conventions, code style, testing
-- `oop_rules.md`: Object-oriented design principles from "99 Bottles of OOP" and "POODR"
-- `ruby_tdd_process.md`: TDD workflow guidelines
-- `rspec_rules.md`: RSpec testing patterns
-
-## Key Patterns
-
-### Ruby/Rails Development
-
-Follow Sandi Metz rules and SOLID principles:
-
-- Classes have single responsibility
-- Inject dependencies to reduce coupling
-- Use polymorphism over conditionals
-- Name methods at one higher level of abstraction
-- Manage duplication strategically (don't abstract prematurely)
-
-### TDD Workflow
-
-The repository emphasizes red-green-refactor TDD:
-
-1. **Red**: Write a failing test for smallest unit of functionality
-2. **Green**: Write minimal code to pass the test
-3. **Refactor**: Clean up while keeping tests green
-
-### GitHub Project Management (GHPM)
-
-Workflow for product development:
+GitHub Project Management workflow:
 
 1. `/ghpm:create-prd` - Create product requirements document
 2. `/ghpm:create-epics` - Break PRD into epics
 3. `/ghpm:create-tasks` - Break epics into tasks
 4. `/ghpm:tdd-task` - Execute task using TDD
 
+### js-ts
+
+JavaScript/TypeScript toolkit with ESLint, Vitest, and unit testing skills.
+
+### devops
+
+DevOps toolkit with GitHub Actions, Kamal deployment, and Tailscale skills.
+
 ## Usage
 
-To use content from this repository in another project:
-
-1. Copy relevant skill directories to `.claude/skills/`
-2. Copy command files to `.claude/commands/`
-3. Reference rules in project CLAUDE.md or copy to project rules
-
-For GHPM commands specifically, run the install script:
+To use a plugin in another project:
 
 ```bash
-chmod +x commands/ghpm/scripts/install-ghpm-claude-commands.sh
-./commands/ghpm/scripts/install-ghpm-claude-commands.sh
+# Install via plugin directory
+cc --plugin-dir /path/to/ai-context/plugins/ruby-rails
+
+# Or copy to your project
+cp -r plugins/ruby-rails/.claude-plugin /your/project/
 ```

@@ -1,156 +1,85 @@
 # AI Context
 
-A collection of skills, commands, rules, and prompts for enhancing developer productivity with Claude Code and other LLM-powered development tools.
+A collection of Claude Code plugins for enhancing developer productivity with AI-assisted development workflows.
 
 ## Overview
 
-AI Context provides reusable components that can be copied or installed into your projects to standardize AI-assisted development workflows. The repository focuses primarily on Ruby/Rails development but includes support for JavaScript/TypeScript and other technologies.
+AI Context provides modular Claude Code plugins that can be installed into your projects. The repository focuses primarily on Ruby/Rails development but includes support for JavaScript/TypeScript and other technologies.
+
+## Claude Code Plugins
+
+This repository contains 5 modular Claude Code plugins under `plugins/`:
+
+| Plugin                      | Description                        | Skills | Commands | Agents |
+| --------------------------- | ---------------------------------- | ------ | -------- | ------ |
+| `jebs-dev-tools:ruby-rails` | Ruby on Rails development toolkit  | 11     | 3        | 1      |
+| `jebs-dev-tools:ghpm`       | GitHub Project Management workflow | 0      | 10       | 0      |
+| `jebs-dev-tools:js-ts`      | JavaScript/TypeScript toolkit      | 3      | 1        | 0      |
+| `jebs-dev-tools:devops`     | DevOps & infrastructure toolkit    | 3      | 1        | 0      |
+| `jebs-dev-tools:general`    | General development utilities      | 1      | 0        | 0      |
+
+### Installing Plugins
+
+```bash
+# Install a specific plugin
+cc --plugin-dir /path/to/ai-context/plugins/ruby-rails
+
+# Or copy to your project
+cp -r plugins/ruby-rails/.claude-plugin /your/project/
+```
 
 ## Repository Structure
 
 ```text
 ai-context/
-├── skills/          # Claude Code skills (SKILL.md + references/)
-├── commands/        # Slash command definitions
-├── rules/           # Coding rules and guidelines
-├── agents/          # Agent configurations for specialized tasks
-├── prompts/         # Reusable prompt templates
-├── tools/           # Helper scripts
-└── config/          # Configuration files (e.g., mcp.json)
+├── plugins/
+│   ├── ruby-rails/      # Ruby/Rails development
+│   ├── ghpm/            # GitHub Project Management
+│   ├── js-ts/           # JavaScript/TypeScript
+│   ├── devops/          # DevOps & infrastructure
+│   └── general/         # General utilities
+└── tools/               # Helper scripts
 ```
 
-## Skills
+## Plugin Details
 
-Skills are structured documentation that Claude Code uses to provide expert guidance on specific topics. Each skill contains a `SKILL.md` file with optional `references/` subdirectory for detailed documentation.
+### ruby-rails
 
-### Ruby/Rails
+Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, SimpleCov, Brakeman, and code review with Sandi Metz principles.
 
-| Skill                       | Description                                            |
-| --------------------------- | ------------------------------------------------------ |
-| `rails`                     | Ruby on Rails v8.1 development guide                   |
-| `ruby`                      | Ruby language fundamentals and design patterns         |
-| `rspec`                     | RSpec testing patterns and best practices              |
-| `rubocop`                   | Ruby linting and code style                            |
-| `rubycritic`                | Code quality analysis                                  |
-| `simplecov`                 | Test coverage analysis                                 |
-| `brakeman`                  | Rails security vulnerability scanner                   |
-| `rails-generators`          | Creating custom Rails generators                       |
-| `sandi-metz-reviewer`       | OO design principles from POODR and 99 Bottles         |
-| `review-ruby-code`          | Code review with Sandi Metz rules and SOLID principles |
-| `postgresql-rails-analyzer` | PostgreSQL optimization for Rails                      |
+**Skills:** rails, ruby, rspec, rubocop, rubycritic, simplecov, brakeman, rails-generators, sandi-metz-reviewer, review-ruby-code, postgresql-rails-analyzer
 
-### JavaScript/TypeScript
+**Commands:** `/red-green-refactor`, `/review-ruby-code`, `/rails-generators`
 
-| Skill                     | Description                                 |
-| ------------------------- | ------------------------------------------- |
-| `eslint`                  | JavaScript/TypeScript linting               |
-| `vitest`                  | Vitest testing framework and Jest migration |
-| `javascript-unit-testing` | Unit testing patterns with Jest             |
+**Agents:** rails-generator
 
-### DevOps & Infrastructure
+### ghpm
 
-| Skill            | Description                     |
-| ---------------- | ------------------------------- |
-| `github-actions` | CI/CD workflow creation         |
-| `kamal`          | Docker deployment configuration |
-| `tailscale`      | VPN setup and configuration     |
+GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning.
 
-### General
+**Commands:** `/ghpm:create-prd`, `/ghpm:create-epics`, `/ghpm:create-tasks`, `/ghpm:create-project`, `/ghpm:execute`, `/ghpm:tdd-task`, `/ghpm:changelog`, `/ghpm:qa-create`, `/ghpm:qa-create-steps`, `/ghpm:qa-execute`
 
-| Skill              | Description                |
-| ------------------ | -------------------------- |
-| `mermaid-diagrams` | Creating software diagrams |
+### js-ts
 
-## Commands
+JavaScript and TypeScript development toolkit with ESLint, Vitest, and unit testing best practices.
 
-Slash commands for Claude Code workflows. Copy to `.claude/commands/` in your project.
+**Skills:** eslint, vitest, javascript-unit-testing
 
-### GitHub Project Management (GHPM)
+**Commands:** `/vitest`
 
-A complete workflow for product development:
+### devops
 
-```text
-/ghpm:create-prd    → Create product requirements document
-/ghpm:create-epics  → Break PRD into GitHub epics
-/ghpm:create-tasks  → Break epics into actionable tasks
-/ghpm:tdd-task      → Execute task using TDD workflow
-```
+DevOps and infrastructure toolkit with GitHub Actions, Kamal deployment, and Tailscale VPN configuration.
 
-Install all GHPM commands:
+**Skills:** github-actions, kamal, tailscale
 
-```bash
-chmod +x commands/ghpm/scripts/install-ghpm-claude-commands.sh
-./commands/ghpm/scripts/install-ghpm-claude-commands.sh
-```
+**Commands:** `/github-actions`
 
-### Development Workflow Commands
+### general
 
-| Command               | Description                            |
-| --------------------- | -------------------------------------- |
-| `/red-green-refactor` | Start a TDD session                    |
-| `/review-ruby-code`   | Code review with Sandi Metz principles |
-| `/rails-generators`   | Create Rails generators                |
-| `/vitest`             | Migrate from Jest to Vitest            |
+General development utilities including Mermaid diagram creation.
 
-### GitHub Integration Commands
-
-| Command            | Description                           |
-| ------------------ | ------------------------------------- |
-| `/gh-plan-product` | Product planning with GitHub Projects |
-| `/gh-create-epic`  | Create GitHub epic issue              |
-| `/gh-execute`      | Execute a GitHub issue                |
-| `/gh-finish-task`  | Create PR and update issue            |
-| `/gh-tdd`          | TDD workflow with GitHub integration  |
-
-## Rules
-
-Coding guidelines and best practices. Reference in your project's `CLAUDE.md` or copy to your project.
-
-| Rule                    | Description                       |
-| ----------------------- | --------------------------------- |
-| `ruby_rules.md`         | Rails conventions and code style  |
-| `oop_rules.md`          | OO design principles (Sandi Metz) |
-| `rspec_rules.md`        | RSpec testing patterns            |
-| `ruby_tdd_process.md`   | TDD workflow guidelines           |
-| `cursor_memory_bank.md` | Context management for Cursor     |
-| `experimental_rules.md` | Experimental coding rules         |
-
-## Agents
-
-Agent configurations for specialized tasks:
-
-- `qa_planner.md` - QA test planning
-- `rails-generator-agent.md` - Rails generator creation
-
-## Installation
-
-### Skills
-
-Copy skill directories to `.claude/skills/` in your project:
-
-```bash
-cp -r skills/rails /path/to/your/project/.claude/skills/
-```
-
-### Commands
-
-Copy command files to `.claude/commands/` in your project:
-
-```bash
-cp commands/red-green-refactor.md /path/to/your/project/.claude/commands/
-```
-
-### Rules
-
-Reference rules in your project's `CLAUDE.md`:
-
-```markdown
-## Rules
-
-Follow the guidelines in:
-- [Ruby Rules](path/to/ruby_rules.md)
-- [OOP Rules](path/to/oop_rules.md)
-```
+**Skills:** mermaid-diagrams
 
 ## Contributing
 

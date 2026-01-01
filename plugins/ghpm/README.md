@@ -1,31 +1,20 @@
-# GHPM - GitHub Project Manager for Claude Code
+# jebs-dev-tools:ghpm
 
-GHPM provides slash commands for managing product development workflows in GitHub. It enables a structured flow from PRD → Epics → Tasks → TDD implementation, with conventional commits for automated changelog generation.
+GitHub Project Management workflow for Claude Code. Provides slash commands for managing product development workflows in GitHub with a structured flow from PRD → Epics → Tasks → TDD implementation, with conventional commits for automated changelog generation.
 
 ## Installation
 
-Copy the command files to your repository:
-
 ```bash
-# From the ghpm directory
-chmod +x scripts/install-ghpm-claude-commands.sh
-./scripts/install-ghpm-claude-commands.sh /path/to/your/repo
+cc --plugin-dir /path/to/plugins/ghpm
 ```
 
-This installs the following commands to `.claude/commands/`:
+Or copy to your project:
 
-- `ghpm:create-project.md`
-- `ghpm:create-prd.md`
-- `ghpm:create-epics.md`
-- `ghpm:create-tasks.md`
-- `ghpm:execute.md`
-- `ghpm:tdd-task.md`
-- `ghpm:changelog.md`
-- `ghpm:qa-create.md`
-- `ghpm:qa-create-steps.md`
-- `ghpm:qa-execute.md`
+```bash
+cp -r plugins/ghpm/.claude-plugin /your/project/
+```
 
-## Commands
+## Commands (10)
 
 | Command                                | Description                                      |
 | -------------------------------------- | ------------------------------------------------ |
@@ -57,14 +46,11 @@ export GHPM_TEMPLATE_PROJECT="7"       # Template project number
 export GHPM_TEMPLATE_OWNER="my-org"    # Template project owner
 ```
 
-**Note:** Project templates are only available for **organizations**. Personal user accounts cannot mark projects as templates via the CLI. If you need templates, either:
-
-- Create the project under an organization
-- Manually configure views/fields in new projects
+**Note:** Project templates are only available for **organizations**. Personal user accounts cannot mark projects as templates via the CLI.
 
 ### GitHub Project Association
 
-Set an environment variable to automatically add issues to a GitHub Project (use project number):
+Set an environment variable to automatically add issues to a GitHub Project:
 
 ```bash
 export GHPM_PROJECT=7  # Your project number (visible in project URL)
@@ -129,11 +115,11 @@ GHPM supports two parallel workflows that start from a PRD:
 
 `/ghpm:execute` intelligently routes tasks to the appropriate workflow based on commit type and target files:
 
-| Route To | Commit Types | Target Files |
-| -------- | ------------ | ------------ |
-| **TDD** (`/ghpm:tdd-task`) | `feat`, `fix`, `refactor` | Code files (`.rb`, `.js`, `.ts`, `.py`, etc.) |
-| **Non-TDD** | `test`, `docs`, `chore`, `style`, `perf` | Any |
-| **Non-TDD** | Any | Non-code files (`.md`, `.yml`, `.json`, etc.) |
+| Route To                   | Commit Types                             | Target Files                                  |
+| -------------------------- | ---------------------------------------- | --------------------------------------------- |
+| **TDD** (`/ghpm:tdd-task`) | `feat`, `fix`, `refactor`                | Code files (`.rb`, `.js`, `.ts`, `.py`, etc.) |
+| **Non-TDD**                | `test`, `docs`, `chore`, `style`, `perf` | Any                                           |
+| **Non-TDD**                | Any                                      | Non-code files (`.md`, `.yml`, `.json`, etc.) |
 
 **Usage:**
 
@@ -148,7 +134,7 @@ GHPM supports two parallel workflows that start from a PRD:
 /ghpm:execute
 ```
 
-**Direct TDD:** Use `/ghpm:tdd-task` directly when you know you want TDD workflow without routing.
+**Direct TDD:** Use `/ghpm:tdd-task` directly when you want TDD workflow without routing.
 
 ### QA Workflow (Right Path)
 
@@ -164,7 +150,7 @@ GHPM supports two parallel workflows that start from a PRD:
 | **Implementation** | Building new features, fixing bugs, refactoring code          |
 | **QA**             | Acceptance testing, end-to-end validation, regression testing |
 
-The QA workflow runs **parallel** to implementation - you can start QA testing as soon as a PRD is created, without waiting for implementation to complete. Bugs found during QA become new Tasks that feed back into the implementation workflow
+The QA workflow runs **parallel** to implementation - you can start QA testing as soon as a PRD is created. Bugs found during QA become new Tasks that feed back into the implementation workflow.
 
 ## Issue Templates
 
@@ -172,10 +158,10 @@ GHPM creates GitHub issues using streamlined templates designed to minimize verb
 
 ### Design Principles
 
-1. **Single Parent Link**: Each issue links only to its direct parent (Task → Epic, Epic → PRD). Ancestor context is reachable via navigation.
-2. **No Redundancy**: Information in parent issues is not duplicated in children.
-3. **Conditional Sections**: Optional sections are omitted when empty.
-4. **Agent-Ready**: Tasks contain everything needed to begin implementation without reading parent issues.
+1. **Single Parent Link**: Each issue links only to its direct parent (Task → Epic, Epic → PRD)
+2. **No Redundancy**: Information in parent issues is not duplicated in children
+3. **Conditional Sections**: Optional sections are omitted when empty
+4. **Agent-Ready**: Tasks contain everything needed to begin implementation
 
 ### Epic Template
 
@@ -216,23 +202,9 @@ GHPM creates GitHub issues using streamlined templates designed to minimize verb
 <How to verify completion>
 ```
 
-### Sections Intentionally Omitted
-
-These sections are excluded to reduce noise:
-
-| Section                | Reason                       |
-| ---------------------- | ---------------------------- |
-| Out of Scope           | Inherited from parent issue  |
-| Risks / Edge Cases     | Inherited from PRD           |
-| Notes / Open Questions | Use issue comments instead   |
-| Key Requirements       | Merged into Scope            |
-| Implementation Notes   | Use issue comments if needed |
-
 ## Task Estimation
 
 Tasks are assigned Fibonacci estimates (1, 2, 3, 5, 8) to enable sprint planning and velocity tracking. Estimates reflect relative complexity, not hours.
-
-### Estimation Scale
 
 | Estimate | Complexity   | Examples                                        |
 | -------- | ------------ | ----------------------------------------------- |
@@ -242,9 +214,7 @@ Tasks are assigned Fibonacci estimates (1, 2, 3, 5, 8) to enable sprint planning
 | **5**    | Complex      | Multi-file feature, significant refactor        |
 | **8**    | Very Complex | Cross-cutting feature, complex integration      |
 
-### Decomposition Rule
-
-**Tasks that would exceed an estimate of 8 must be broken into smaller tasks.** This ensures all work is tractable and can be completed in a reasonable timeframe.
+**Decomposition Rule:** Tasks that would exceed an estimate of 8 must be broken into smaller tasks.
 
 ### GitHub Project Setup
 
@@ -255,7 +225,7 @@ To track estimates in GitHub Projects, add a Number field named "Estimate":
 3. Select **Number** as the field type
 4. Name it exactly: `Estimate`
 
-When `GHPM_PROJECT` is set, `/ghpm:create-tasks` will automatically populate this field for each task.
+When `GHPM_PROJECT` is set, `/ghpm:create-tasks` will automatically populate this field.
 
 ## Conventional Commits
 
