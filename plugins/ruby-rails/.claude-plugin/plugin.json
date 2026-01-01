@@ -6,24 +6,24 @@
     "name": "Jeb Coleman"
   },
   "commands": [
-    "./.claude-plugin/commands/rails-generators.md",
-    "./.claude-plugin/commands/red-green-refactor.md",
-    "./.claude-plugin/commands/review-ruby-code.md"
+    "./commands/rails-generators.md",
+    "./commands/red-green-refactor.md",
+    "./commands/review-ruby-code.md"
   ],
   "skills": [
-    "./.claude-plugin/skills/brakeman",
-    "./.claude-plugin/skills/postgresql-rails-analyzer",
-    "./.claude-plugin/skills/rails",
-    "./.claude-plugin/skills/rails-generators",
-    "./.claude-plugin/skills/review-ruby-code",
-    "./.claude-plugin/skills/rspec",
-    "./.claude-plugin/skills/rubocop",
-    "./.claude-plugin/skills/ruby",
-    "./.claude-plugin/skills/rubycritic",
-    "./.claude-plugin/skills/sandi-metz-reviewer",
-    "./.claude-plugin/skills/simplecov"
+    "./skills/brakeman",
+    "./skills/postgresql-rails-analyzer",
+    "./skills/rails",
+    "./skills/rails-generators",
+    "./skills/review-ruby-code",
+    "./skills/rspec",
+    "./skills/rubocop",
+    "./skills/ruby",
+    "./skills/rubycritic",
+    "./skills/sandi-metz-reviewer",
+    "./skills/simplecov"
   ],
   "agents": [
-    "./.claude-plugin/agents/rails-generator-agent.md"
+    "./agents/rails-generator-agent.md"
   ]
 }

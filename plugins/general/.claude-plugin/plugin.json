@@ -6,6 +6,6 @@
     "name": "Jeb Coleman"
   },
   "skills": [
-    "./.claude-plugin/skills/mermaid-diagrams"
+    "./skills/mermaid-diagrams"
   ]
 }

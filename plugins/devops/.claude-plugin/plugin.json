@@ -6,11 +6,11 @@
     "name": "Jeb Coleman"
   },
   "commands": [
-    "./.claude-plugin/commands/github-actions.md"
+    "./commands/github-actions.md"
   ],
   "skills": [
-    "./.claude-plugin/skills/github-actions",
-    "./.claude-plugin/skills/kamal",
-    "./.claude-plugin/skills/tailscale"
+    "./skills/github-actions",
+    "./skills/kamal",
+    "./skills/tailscale"
   ]
 }

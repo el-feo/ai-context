@@ -6,15 +6,15 @@
     "name": "Jeb Coleman"
   },
   "commands": [
-    "./.claude-plugin/commands/changelog.md",
-    "./.claude-plugin/commands/create-epics.md",
-    "./.claude-plugin/commands/create-prd.md",
-    "./.claude-plugin/commands/create-project.md",
-    "./.claude-plugin/commands/create-tasks.md",
-    "./.claude-plugin/commands/execute.md",
-    "./.claude-plugin/commands/qa-create-steps.md",
-    "./.claude-plugin/commands/qa-create.md",
-    "./.claude-plugin/commands/qa-execute.md",
-    "./.claude-plugin/commands/tdd-task.md"
+    "./commands/changelog.md",
+    "./commands/create-epics.md",
+    "./commands/create-prd.md",
+    "./commands/create-project.md",
+    "./commands/create-tasks.md",
+    "./commands/execute.md",
+    "./commands/qa-create-steps.md",
+    "./commands/qa-create.md",
+    "./commands/qa-execute.md",
+    "./commands/tdd-task.md"
   ]
 }
