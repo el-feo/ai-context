@@ -106,7 +106,7 @@ GHPM supports two parallel workflows that start from a PRD:
              │                        │                        │
              ▼                        ▼                        ▼
        ┌────────────┐           ┌────────────┐           ┌────────────┐
-       │  Execute   │           │  Execute   │           │ QA Execute │
+       │Execute/TDD │           │Execute/TDD │           │ QA Execute │
        └────────────┘           └────────────┘           └─────┬──────┘
                                                                │
                                                         ┌──────┴──────┐
