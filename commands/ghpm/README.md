@@ -14,6 +14,7 @@ chmod +x scripts/install-ghpm-claude-commands.sh
 
 This installs the following commands to `.claude/commands/`:
 
+- `ghpm:create-project.md`
 - `ghpm:create-prd.md`
 - `ghpm:create-epics.md`
 - `ghpm:create-tasks.md`
@@ -26,19 +27,40 @@ This installs the following commands to `.claude/commands/`:
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `/ghpm:create-prd <prompt>` | Create a Product Requirements Document |
-| `/ghpm:create-epics [prd=#N]` | Break PRD into Epics |
-| `/ghpm:create-tasks [epic=#N\|prd=#N]` | Break Epics into atomic Tasks |
-| `/ghpm:execute [task=#N\|epic=#N]` | Execute Task (routes to TDD or non-TDD workflow) |
-| `/ghpm:tdd-task [task=#N]` | Implement Task using TDD |
-| `/ghpm:changelog [from=ref] [to=ref]` | Generate changelog from commits |
-| `/ghpm:qa-create [prd=#N]` | Create QA Issue for PRD acceptance testing |
-| `/ghpm:qa-create-steps [qa=#N]` | Create QA Steps for QA Issue |
-| `/ghpm:qa-execute [qa=#N\|step=#N]` | Execute QA Steps with Playwright automation |
+| Command                                | Description                                      |
+| -------------------------------------- | ------------------------------------------------ |
+| `/ghpm:create-project [title]`         | Create a GitHub Project and link to repository   |
+| `/ghpm:create-prd <prompt>`            | Create a Product Requirements Document           |
+| `/ghpm:create-epics [prd=#N]`          | Break PRD into Epics                             |
+| `/ghpm:create-tasks [epic=#N\|prd=#N]` | Break Epics into atomic Tasks                    |
+| `/ghpm:execute [task=#N\|epic=#N]`     | Execute Task (routes to TDD or non-TDD workflow) |
+| `/ghpm:tdd-task [task=#N]`             | Implement Task using TDD                         |
+| `/ghpm:changelog [from=ref] [to=ref]`  | Generate changelog from commits                  |
+| `/ghpm:qa-create [prd=#N]`             | Create QA Issue for PRD acceptance testing       |
+| `/ghpm:qa-create-steps [qa=#N]`        | Create QA Steps for QA Issue                     |
+| `/ghpm:qa-execute [qa=#N\|step=#N]`    | Execute QA Steps with Playwright automation      |
 
 ## Setup (Optional)
+
+### Creating a GitHub Project
+
+Use `/ghpm:create-project` to create a new GitHub Project and link it to your repository:
+
+```bash
+/ghpm:create-project My Roadmap
+```
+
+The command can copy from a template project if one exists. To use templates:
+
+```bash
+export GHPM_TEMPLATE_PROJECT="7"       # Template project number
+export GHPM_TEMPLATE_OWNER="my-org"    # Template project owner
+```
+
+**Note:** Project templates are only available for **organizations**. Personal user accounts cannot mark projects as templates via the CLI. If you need templates, either:
+
+- Create the project under an organization
+- Manually configure views/fields in new projects
 
 ### GitHub Project Association
 
@@ -94,11 +116,12 @@ GHPM supports two parallel workflows that start from a PRD:
 
 ### Implementation Workflow (Left Path)
 
-1. **Create PRD** - Define product requirements with `/ghpm:create-prd`
-2. **Create Epics** - Break down PRD into epics with `/ghpm:create-epics`
-3. **Create Tasks** - Decompose epics into tasks with `/ghpm:create-tasks`
-4. **Implement** - Execute tasks using TDD with `/ghpm:tdd-task`
-5. **Generate Changelog** - Create release notes with `/ghpm:changelog`
+1. **Create Project** - Set up GitHub Project with `/ghpm:create-project` (optional)
+2. **Create PRD** - Define product requirements with `/ghpm:create-prd`
+3. **Create Epics** - Break down PRD into epics with `/ghpm:create-epics`
+4. **Create Tasks** - Decompose epics into tasks with `/ghpm:create-tasks`
+5. **Implement** - Execute tasks using TDD with `/ghpm:tdd-task`
+6. **Generate Changelog** - Create release notes with `/ghpm:changelog`
 
 ### QA Workflow (Right Path)
 
@@ -109,10 +132,10 @@ GHPM supports two parallel workflows that start from a PRD:
 
 ### When to Use Each Workflow
 
-| Workflow | Use When |
-|----------|----------|
-| **Implementation** | Building new features, fixing bugs, refactoring code |
-| **QA** | Acceptance testing, end-to-end validation, regression testing |
+| Workflow           | Use When                                                      |
+| ------------------ | ------------------------------------------------------------- |
+| **Implementation** | Building new features, fixing bugs, refactoring code          |
+| **QA**             | Acceptance testing, end-to-end validation, regression testing |
 
 The QA workflow runs **parallel** to implementation - you can start QA testing as soon as a PRD is created, without waiting for implementation to complete. Bugs found during QA become new Tasks that feed back into the implementation workflow
 
@@ -170,13 +193,13 @@ GHPM creates GitHub issues using streamlined templates designed to minimize verb
 
 These sections are excluded to reduce noise:
 
-| Section | Reason |
-|---------|--------|
-| Out of Scope | Inherited from parent issue |
-| Risks / Edge Cases | Inherited from PRD |
-| Notes / Open Questions | Use issue comments instead |
-| Key Requirements | Merged into Scope |
-| Implementation Notes | Use issue comments if needed |
+| Section                | Reason                       |
+| ---------------------- | ---------------------------- |
+| Out of Scope           | Inherited from parent issue  |
+| Risks / Edge Cases     | Inherited from PRD           |
+| Notes / Open Questions | Use issue comments instead   |
+| Key Requirements       | Merged into Scope            |
+| Implementation Notes   | Use issue comments if needed |
 
 ## Task Estimation
 
@@ -184,13 +207,13 @@ Tasks are assigned Fibonacci estimates (1, 2, 3, 5, 8) to enable sprint planning
 
 ### Estimation Scale
 
-| Estimate | Complexity | Examples |
-|----------|------------|----------|
-| **1** | Trivial | Update README, fix typo, change config value |
-| **2** | Simple | Add a single test, update documentation section |
-| **3** | Moderate | Add simple feature, refactor small module |
-| **5** | Complex | Multi-file feature, significant refactor |
-| **8** | Very Complex | Cross-cutting feature, complex integration |
+| Estimate | Complexity   | Examples                                        |
+| -------- | ------------ | ----------------------------------------------- |
+| **1**    | Trivial      | Update README, fix typo, change config value    |
+| **2**    | Simple       | Add a single test, update documentation section |
+| **3**    | Moderate     | Add simple feature, refactor small module       |
+| **5**    | Complex      | Multi-file feature, significant refactor        |
+| **8**    | Very Complex | Cross-cutting feature, complex integration      |
 
 ### Decomposition Rule
 
@@ -215,13 +238,13 @@ All commits and PR titles follow [Conventional Commits](https://www.conventional
 <type>(<scope>): <description> (#<issue>)
 ```
 
-| Type | Description |
-|------|-------------|
-| `feat` | New feature |
-| `fix` | Bug fix |
+| Type       | Description        |
+| ---------- | ------------------ |
+| `feat`     | New feature        |
+| `fix`      | Bug fix            |
 | `refactor` | Code restructuring |
-| `test` | Tests only |
-| `docs` | Documentation |
-| `chore` | Build/CI/tooling |
+| `test`     | Tests only         |
+| `docs`     | Documentation      |
+| `chore`    | Build/CI/tooling   |
 
 This enables automated changelog generation via `/ghpm:changelog` or tools like [release-please](https://github.com/googleapis/release-please).
