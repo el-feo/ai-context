@@ -6,11 +6,11 @@
     "name": "Jeb Coleman"
   },
   "commands": [
-    "./.claude-plugin/commands/vitest.md"
+    "./commands/vitest.md"
   ],
   "skills": [
-    "./.claude-plugin/skills/eslint",
-    "./.claude-plugin/skills/javascript-unit-testing",
-    "./.claude-plugin/skills/vitest"
+    "./skills/eslint",
+    "./skills/javascript-unit-testing",
+    "./skills/vitest"
   ]
 }

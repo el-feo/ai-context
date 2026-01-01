@@ -26,11 +26,11 @@ Each plugin follows this structure:
 ```text
 plugins/<name>/
 ├── README.md
-└── .claude-plugin/
-    ├── plugin.json      # Plugin manifest
-    ├── skills/          # SKILL.md files with references/
-    ├── commands/        # Slash command definitions
-    └── agents/          # Agent configurations
+├── .claude-plugin/
+│   └── plugin.json      # Plugin manifest
+├── skills/              # SKILL.md files with references/
+├── commands/            # Slash command definitions
+└── agents/              # Agent configurations
 ```
 
 ## Key Plugins
