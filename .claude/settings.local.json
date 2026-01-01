@@ -22,7 +22,8 @@
       "Bash(git commit:*)",
       "Bash(git pull:*)",
       "Bash(git push:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(mkdir:*)"
     ]
   }
 }

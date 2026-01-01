@@ -1,0 +1,8 @@
+{
+  "name": "js-ts",
+  "version": "0.1.0",
+  "description": "JavaScript and TypeScript development toolkit with ESLint, Vitest, and unit testing best practices",
+  "author": {
+    "name": "Jeb Coleman"
+  }
+}

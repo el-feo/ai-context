@@ -1,0 +1,8 @@
+{
+  "name": "ghpm",
+  "version": "0.1.0",
+  "description": "GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning",
+  "author": {
+    "name": "Jeb Coleman"
+  }
+}

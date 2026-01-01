@@ -1,0 +1,58 @@
+{
+  "name": "jebs-dev-tools",
+  "owner": {
+    "name": "Jeb Coleman"
+  },
+  "metadata": {
+    "description": "Claude Code plugins for developer productivity",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "ruby-rails",
+      "source": "./ruby-rails",
+      "description": "Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, SimpleCov, Brakeman, and code review with Sandi Metz principles",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    },
+    {
+      "name": "ghpm",
+      "source": "./ghpm",
+      "description": "GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    },
+    {
+      "name": "js-ts",
+      "source": "./js-ts",
+      "description": "JavaScript and TypeScript development toolkit with ESLint, Vitest, and unit testing best practices",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    },
+    {
+      "name": "devops",
+      "source": "./devops",
+      "description": "DevOps and infrastructure toolkit with GitHub Actions, Kamal deployment, and Tailscale VPN configuration",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    },
+    {
+      "name": "general",
+      "source": "./general",
+      "description": "General development utilities including Mermaid diagram creation for software documentation",
+      "version": "0.1.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    }
+  ]
+}
