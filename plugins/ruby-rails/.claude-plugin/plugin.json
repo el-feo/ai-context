@@ -1,11 +1,29 @@
 {
   "name": "ruby-rails",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, SimpleCov, Brakeman, and code review with Sandi Metz principles",
   "author": {
     "name": "Jeb Coleman"
   },
-  "commands": "./commands/",
-  "skills": "./skills/",
-  "agents": "./agents/"
+  "commands": [
+    "./.claude-plugin/commands/rails-generators.md",
+    "./.claude-plugin/commands/red-green-refactor.md",
+    "./.claude-plugin/commands/review-ruby-code.md"
+  ],
+  "skills": [
+    "./.claude-plugin/skills/brakeman",
+    "./.claude-plugin/skills/postgresql-rails-analyzer",
+    "./.claude-plugin/skills/rails",
+    "./.claude-plugin/skills/rails-generators",
+    "./.claude-plugin/skills/review-ruby-code",
+    "./.claude-plugin/skills/rspec",
+    "./.claude-plugin/skills/rubocop",
+    "./.claude-plugin/skills/ruby",
+    "./.claude-plugin/skills/rubycritic",
+    "./.claude-plugin/skills/sandi-metz-reviewer",
+    "./.claude-plugin/skills/simplecov"
+  ],
+  "agents": [
+    "./.claude-plugin/agents/rails-generator-agent.md"
+  ]
 }

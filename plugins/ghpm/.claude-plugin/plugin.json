@@ -1,9 +1,20 @@
 {
   "name": "ghpm",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning",
   "author": {
     "name": "Jeb Coleman"
   },
-  "commands": "./commands/"
+  "commands": [
+    "./.claude-plugin/commands/changelog.md",
+    "./.claude-plugin/commands/create-epics.md",
+    "./.claude-plugin/commands/create-prd.md",
+    "./.claude-plugin/commands/create-project.md",
+    "./.claude-plugin/commands/create-tasks.md",
+    "./.claude-plugin/commands/execute.md",
+    "./.claude-plugin/commands/qa-create-steps.md",
+    "./.claude-plugin/commands/qa-create.md",
+    "./.claude-plugin/commands/qa-execute.md",
+    "./.claude-plugin/commands/tdd-task.md"
+  ]
 }

@@ -1,9 +1,11 @@
 {
   "name": "general",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "General development utilities including Mermaid diagram creation for software documentation",
   "author": {
     "name": "Jeb Coleman"
   },
-  "skills": "./skills/"
+  "skills": [
+    "./.claude-plugin/skills/mermaid-diagrams"
+  ]
 }

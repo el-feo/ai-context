@@ -1,10 +1,16 @@
 {
   "name": "devops",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "DevOps and infrastructure toolkit with GitHub Actions, Kamal deployment, and Tailscale VPN configuration",
   "author": {
     "name": "Jeb Coleman"
   },
-  "commands": "./commands/",
-  "skills": "./skills/"
+  "commands": [
+    "./.claude-plugin/commands/github-actions.md"
+  ],
+  "skills": [
+    "./.claude-plugin/skills/github-actions",
+    "./.claude-plugin/skills/kamal",
+    "./.claude-plugin/skills/tailscale"
+  ]
 }
