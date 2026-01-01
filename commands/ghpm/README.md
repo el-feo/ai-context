@@ -120,7 +120,9 @@ GHPM supports two parallel workflows that start from a PRD:
 2. **Create PRD** - Define product requirements with `/ghpm:create-prd`
 3. **Create Epics** - Break down PRD into epics with `/ghpm:create-epics`
 4. **Create Tasks** - Decompose epics into tasks with `/ghpm:create-tasks`
-5. **Execute** - Implement tasks with `/ghpm:execute` (routes to appropriate workflow)
+5. **Implement** - Execute tasks using either:
+   - `/ghpm:execute` - Auto-routes to TDD or non-TDD based on commit type
+   - `/ghpm:tdd-task` - Direct TDD workflow for code tasks
 6. **Generate Changelog** - Create release notes with `/ghpm:changelog`
 
 ### Execute Command Routing
@@ -146,7 +148,7 @@ GHPM supports two parallel workflows that start from a PRD:
 /ghpm:execute
 ```
 
-For tasks requiring TDD, use `/ghpm:tdd-task` directly if you want to bypass routing logic.
+**Direct TDD:** Use `/ghpm:tdd-task` directly when you know you want TDD workflow without routing.
 
 ### QA Workflow (Right Path)
 
