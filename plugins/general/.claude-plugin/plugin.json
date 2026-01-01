@@ -4,5 +4,6 @@
   "description": "General development utilities including Mermaid diagram creation for software documentation",
   "author": {
     "name": "Jeb Coleman"
-  }
+  },
+  "skills": "./skills/"
 }

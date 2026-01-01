@@ -4,5 +4,8 @@
   "description": "Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, SimpleCov, Brakeman, and code review with Sandi Metz principles",
   "author": {
     "name": "Jeb Coleman"
-  }
+  },
+  "commands": "./commands/",
+  "skills": "./skills/",
+  "agents": "./agents/"
 }
