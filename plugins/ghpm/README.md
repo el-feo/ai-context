@@ -2,7 +2,7 @@
 
 GitHub Project Management workflow for Claude Code. Provides slash commands for managing product development workflows in GitHub with a structured flow from PRD -> Epics -> Tasks -> TDD implementation, with conventional commits for automated changelog generation.
 
-## Why did you create this?
+## Why did I create this?
 
 [Spec-driven development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html) is proving effective for coding agents, tools like [agent-os](https://github.com/buildermethods/agent-os) and the [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD) demonstrate this. But existing solutions have drawbacks:
 
