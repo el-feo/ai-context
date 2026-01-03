@@ -258,6 +258,79 @@ When a step cannot be parsed:
 
 ## Step 3: Execute Playwright Actions
 
+### Step 3.0: Claim Step Before Execution
+
+Before executing any step, claim it to prevent duplicate work and enable progress tracking.
+
+**Important for QA mode:** Claim each step only when its execution begins, NOT all steps at once upfront. This allows other workers to claim and execute other steps.
+
+```bash
+# Get current GitHub user
+CURRENT_USER=$(gh api user -q '.login')
+if [ -z "$CURRENT_USER" ]; then
+  echo "ERROR: Could not determine current GitHub user. Run 'gh auth login'"
+  exit 1
+fi
+
+# Check existing assignees on the QA Step
+ASSIGNEES=$(gh issue view "$STEP" --json assignees -q '.assignees[].login')
+
+# Handle assignment scenarios
+if [ -z "$ASSIGNEES" ]; then
+  # No assignees - claim the step
+  gh issue edit "$STEP" --add-assignee @me
+  echo "✓ Assigned to @$CURRENT_USER"
+
+  # Post audit comment
+  TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+  gh issue comment "$STEP" --body "🏷️ Claimed by @$CURRENT_USER at $TIMESTAMP"
+
+elif echo "$ASSIGNEES" | grep -qx "$CURRENT_USER"; then
+  # Already assigned to current user - proceed
+  echo "✓ Already assigned to you (@$CURRENT_USER)"
+
+else
+  # Assigned to another user - abort this step only
+  EXISTING_ASSIGNEE=$(echo "$ASSIGNEES" | head -1)
+  echo "✗ Step #$STEP is already claimed by @$EXISTING_ASSIGNEE"
+  # Continue to next step (don't abort entire QA run)
+  continue
+fi
+
+# Update project status to "In Progress" (best-effort)
+if [ -n "$GHPM_PROJECT" ]; then
+  OWNER=$(gh repo view --json owner -q '.owner.login')
+  echo "Note: Project status update to 'In Progress' is best-effort"
+fi
+
+# Warn on orphaned state (In Progress without assignee)
+if [ -z "$ASSIGNEES" ] && [ -n "$GHPM_PROJECT" ]; then
+  PROJECT_STATUS=$(gh issue view "$STEP" --json projectItems -q '.projectItems[0].status.name // empty' 2>/dev/null)
+  if [ "$PROJECT_STATUS" = "In Progress" ]; then
+    echo "⚠ Warning: Step #$STEP had status 'In Progress' but no assignee"
+  fi
+fi
+```
+
+**UX Output:**
+
+| Scenario | Output |
+|----------|--------|
+| Success (new claim) | `✓ Assigned to @username` |
+| Self-claim | `✓ Already assigned to you (@username)` |
+| Conflict | `✗ Step #N is already claimed by @another-user` |
+| Orphaned state | `⚠ Warning: Step #N had status 'In Progress' but no assignee` |
+
+**Behavior:**
+
+- For `step=#N` mode: claim the single step before execution
+- For `qa=#N` mode: claim each step ONLY when its execution begins (not all upfront)
+- On conflict, skip that step and continue to next (other workers can still execute other steps)
+- On self-claim, proceed normally
+- All claiming operations complete within 3 seconds
+
+### Step 3.1: Execute Playwright
+
 Execute the parsed actions in a browser using Playwright.
 
 ### Browser Launch Configuration
