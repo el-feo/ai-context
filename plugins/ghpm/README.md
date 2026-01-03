@@ -78,6 +78,58 @@ gh label create QA-Step --description "QA Step for acceptance testing" --color 9
 gh label create QA-Bug  --description "Bug found via QA automation" --color B60205
 ```
 
+## Issue Claiming
+
+GHPM commands automatically claim issues before work begins to prevent duplicate work and enable progress tracking. This is especially useful for teams where multiple agents or developers may work on tasks concurrently.
+
+### How Claiming Works
+
+When you run `/ghpm:execute`, `/ghpm:tdd-task`, or `/ghpm:qa-execute`:
+
+1. The command checks if you're already assigned to the issue
+2. If unassigned, it assigns you and posts an audit comment
+3. If assigned to someone else, the command aborts with a clear message
+
+### Claiming Behavior by Command
+
+| Command | Claiming Behavior |
+|---------|-------------------|
+| `/ghpm:tdd-task task=#N` | Claims task before TDD plan is posted |
+| `/ghpm:execute task=#N` | Claims task before context hydration |
+| `/ghpm:execute epic=#N` | Claims each sub-task sequentially as work begins (not all at once) |
+| `/ghpm:qa-execute step=#N` | Claims step before Playwright execution |
+| `/ghpm:qa-execute qa=#N` | Claims each step only when its execution begins |
+
+### UX Output
+
+| Scenario | Output |
+|----------|--------|
+| New claim | `Assigned to @username` |
+| Already yours | `Already assigned to you (@username)` |
+| Conflict | `ERROR: Task #N is already claimed by @another-user` |
+
+### Project Status Updates
+
+When `GHPM_PROJECT` is set, GHPM attempts to update the issue's project status to "In Progress" when claiming. This is best-effort and may require manual verification.
+
+### Conflict Resolution
+
+If a task is assigned to another user and you need to take over:
+
+1. Coordinate with the current assignee
+2. Unassign them: `gh issue edit #N --remove-assignee @username`
+3. Run the GHPM command again to claim it
+
+### Orphaned State Warning
+
+If an issue has "In Progress" status but no assignee, GHPM will warn:
+
+```
+Warning: Task #N has status 'In Progress' but no assignee
+```
+
+This indicates someone may have started work but didn't properly claim the issue.
+
 ## Workflow
 
 GHPM supports two parallel workflows that start from a PRD:
