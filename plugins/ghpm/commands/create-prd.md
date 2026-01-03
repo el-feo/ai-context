@@ -397,16 +397,39 @@ EOF
 
 ## Step 7: Add to GitHub Project
 
+Use the new GitHub Projects API (`gh project item-add`) instead of the deprecated `--add-project` flag.
+
 ```bash
 if [ -n "$GHPM_PROJECT" ]; then
-  ISSUE_NUMBER=$(gh issue list --repo "$REPO" -l PRD --limit 1 --json number -q '.[0].number')
+  # Get the issue URL (needed for gh project item-add)
+  ISSUE_URL=$(gh issue list --repo "$REPO" -l PRD --limit 1 --json url -q '.[0].url')
 
-  gh issue edit "$ISSUE_NUMBER" --add-project "$GHPM_PROJECT" 2>/dev/null || {
-    echo "WARNING: Failed to add issue to project '$GHPM_PROJECT'"
-    gh issue comment "$ISSUE_NUMBER" --body "Note: Could not automatically add to project '$GHPM_PROJECT'. Please add manually if needed."
-  }
+  # Get project number from the project list
+  # GHPM_PROJECT can be either the project title or number
+  if [[ "$GHPM_PROJECT" =~ ^[0-9]+$ ]]; then
+    PROJECT_NUMBER="$GHPM_PROJECT"
+  else
+    # Look up project number by title
+    PROJECT_NUMBER=$(gh project list --owner "$OWNER" --format json | \
+      jq -r --arg title "$GHPM_PROJECT" '.projects[] | select(.title == $title) | .number')
+  fi
+
+  if [ -n "$PROJECT_NUMBER" ]; then
+    gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" 2>/dev/null || {
+      echo "WARNING: Failed to add issue to project '$GHPM_PROJECT'"
+      ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+      gh issue comment "$ISSUE_NUMBER" --body "Note: Could not automatically add to project '$GHPM_PROJECT'. Please add manually if needed."
+    }
+  else
+    echo "WARNING: Could not find project '$GHPM_PROJECT'"
+  fi
 fi
 ```
+
+**Note:** The `gh project item-add` command requires:
+- Project number (not title) - we look this up from the project list
+- Owner (user or organization)
+- Issue URL (not issue number)
 
 </workflow>
 
@@ -439,8 +462,10 @@ fi
 
 **If project association fails:**
 
-- Verify `GHPM_PROJECT` format is correct
-- Check project exists: `gh project list`
+- Verify `GHPM_PROJECT` is either the project number or exact title
+- Check project exists: `gh project list --owner <OWNER>`
+- Ensure the new Projects API is used (`gh project item-add`), not the deprecated `--add-project` flag
+- Common error: "Projects (classic) is being deprecated" means you're using the old API
 - Command will continue and add warning comment to issue
 </error_handling>
 
