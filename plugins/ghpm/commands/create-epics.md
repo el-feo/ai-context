@@ -61,13 +61,48 @@ export GHPM_PROJECT="MyOrg/Q1 Roadmap"
 - Do not ask clarifying questions. If the PRD has ambiguity, encode it as assumptions within each Epic and/or add open questions.
 - Do not create local markdown files. All output goes into GitHub issues/comments.
 - Each Epic issue must be self-contained for its scope and must reference the PRD by number/link.
-- Generate the minimum number of Epics needed to cover distinct work areas:
-  - Minimal PRD (documentation, config, single-file changes): 1 Epic
-  - Small PRD (single feature): 1-3 Epics
-  - Medium PRD (multiple features): 3-5 Epics
-  - Large PRD (system/platform): 5-10 Epics
-- Prefer fewer, well-scoped Epics over many granular ones. If the PRD scope can be covered by a single Epic, use one Epic.
 - Epics should collectively cover the entire PRD scope without gaps or overlaps.
+
+### Epic Count Guidelines
+
+**Default to 1 Epic.** Only create multiple Epics when the PRD contains truly independent work streams that could be implemented by different people without coordination.
+
+| PRD Type | Epic Count | Justification Required |
+|----------|------------|------------------------|
+| Minimal (docs, config, single-file) | 1 | N/A |
+| Small (single feature) | 1 | N/A |
+| Medium (2-3 independent features) | 2-3 | Each Epic must deliver independent value |
+| Large (platform/system) | 3-5 | Each Epic must be separable work stream |
+
+**Decision questions before creating multiple Epics:**
+1. Would each Epic deliver independent, usable value if the others were never implemented?
+2. Could different developers implement each Epic without needing to coordinate on shared code?
+3. Is there a natural break point where work could pause between Epics?
+
+If the answer to any question is "no", consolidate into fewer Epics.
+
+### Anti-patterns (DO NOT create separate Epics for these)
+
+- **"Infrastructure" vs "Integration"**: If the infrastructure is just code embedded in the integration, it's one Epic
+- **"Implementation" vs "Documentation"**: Docs are part of completing a feature, not a separate Epic
+- **"Backend" vs "Frontend"**: If the feature requires both to be useful, it's one Epic
+- **"Core" vs "Extensions"**: If extensions depend entirely on core, it's one Epic
+- **Per-file Epics**: Creating Epics for each file touched rather than for outcomes
+
+### Example: Single-Feature PRD → 1 Epic
+
+PRD: "Add issue claiming workflow to execute, tdd-task, and qa-execute commands"
+
+❌ **Wrong (3 Epics):**
+1. Epic: Core Claiming Infrastructure
+2. Epic: Command Integration
+3. Epic: Documentation
+
+❌ **Why it's wrong:** The "infrastructure" is just a bash function embedded in commands. Documentation is part of completing the feature. All three are tightly coupled.
+
+✅ **Correct (1 Epic):**
+1. Epic: Issue Claiming Workflow
+
 </operating_rules>
 
 <epic_issue_format>
