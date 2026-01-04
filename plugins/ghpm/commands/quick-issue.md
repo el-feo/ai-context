@@ -5,7 +5,7 @@ allowed-tools: [Bash]
 ---
 
 <objective>
-Create a GitHub issue and working branch in a single step, enabling developers to quickly start work on bug fixes, small enhancements, and maintenance tasks without going through the full PRD workflow. The command creates the issue, labels it appropriately, creates and checks out a feature branch, and optionally adds the issue to a GitHub Project.
+Create a GitHub issue and working branch in a single step, enabling developers to quickly start work on bug fixes, small enhancements, and maintenance tasks without going through the full PRD workflow. The command creates the issue, labels it with standard GitHub labels based on the work type, creates and checks out a feature branch, and optionally adds the issue to a GitHub Project.
 </objective>
 
 <prerequisites>
@@ -21,16 +21,19 @@ Create a GitHub issue and working branch in a single step, enabling developers t
 - Issue description/title (captured from user input via $ARGUMENTS)
 
 **Optional flags (in $ARGUMENTS):**
-- `--label <name>` - Add an additional label beyond "Quick Issue"
+- `--label <name>` - Add a label (can be used multiple times)
 - `--no-branch` - Create issue only, skip branch creation
-- `--type <fix|feat|chore>` - Override default branch prefix (default: `fix`)
+- `--type <fix|feat|chore>` - Set work type (default: `fix`)
+  - `fix` → adds `bug` label, creates `fix/` branch
+  - `feat` → adds `enhancement` label, creates `feat/` branch
+  - `chore` → no automatic label, creates `chore/` branch
 
 **Optional environment variables:**
 - `GHPM_PROJECT` - GitHub Project number to add issue to (e.g., `export GHPM_PROJECT=7`)
 </arguments>
 
 <usage_examples>
-**Basic usage (creates issue and branch):**
+**Bug fix (default):**
 
 ```bash
 /ghpm:quick-issue Fix the login redirect loop when session expires
@@ -38,34 +41,43 @@ Create a GitHub issue and working branch in a single step, enabling developers t
 
 Output:
 ```
-Creating quick issue...
-
 ✓ Issue #42 created: "Fix the login redirect loop when session expires"
   https://github.com/owner/repo/issues/42
+  Labels: bug
 ✓ Branch created: fix/issue-42-login-redirect-loop
 ✓ Switched to branch fix/issue-42-login-redirect-loop
 
 Ready to work on issue #42. What would you like me to do first?
 ```
 
-**With additional label:**
-
-```bash
-/ghpm:quick-issue Add tooltip to export button --label enhancement
-```
-
-**Issue only (no branch):**
-
-```bash
-/ghpm:quick-issue Update README with new API docs --no-branch
-```
-
-**With branch type override:**
+**New feature:**
 
 ```bash
 /ghpm:quick-issue Add dark mode toggle --type feat
 ```
-→ Creates branch: `feat/issue-43-dark-mode-toggle`
+→ Labels: `enhancement`
+→ Branch: `feat/issue-43-dark-mode-toggle`
+
+**Maintenance/chore:**
+
+```bash
+/ghpm:quick-issue Update dependencies to latest versions --type chore
+```
+→ Labels: (none by default)
+→ Branch: `chore/issue-44-update-dependencies`
+
+**With additional labels:**
+
+```bash
+/ghpm:quick-issue Fix slow dashboard loading --label performance --label high-priority
+```
+→ Labels: `bug`, `performance`, `high-priority`
+
+**Issue only (no branch):**
+
+```bash
+/ghpm:quick-issue Update README with new API docs --type chore --no-branch
+```
 
 **With project association:**
 
@@ -80,9 +92,13 @@ export GHPM_PROJECT=7
 <operating_rules>
 - Do not ask clarifying questions. Create the issue immediately with the provided description.
 - The issue description becomes both the issue title and the summary in the body.
-- Always create the "Quick Issue" label if it doesn't exist.
+- Labels are determined by the `--type` flag using standard GitHub labels:
+  - `fix` (default) → `bug` label
+  - `feat` → `enhancement` label
+  - `chore` → no automatic label
+- Additional labels can be added with `--label` flag.
 - Branch names are sanitized: lowercase, special characters removed, truncated to 50 chars.
-- Default branch prefix is `fix/` unless overridden with `--type`.
+- Default type is `fix` (assumes most quick issues are bug fixes).
 - If `--no-branch` is specified, skip branch creation entirely.
 - On any error, provide actionable guidance for resolution.
 </operating_rules>
@@ -107,56 +123,86 @@ OWNER=$(gh repo view --json owner -q '.owner.login')
 
 Extract from $ARGUMENTS:
 - Issue description (everything that's not a flag)
-- `--label <name>` if present
+- `--label <name>` if present (can appear multiple times)
 - `--no-branch` flag
 - `--type <fix|feat|chore>` if present (default: `fix`)
 
 ```bash
 # Example parsing
 DESCRIPTION="<extracted description>"
-EXTRA_LABEL=""  # or extracted label name
+EXTRA_LABELS=()  # array of additional labels from --label flags
 NO_BRANCH=false  # or true if --no-branch present
-BRANCH_TYPE="fix"  # or feat/chore if --type specified
+WORK_TYPE="fix"  # or feat/chore if --type specified
 ```
 
 Validate:
 - Description must not be empty
 - If `--type` provided, must be one of: fix, feat, chore
 
-## Step 3: Ensure "Quick Issue" Label Exists
+## Step 3: Determine Labels Based on Type
 
 ```bash
-# Check if label exists, create if not
-gh label list --repo "$REPO" --json name -q '.[].name' | grep -q "^Quick Issue$" || \
-  gh label create "Quick Issue" \
-    --description "Quick issue for bug fixes and small tasks" \
-    --color "FBCA04" \
-    --repo "$REPO"
+# Map work type to standard GitHub label
+case "$WORK_TYPE" in
+  fix)
+    TYPE_LABEL="bug"
+    BRANCH_PREFIX="fix"
+    ;;
+  feat)
+    TYPE_LABEL="enhancement"
+    BRANCH_PREFIX="feat"
+    ;;
+  chore)
+    TYPE_LABEL=""  # No automatic label for chores
+    BRANCH_PREFIX="chore"
+    ;;
+esac
+
+# Build label list
+LABELS=""
+if [ -n "$TYPE_LABEL" ]; then
+  LABELS="$TYPE_LABEL"
+fi
+
+# Add any extra labels from --label flags
+for label in "${EXTRA_LABELS[@]}"; do
+  if [ -n "$LABELS" ]; then
+    LABELS="$LABELS,$label"
+  else
+    LABELS="$label"
+  fi
+done
 ```
 
 ## Step 4: Create GitHub Issue
 
 ```bash
-# Build label list
-LABELS="Quick Issue"
-if [ -n "$EXTRA_LABEL" ]; then
-  LABELS="$LABELS,$EXTRA_LABEL"
-fi
-
-# Create issue with body
-ISSUE_URL=$(gh issue create \
-  --repo "$REPO" \
-  --title "$DESCRIPTION" \
-  --label "$LABELS" \
-  --body "$(cat <<EOF
-## Quick Issue
-
+# Build gh issue create command
+if [ -n "$LABELS" ]; then
+  ISSUE_URL=$(gh issue create \
+    --repo "$REPO" \
+    --title "$DESCRIPTION" \
+    --label "$LABELS" \
+    --body "$(cat <<EOF
 $DESCRIPTION
 
 ---
 *Created via \`/ghpm:quick-issue\`*
 EOF
 )")
+else
+  # No labels
+  ISSUE_URL=$(gh issue create \
+    --repo "$REPO" \
+    --title "$DESCRIPTION" \
+    --body "$(cat <<EOF
+$DESCRIPTION
+
+---
+*Created via \`/ghpm:quick-issue\`*
+EOF
+)")
+fi
 
 # Extract issue number from URL
 ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
@@ -189,7 +235,7 @@ if [ "$NO_BRANCH" = false ]; then
     cut -c1-50 | \
     sed 's/-$//')
 
-  BRANCH_NAME="$BRANCH_TYPE/issue-$ISSUE_NUM-$SLUG"
+  BRANCH_NAME="$BRANCH_PREFIX/issue-$ISSUE_NUM-$SLUG"
 
   # Check for uncommitted changes
   if ! git diff-index --quiet HEAD -- 2>/dev/null; then
@@ -205,8 +251,6 @@ if [ "$NO_BRANCH" = false ]; then
 
   # Update issue body with branch link
   gh issue edit "$ISSUE_NUM" --repo "$REPO" --body "$(cat <<EOF
-## Quick Issue
-
 $DESCRIPTION
 
 **Branch:** \`$BRANCH_NAME\`
@@ -224,6 +268,9 @@ fi
 echo ""
 echo "✓ Issue #$ISSUE_NUM created: \"$DESCRIPTION\""
 echo "  $ISSUE_URL"
+if [ -n "$LABELS" ]; then
+  echo "  Labels: $LABELS"
+fi
 
 if [ "$NO_BRANCH" = false ]; then
   echo "✓ Branch created: $BRANCH_NAME"
@@ -259,7 +306,7 @@ ERROR: No GitHub remote found. Add one with: git remote add origin <url>
 **If description is empty:**
 ```
 ERROR: Issue description required.
-Usage: /ghpm:quick-issue <description> [--label <name>] [--no-branch] [--type <fix|feat|chore>]
+Usage: /ghpm:quick-issue <description> [--type <fix|feat|chore>] [--label <name>] [--no-branch]
 ```
 
 **If issue creation fails:**
@@ -286,12 +333,12 @@ Run: git stash && git checkout <branch-name>
 <success_criteria>
 Command completes successfully when:
 
-1. GitHub issue is created with "Quick Issue" label
+1. GitHub issue is created with appropriate label(s) based on type
 2. Issue body contains description and branch link (if branch created)
 3. Branch is created with correct naming convention (unless `--no-branch`)
 4. Branch is checked out (unless uncommitted changes or `--no-branch`)
 5. Issue is added to project (if `GHPM_PROJECT` set)
-6. Success message displays issue URL and branch name
+6. Success message displays issue URL, labels, and branch name
 
 **Verification:**
 
@@ -302,7 +349,7 @@ gh issue view <issue_number>
 # Check current branch
 git branch --show-current
 
-# Verify issue label
+# Verify issue labels
 gh issue view <issue_number> --json labels -q '.labels[].name'
 ```
 </success_criteria>
@@ -311,12 +358,11 @@ gh issue view <issue_number> --json labels -q '.labels[].name'
 After completion, display:
 
 ```
-Creating quick issue...
-
 ✓ Issue #<number> created: "<description>"
   <issue_url>
-✓ Branch created: <branch_type>/issue-<number>-<slug>
-✓ Switched to branch <branch_type>/issue-<number>-<slug>
+  Labels: <label1>, <label2>
+✓ Branch created: <branch_prefix>/issue-<number>-<slug>
+✓ Switched to branch <branch_prefix>/issue-<number>-<slug>
 [✓ Added to project #<project_number>]  (if GHPM_PROJECT set)
 
 Ready to work on issue #<number>. What would you like me to do first?
@@ -325,10 +371,9 @@ Ready to work on issue #<number>. What would you like me to do first?
 If `--no-branch` was specified:
 
 ```
-Creating quick issue...
-
 ✓ Issue #<number> created: "<description>"
   <issue_url>
+  Labels: <label1>, <label2>
 [✓ Added to project #<project_number>]  (if GHPM_PROJECT set)
 
 Issue created. Run `/ghpm:tdd-task task=#<number>` to start implementation.
