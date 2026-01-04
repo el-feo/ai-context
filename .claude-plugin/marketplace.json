@@ -22,7 +22,7 @@
       "name": "ghpm",
       "source": "./plugins/ghpm",
       "description": "GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "Jeb Coleman"
       }
