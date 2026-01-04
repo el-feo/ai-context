@@ -1,6 +1,6 @@
 ---
 description: Execute a Task or Epic, routing to TDD or non-TDD workflow based on commit type.
-allowed-tools: [Read, Edit, Write, Bash, Grep, Glob, SlashCommand, Skill(ruby), Skill(javascript), Skill(rspec), Skill(javascript-unit-testing), Skill(rubycritic), Skill(simplecov)]
+allowed-tools: [Read, Edit, Write, Bash, Grep, Glob, SlashCommand, Task, Skill(ruby), Skill(javascript), Skill(rspec), Skill(javascript-unit-testing), Skill(rubycritic), Skill(simplecov)]
 arguments:
   task:
     description: "Task issue number (format: task=#123)"
@@ -501,6 +501,29 @@ Comment the PR URL back onto the Task:
 gh issue comment "$TASK" --body "PR created: <PR_URL>"
 ```
 
+### Step 2B.6: Verify CI Status
+
+After creating the PR, use the CI Check agent to verify GitHub Actions pass:
+
+```
+Use the Task tool with subagent_type="ghpm:ci-check" to:
+1. Monitor CI status for the newly created PR
+2. Analyze any failures to determine if they're in-scope (related to PR changes) or out-of-scope (pre-existing)
+3. Attempt to fix in-scope failures
+4. Create follow-up issues for out-of-scope failures
+5. Report CI status back to the PR as a comment
+```
+
+The agent will:
+- Wait for CI to complete (up to 10 minutes)
+- If all checks pass, comment success on the PR
+- If checks fail, analyze logs and categorize failures
+- Fix in-scope failures and push additional commits
+- Create follow-up issues for pre-existing failures
+- Post a CI Check Report comment on the PR
+
+**Note:** This step is advisory. If the CI check agent is not available or fails, proceed to the next step. The PR can still be merged manually after addressing CI issues.
+
 ## Step 3: Process Next Task (Epic Mode)
 
 If processing an Epic, move to the next task and repeat from Step 1.
@@ -531,6 +554,7 @@ Command completes when:
 - Task Report section is updated in the issue body
 - PR is created with `Closes #$TASK` in the body
 - PR URL is commented back to the Task
+- CI status is verified (CI Check agent invoked if available)
 
 **For epic (independent tasks):**
 

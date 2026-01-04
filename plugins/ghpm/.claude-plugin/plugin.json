@@ -17,5 +17,8 @@
     "./commands/qa-execute.md",
     "./commands/quick-issue.md",
     "./commands/tdd-task.md"
+  ],
+  "agents": [
+    "./agents/ci-check-agent.md"
   ]
 }
