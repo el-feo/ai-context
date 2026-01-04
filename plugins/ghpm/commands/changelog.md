@@ -274,5 +274,3 @@ Changelog generated:
 </success_criteria>
 
 Proceed now.
-
-<!-- Test change to trigger version check workflow -->
