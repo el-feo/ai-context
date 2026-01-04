@@ -1,0 +1,49 @@
+name: Auto Version Bump
+
+on:
+  workflow_dispatch:
+    inputs:
+      plugin:
+        description: 'Plugin to bump (e.g., ghpm, ruby-rails)'
+        required: true
+        type: string
+      bump_type:
+        description: 'Version bump type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  bump-version:
+    name: Bump Plugin Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Validate plugin exists
+        run: |
+          if [[ ! -f "plugins/${{ inputs.plugin }}/.claude-plugin/plugin.json" ]]; then
+            echo "Error: Plugin '${{ inputs.plugin }}' not found"
+            exit 1
+          fi
+
+      - name: Bump version
+        id: bump
+        run: |
+          chmod +x .github/scripts/bump-version.sh
+          .github/scripts/bump-version.sh "${{ inputs.plugin }}" "${{ inputs.bump_type }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore(${{ inputs.plugin }}): bump version to $(cat .new-version)"
+          git push
+          rm -f .new-version
