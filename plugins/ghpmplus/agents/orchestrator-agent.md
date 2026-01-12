@@ -144,11 +144,90 @@ The orchestrator delegates to these sub-agents via Task tool:
 
 ### Task Tool Delegation Pattern
 
+The Task tool is the primary mechanism for sub-agent coordination. Each delegation follows this structure:
+
 ```markdown
 Use the Task tool with subagent_type="ghpmplus:<agent-name>" to:
 <clear objective>
 <specific instructions>
 <expected output>
+```
+
+#### Concrete Delegation Examples
+
+**Delegating to Epic Planner:**
+
+```markdown
+Use the Task tool with subagent_type="ghpmplus:stub-epic-planner" to:
+
+Analyze PRD #42 and create Epic issues.
+
+Context:
+- PRD Title: User Authentication System
+- PRD URL: https://github.com/owner/repo/issues/42
+
+Instructions:
+1. Read the full PRD body to understand requirements
+2. Identify logical Epic-level groupings (3-5 Epics typically)
+3. Create Epic issues with proper labels and structure
+4. Link Epics to PRD using GitHub sub-issues API
+5. Return list of created Epic numbers
+
+Expected Output:
+- List of Epic issue numbers created
+- Brief description of each Epic's scope
+```
+
+**Delegating to Task Executor:**
+
+```markdown
+Use the Task tool with subagent_type="ghpmplus:stub-task-executor" to:
+
+Execute Task #55 using the appropriate workflow.
+
+Context:
+- Task Title: Implement user login endpoint
+- Task Number: 55
+- Commit Type: feat
+- Scope: auth
+- Epic: #101
+
+Instructions:
+1. Create working branch: ghpm/task-55-user-login
+2. Determine workflow: TDD (since commit type is 'feat')
+3. Execute TDD cycle: write failing test → implement → verify pass
+4. Create PR with conventional commit format
+5. Report PR URL back
+
+Expected Output:
+- PR URL
+- Commit SHA(s)
+- Test results summary
+```
+
+**Handling Sub-Agent Responses:**
+
+After each Task tool delegation, process the response:
+
+```python
+# Pseudo-code for response handling
+response = await task_tool.delegate(subagent, instructions)
+
+if response.success:
+    # Extract results (Epic numbers, PR URLs, etc.)
+    results = parse_response(response)
+    # Update tracking state
+    state.completed_tasks.append(task_id)
+    # Comment progress to GitHub
+    gh_comment(prd_number, f"Completed: {task_id}")
+else:
+    # Log failure
+    state.failed_tasks.append(task_id)
+    # Create follow-up issue if needed
+    create_followup_issue(task_id, response.error)
+    # Decide whether to continue or abort
+    if is_blocking_failure(response.error):
+        abort_execution()
 ```
 
 ## Error Handling
