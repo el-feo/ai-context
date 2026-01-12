@@ -152,11 +152,14 @@ See `skills/worktree-helpers.md` for full documentation.
 
 | Agent | Purpose | Status |
 |-------|---------|--------|
-| `orchestrator` | Central coordinator | Active |
-| `stub-epic-planner` | Epic creation (stub) | Testing |
-| `stub-task-executor` | Task execution (stub) | Testing |
+| `orchestrator` | Central coordinator with state reconstruction, concurrency control, failure recovery | Active |
+| `epic-creator-agent` | Creates Epic issues from PRD analysis | Active |
+| `task-creator-agent` | Creates Task issues from Epic breakdown | Active |
+| `task-executor-agent` | Executes tasks via TDD or Non-TDD workflow | Active |
+| `stub-epic-planner` | Epic creation (stub for testing) | Testing |
+| `stub-task-executor` | Task execution (stub for testing) | Testing |
 
-Stub agents are placeholders for testing the delegation mechanism. They will be replaced with full implementations.
+The orchestrator coordinates all sub-agents via Claude Code's Task tool, managing parallel execution through git worktrees.
 
 ## Usage Examples
 
@@ -194,14 +197,118 @@ If autonomous execution isn't suitable, use original ghpm commands:
 /ghpm:tdd-task task=#46
 ```
 
+## Human Intervention
+
+### PAUSE/RESUME Commands
+
+You can pause and resume the orchestrator at any time by commenting on the PRD issue:
+
+**To pause the workflow:**
+- Comment `PAUSE` on the PRD issue
+- The orchestrator will finish active tasks but won't start new ones
+- An acknowledgment comment confirms the pause
+
+**To resume the workflow:**
+- Comment `RESUME` on the PRD issue
+- The orchestrator will continue from the last checkpoint
+- Failure tracking resets for a fresh start
+
+Comments are case-insensitive: `PAUSE`, `pause`, or `Pause workflow` all work.
+
+### Intervention Check Interval
+
+The orchestrator checks for PAUSE/RESUME comments every 10 seconds (configurable via `GHPMPLUS_INTERVENTION_CHECK`).
+
+## Failure Recovery
+
+### Circuit Breaker Pattern
+
+The orchestrator automatically pauses after multiple consecutive failures to prevent runaway errors:
+
+- **Threshold:** 3 failures (configurable)
+- **Window:** 60 seconds (configurable)
+- **Behavior:** Pause workflow, post failure summary, await manual RESUME
+
+### Failure Summary
+
+When paused due to failures, a summary is posted to the PRD:
+
+```
+## Workflow Paused - Multiple Failures
+
+The orchestrator has paused after 3 consecutive failures within 60 seconds.
+
+### Failed Tasks
+| Task | Error | Time |
+|------|-------|------|
+| #201 | Tests failed | 10:30:15 |
+| #202 | Lint errors | 10:30:25 |
+| #203 | Build failed | 10:30:35 |
+
+### Resume Instructions
+1. Fix any blocking issues
+2. Comment `RESUME` on this PRD issue
+```
+
+### Recovery Actions
+
+After RESUME:
+- Failure counter resets
+- Workflow continues from checkpoint
+- Previously failed tasks are retried
+
+## State Reconstruction
+
+### Resume Capability
+
+The orchestrator can resume from any interruption point by reconstructing state from GitHub:
+
+- **PRD state:** Open/closed, linked Epics
+- **Epic state:** Progress, linked Tasks
+- **Task state:** Pending/in-progress/completed, linked PRs
+- **Checkpoint comments:** YAML snapshots with execution state
+
+### Idempotent Operations
+
+All operations are safe to retry:
+
+| Operation | Guard Check | On Duplicate |
+|-----------|-------------|--------------|
+| Create Epic | Search by title + label | Return existing |
+| Create Task | Search by title + label | Return existing |
+| Create Branch | `git show-ref` | Checkout existing |
+| Create PR | `gh pr list --head` | Return existing |
+| Post Comment | Check for marker | Update existing |
+
+### Checkpoint Format
+
+Progress is tracked via checkpoint comments on the PRD (YAML format):
+
+```yaml
+checkpoint:
+  timestamp: "2024-01-15T10:30:00Z"
+  status: "in_progress"
+  progress:
+    total_tasks: 8
+    completed: 3
+    in_progress: 2
+    pending: 3
+    failed: 0
+  active_tasks: [202, 204]
+  completed_tasks: [201, 205]
+  queued_tasks: [203, 206, 207]
+```
+
 ## Error Handling
 
 | Scenario | Behavior |
 |----------|----------|
-| Task execution fails | Create follow-up issue, continue with other tasks |
+| Task execution fails | Track failure, create follow-up issue, continue with other tasks |
 | CI check fails | Delegate to CI checker for analysis and fix attempt |
 | Worktree conflict | Clean up and recreate |
 | Rate limiting | Exponential backoff |
+| Multiple failures (3 in 60s) | Pause workflow, notify via PRD comment |
+| Manual PAUSE | Graceful stop, save checkpoint, await RESUME |
 
 ## Configuration
 
@@ -211,16 +318,43 @@ If autonomous execution isn't suitable, use original ghpm commands:
 # GitHub Project association (optional)
 export GHPM_PROJECT="Q1 Roadmap"
 
-# Worktree settings
-export GHPMPLUS_WORKTREE_DIR=".worktrees"
-export GHPMPLUS_MAX_PARALLEL=3
+# Concurrency settings
+export GHPMPLUS_MAX_CONCURRENCY=3       # Max parallel task executions
+export GHPMPLUS_WORKTREE_DIR=".worktrees"  # Directory for git worktrees
 
 # Auto-merge passing PRs (use with caution)
 export GHPMPLUS_AUTO_MERGE=false
+
+# Failure recovery settings
+export GHPMPLUS_FAILURE_WINDOW=60       # Seconds for failure tracking window
+export GHPMPLUS_FAILURE_THRESHOLD=3     # Consecutive failures before pause
+
+# Progress tracking
+export GHPMPLUS_CHECKPOINT_INTERVAL=30  # Minimum seconds between checkpoints
+export GHPMPLUS_INTERVENTION_CHECK=10   # Seconds between PAUSE/RESUME checks
 ```
+
+### Configuration Reference
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GHPMPLUS_MAX_CONCURRENCY` | 3 | Maximum parallel task executions |
+| `GHPMPLUS_WORKTREE_DIR` | `.worktrees` | Directory for git worktrees |
+| `GHPMPLUS_AUTO_MERGE` | false | Auto-merge passing PRs |
+| `GHPMPLUS_FAILURE_WINDOW` | 60 | Seconds for failure tracking window |
+| `GHPMPLUS_FAILURE_THRESHOLD` | 3 | Consecutive failures before pause |
+| `GHPMPLUS_CHECKPOINT_INTERVAL` | 30 | Minimum seconds between checkpoints |
+| `GHPMPLUS_INTERVENTION_CHECK` | 10 | Seconds between PAUSE/RESUME checks |
 
 ## Roadmap
 
+- [x] State reconstruction for workflow resume
+- [x] File overlap detection for parallelization
+- [x] Concurrency control with configurable limits
+- [x] Checkpoint comments for progress tracking
+- [x] Failure recovery with circuit breaker
+- [x] PAUSE/RESUME human intervention
+- [x] Idempotent operations for safe re-runs
 - [ ] Replace stub agents with full implementations
 - [ ] Add QA agent for acceptance testing
 - [ ] Implement automatic PR merging (optional)
