@@ -390,6 +390,16 @@ Cleanup should happen:
 
 ## Worktree Isolation Pattern
 
+This section documents the git worktree isolation pattern that enables parallel Task execution without conflicts.
+
+### Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `WORKTREE_DIR` | `.worktrees` | Directory for task worktrees |
+| `BASE_BRANCH` | `main` | Branch to create worktrees from |
+| `CLEANUP_ON_SUCCESS` | `false` | Auto-cleanup after PR creation |
+
 ### Why Worktrees?
 
 Git worktrees allow multiple working directories from the same repository:
