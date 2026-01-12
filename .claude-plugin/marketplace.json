@@ -53,6 +53,15 @@
       "author": {
         "name": "Jeb Coleman"
       }
+    },
+    {
+      "name": "ghpmplus",
+      "source": "./plugins/ghpmplus",
+      "description": "Autonomous GitHub Project Management workflow with orchestrator-agent coordination for parallel task execution via git worktrees",
+      "version": "0.2.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
     }
   ]
 }
