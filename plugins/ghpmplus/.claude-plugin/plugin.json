@@ -6,5 +6,7 @@
     "name": "Jeb Coleman"
   },
   "commands": [],
-  "agents": []
+  "agents": [
+    "./agents/orchestrator-agent.md"
+  ]
 }
