@@ -11,6 +11,7 @@
   ],
   "agents": [
     "./agents/orchestrator-agent.md",
+    "./agents/epic-creator-agent.md",
     "./agents/stub-epic-planner.md",
     "./agents/stub-task-executor.md"
   ]
