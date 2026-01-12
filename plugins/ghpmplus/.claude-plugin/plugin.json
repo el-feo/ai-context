@@ -5,7 +5,9 @@
   "author": {
     "name": "Jeb Coleman"
   },
-  "commands": [],
+  "commands": [
+    "./commands/create-prd.md"
+  ],
   "agents": [
     "./agents/orchestrator-agent.md"
   ]

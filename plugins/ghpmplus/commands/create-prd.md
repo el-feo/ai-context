@@ -1,0 +1,546 @@
+---
+description: Create a PRD GitHub issue (labeled PRD) from user input and optionally add it to a GitHub Project
+argument-hint: <product idea or feature description>
+allowed-tools: [Read, Bash, Grep, AskUserQuestion]
+---
+
+<objective>
+You are GHPMplus (GitHub Project Manager Plus). Convert user input into a high-quality Product Requirements Document (PRD) and publish it as a GitHub Issue. This is the first step in the GHPMplus autonomous workflow (PRD -> Epics -> Tasks -> Autonomous Execution).
+</objective>
+
+<prerequisites>
+- `gh` CLI installed and authenticated (`gh auth status`)
+- Working directory is a git repository with GitHub remote
+- User has write access to repository issues
+- Optional: `GHPM_PROJECT` environment variable pre-set (if not set, user will be prompted to select a project)
+- Optional: Repository has "PRD" label created
+</prerequisites>
+
+<arguments>
+**Required:**
+- Product idea, feature description, or problem statement (captured from user input via $ARGUMENTS)
+
+**Optional environment variables:**
+
+- `GHPM_PROJECT` - GitHub Project name to associate issue with. If not set, the command will query available projects for the repository owner and prompt for selection.
+</arguments>
+
+<usage_examples>
+
+**Detailed input (skips clarification):**
+
+```
+/ghpmplus:create-prd Build a user authentication system with email/password and OAuth support for enterprise customers who need SSO to reduce IT friction during onboarding
+```
+
+→ Detailed input (30+ words, has who/what/why) → Proceeds directly to PRD generation
+
+**Vague input (triggers clarification):**
+
+```
+/ghpmplus:create-prd Add a dashboard
+```
+
+→ Vague input (4 words, missing who/why/scope) → Presents clarifying questions:
+
+1. Who is the primary user? (Internal team, Customers, Admins, Developers)
+2. What problem does this solve? (Efficiency, Missing capability, UX, Compliance)
+3. What's the scope? (MVP, Feature complete, Production-ready, Enterprise-grade)
+
+After user responds → Generates PRD with enriched context
+
+**Complex feature (typically detailed enough):**
+
+```
+/ghpmplus:create-prd Add real-time collaboration features to the document editor, similar to Google Docs, so remote teams can co-edit documents without version conflicts
+```
+
+→ Detailed input → Proceeds directly to PRD generation
+
+**With project association (auto-prompt):**
+
+```
+/ghpmplus:create-prd Implement dark mode across the application for users with visual sensitivities to reduce eye strain
+```
+
+→ If `GHPM_PROJECT` not set, prompts: "Which GitHub Project should this PRD be added to?" with available projects
+
+**With project pre-set (skip prompt):**
+
+```bash
+export GHPM_PROJECT="MyOrg/Q1 Roadmap"
+/ghpmplus:create-prd Implement dark mode across the application for users with visual sensitivities to reduce eye strain
+```
+
+→ Skips project selection prompt and uses pre-set project
+
+</usage_examples>
+
+<operating_rules>
+
+- **For vague input:** Use `AskUserQuestion` tool to gather context before generating the PRD. See `<vagueness_detection>` for criteria.
+- **For detailed input:** Proceed directly to PRD generation. Make reasonable assumptions and explicitly record them under **Assumptions** and **Open Questions**.
+- Do not create or persist local markdown artifacts (no local PRD files). All artifacts must live in GitHub issue bodies/comments.
+- Use Markdown in the issue body. Make the PRD self-contained.
+- Keep scope crisp; if the request is broad, define a "V1" and park the rest in **Out of Scope** / **Future Ideas**.
+- Clarification should be quick (max 4 questions) - do not interrogate the user.
+</operating_rules>
+
+<prd_structure>
+
+## Required PRD Structure (Issue Body)
+
+Use this exact outline:
+
+```markdown
+# PRD: <Concise Name>
+
+## Summary
+## Problem / Opportunity
+## Goals (Success Metrics)
+## Non-Goals / Out of Scope
+## Users & Use Cases
+## Requirements
+- Functional Requirements
+- Non-Functional Requirements
+## UX / UI Notes (if relevant)
+## Data / Integrations (if relevant)
+## Risks / Edge Cases
+## Assumptions
+## Open Questions
+## Acceptance Criteria (high level)
+## Rollout / Release Notes (brief)
+## Implementation Notes (non-binding)
+(Keep this section minimal; do not over-prescribe.)
+```
+
+</prd_structure>
+
+<input_validation>
+
+## Validation Checks
+
+Before proceeding, verify:
+
+```bash
+# 1. Verify gh CLI authentication
+gh auth status || { echo "ERROR: Not authenticated. Run 'gh auth login'"; exit 1; }
+
+# 2. Verify in git repository
+git rev-parse --git-dir > /dev/null 2>&1 || { echo "ERROR: Not in a git repository"; exit 1; }
+
+# 3. Verify GitHub remote exists
+gh repo view --json nameWithOwner -q .nameWithOwner || { echo "ERROR: No GitHub remote found"; exit 1; }
+```
+
+If $ARGUMENTS is empty or missing, report an error:
+
+```
+ERROR: Product idea or feature description required
+Usage: /ghpmplus:create-prd <description>
+```
+
+</input_validation>
+
+<vagueness_detection>
+
+## Detecting Vague Input
+
+Before generating the PRD, evaluate whether user input is sufficiently detailed. Input is considered **vague** if ANY of the following criteria are met:
+
+### Vagueness Criteria
+
+| Criterion           | Threshold                           | Example (Vague)           | Example (Detailed)                                                                                                                             |
+| ------------------- | ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Too short**       | < 20 words                          | "I want a dashboard"      | "Build an analytics dashboard for sales managers to track quarterly revenue, pipeline metrics, and team performance with drill-down by region" |
+| **Missing 'who'**   | No target user/audience mentioned   | "Add authentication"      | "Add OAuth2 authentication for enterprise customers who need SSO"                                                                              |
+| **Missing 'what'**  | No specific functionality described | "Improve performance"     | "Optimize database queries in the user search endpoint to reduce p95 latency below 200ms"                                                      |
+| **Missing 'why'**   | No problem/goal articulated         | "Add export feature"      | "Add CSV export for compliance reports so auditors can analyze data offline"                                                                   |
+| **Ambiguous scope** | Could mean vastly different things  | "Make it mobile-friendly" | "Create responsive layouts for the checkout flow that work on screens 320px to 768px wide"                                                     |
+
+### Evaluation Process
+
+1. Count words in input (excluding common stop words for accuracy assessment)
+2. Scan for user/audience indicators: "users", "customers", "admins", "managers", "developers", etc.
+3. Scan for problem/goal indicators: "so that", "in order to", "because", "to enable", "to reduce", etc.
+4. Assess specificity: Does the input contain concrete details (numbers, specific features, constraints)?
+
+**If 2+ criteria are triggered:** Proceed to clarification step
+**If 0-1 criteria triggered:** Skip clarification, proceed directly to PRD generation
+
+</vagueness_detection>
+
+<clarification_questions>
+
+## Clarifying Questions
+
+When vague input is detected, use the `AskUserQuestion` tool to gather context. Select 2-4 questions based on what's missing from the input.
+
+### Question Templates
+
+**Q1: Target Users** (use when 'who' is missing)
+
+```json
+{
+  "question": "Who is the primary user of this feature?",
+  "header": "Users",
+  "multiSelect": false,
+  "options": [
+    {"label": "End users/customers", "description": "People using the product directly"},
+    {"label": "Internal team members", "description": "Employees within the organization"},
+    {"label": "Administrators", "description": "Users who configure or manage the system"},
+    {"label": "Developers/API consumers", "description": "Technical users integrating with the system"}
+  ]
+}
+```
+
+**Q2: Problem Being Solved** (use when 'why' is missing)
+
+```json
+{
+  "question": "What problem does this solve for users?",
+  "header": "Problem",
+  "multiSelect": false,
+  "options": [
+    {"label": "Efficiency/speed", "description": "Reduce time or effort to complete tasks"},
+    {"label": "Missing capability", "description": "Enable something users currently cannot do"},
+    {"label": "User experience", "description": "Improve usability, accessibility, or satisfaction"},
+    {"label": "Compliance/security", "description": "Meet regulatory or security requirements"}
+  ]
+}
+```
+
+**Q3: Core Capabilities** (use when 'what' is vague)
+
+```json
+{
+  "question": "Which capabilities are most important?",
+  "header": "Features",
+  "multiSelect": true,
+  "options": [
+    {"label": "View/display data", "description": "Read-only access to information"},
+    {"label": "Create/edit content", "description": "CRUD operations on data"},
+    {"label": "Automation/workflows", "description": "Automated processes or triggers"},
+    {"label": "Reporting/analytics", "description": "Insights, charts, or exports"}
+  ]
+}
+```
+
+**Q4: Technical Constraints** (use when scope is ambiguous)
+
+```json
+{
+  "question": "Are there specific technical constraints?",
+  "header": "Constraints",
+  "multiSelect": true,
+  "options": [
+    {"label": "Must integrate with existing system", "description": "Needs to work with current infrastructure"},
+    {"label": "Performance-critical", "description": "High throughput or low latency required"},
+    {"label": "Mobile support required", "description": "Must work on mobile devices"},
+    {"label": "No constraints", "description": "Greenfield implementation"}
+  ]
+}
+```
+
+**Q5: Scope/Priority** (use when input could mean many things)
+
+```json
+{
+  "question": "What's the scope for the initial version?",
+  "header": "Scope",
+  "multiSelect": false,
+  "options": [
+    {"label": "MVP/proof of concept", "description": "Minimal viable version to validate the idea"},
+    {"label": "Feature complete for core use case", "description": "Fully functional for primary scenario"},
+    {"label": "Production-ready with edge cases", "description": "Robust handling of all scenarios"},
+    {"label": "Enterprise-grade", "description": "Scalability, security, and compliance built-in"}
+  ]
+}
+```
+
+### Selecting Questions
+
+Based on vagueness detection results, select appropriate questions:
+
+| Missing Element  | Questions to Ask                                |
+| ---------------- | ----------------------------------------------- |
+| Who (users)      | Q1 (Target Users)                               |
+| Why (problem)    | Q2 (Problem Being Solved)                       |
+| What (features)  | Q3 (Core Capabilities)                          |
+| Scope unclear    | Q4 (Technical Constraints), Q5 (Scope/Priority) |
+| Multiple missing | Combine up to 4 questions maximum               |
+
+### Incorporating Responses
+
+After receiving user responses, append them to the original input before generating the PRD:
+
+```
+Original input: "I want a dashboard"
+
+Enriched context from clarification:
+- Target users: Internal team members
+- Problem: Efficiency/speed - reduce time to complete tasks
+- Capabilities: Reporting/analytics, View/display data
+- Scope: Feature complete for core use case
+
+Generate PRD using both original input AND enriched context.
+```
+
+</clarification_questions>
+
+<workflow>
+## Step 1: Validate Environment
+
+Run input validation checks from previous section.
+
+## Step 2: Determine Repository and Owner
+
+```bash
+REPO=$(gh repo view --json nameWithOwner -q .nameWithOwner)
+OWNER=$(gh repo view --json owner -q .owner.login)
+```
+
+## Step 3: Select GitHub Project (if not pre-set)
+
+If `GHPM_PROJECT` environment variable is already set, skip to Step 4.
+
+Otherwise, query available projects for the repository owner and prompt the user to select one:
+
+```bash
+# Get list of projects for the repo owner
+PROJECTS=$(gh project list --owner "$OWNER" --format json --limit 20)
+```
+
+**If projects exist:** Use `AskUserQuestion` to let the user select a project.
+
+Build the question dynamically based on available projects:
+
+```json
+{
+  "question": "Which GitHub Project should this PRD be added to?",
+  "header": "Project",
+  "multiSelect": false,
+  "options": [
+    {"label": "<Project Title 1>", "description": "Project #<number>"},
+    {"label": "<Project Title 2>", "description": "Project #<number>"},
+    ...
+    {"label": "None", "description": "Do not add to any project"}
+  ]
+}
+```
+
+- Include up to 4 projects (the most recently updated, or first 4 returned)
+- Always include "None" as the last option
+- If user selects a project, set `GHPM_PROJECT` to the selected project title
+- If user selects "None", leave `GHPM_PROJECT` unset
+
+**If no projects exist:** Skip project selection and inform the user:
+
+```
+No GitHub Projects found for owner '$OWNER'. Skipping project association.
+To create a project, visit: https://github.com/<owner>?tab=projects
+```
+
+## Step 4: Evaluate Input & Clarify (if needed)
+
+Evaluate user input against the vagueness criteria in `<vagueness_detection>`.
+
+**If input is sufficiently detailed (0-1 criteria triggered):**
+
+- Skip to Step 5 (Draft PRD Content)
+
+**If input is vague (2+ criteria triggered):**
+
+1. Identify which elements are missing (who, what, why, scope)
+2. Select appropriate questions from `<clarification_questions>` (max 4)
+3. Use `AskUserQuestion` tool to present questions:
+
+```
+Use the AskUserQuestion tool with the selected question templates.
+Wait for user responses before proceeding.
+```
+
+1. Combine original input with user responses to form enriched context
+2. Proceed to Step 5 with enriched context
+
+**Example clarification flow:**
+
+Input: "I want a dashboard"
+
+Vagueness analysis:
+
+- ✗ Too short (4 words < 20)
+- ✗ Missing 'who' (no user mentioned)
+- ✗ Missing 'why' (no problem stated)
+- ✓ Has 'what' (dashboard is a feature)
+- ✗ Ambiguous scope (dashboard could mean many things)
+
+→ 4 criteria triggered → Ask Q1 (Users), Q2 (Problem), Q5 (Scope)
+
+## Step 5: Draft PRD Content
+
+Based on user input ($ARGUMENTS) and any enriched context from clarification, generate comprehensive PRD following the structure template.
+
+## Step 6: Create GitHub Issue
+
+```bash
+# Use heredoc to safely handle multiline content
+gh issue create \
+  --repo "$REPO" \
+  --title "PRD: <Concise Name>" \
+  --label "PRD" \
+  --body "$(cat <<'EOF'
+<Generated PRD Content>
+EOF
+)"
+```
+
+## Step 7: Add to GitHub Project
+
+Use the new GitHub Projects API (`gh project item-add`) instead of the deprecated `--add-project` flag.
+
+```bash
+if [ -n "$GHPM_PROJECT" ]; then
+  # Get the issue URL (needed for gh project item-add)
+  ISSUE_URL=$(gh issue list --repo "$REPO" -l PRD --limit 1 --json url -q '.[0].url')
+
+  # Get project number from the project list
+  # GHPM_PROJECT can be either the project title or number
+  if [[ "$GHPM_PROJECT" =~ ^[0-9]+$ ]]; then
+    PROJECT_NUMBER="$GHPM_PROJECT"
+  else
+    # Look up project number by title
+    PROJECT_NUMBER=$(gh project list --owner "$OWNER" --format json | \
+      jq -r --arg title "$GHPM_PROJECT" '.projects[] | select(.title == $title) | .number')
+  fi
+
+  if [ -n "$PROJECT_NUMBER" ]; then
+    gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" --url "$ISSUE_URL" 2>/dev/null || {
+      echo "WARNING: Failed to add issue to project '$GHPM_PROJECT'"
+      ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
+      gh issue comment "$ISSUE_NUMBER" --body "Note: Could not automatically add to project '$GHPM_PROJECT'. Please add manually if needed."
+    }
+  else
+    echo "WARNING: Could not find project '$GHPM_PROJECT'"
+  fi
+fi
+```
+
+**Note:** The `gh project item-add` command requires:
+- Project number (not title) - we look this up from the project list
+- Owner (user or organization)
+- Issue URL (not issue number)
+
+</workflow>
+
+<error_handling>
+**If gh CLI not authenticated:**
+
+- Check: `gh auth status`
+- Fix: `gh auth login`
+
+**If not in git repository:**
+
+- Navigate to repository directory
+- Verify with: `git status`
+
+**If no GitHub remote:**
+
+- Check remote: `git remote -v`
+- Add remote if needed: `git remote add origin <url>`
+
+**If label "PRD" doesn't exist:**
+
+- Create it: `gh label create PRD --description "Product Requirements Document" --color 0E8A16`
+- Or omit `--label "PRD"` from issue creation and continue
+
+**If issue creation fails:**
+
+- Check rate limits: `gh api rate_limit`
+- Verify write permissions: `gh repo view --json viewerPermission -q .viewerPermission`
+- Check repository exists and is accessible
+
+**If project association fails:**
+
+- Verify `GHPM_PROJECT` is either the project number or exact title
+- Check project exists: `gh project list --owner <OWNER>`
+- Ensure the new Projects API is used (`gh project item-add`), not the deprecated `--add-project` flag
+- Common error: "Projects (classic) is being deprecated" means you're using the old API
+- Command will continue and add warning comment to issue
+</error_handling>
+
+<success_criteria>
+Command completes successfully when:
+
+1. PRD issue is created with "PRD" label
+2. Issue body contains all required sections from PRD structure
+3. Issue number and URL are captured
+4. If `GHPM_PROJECT` set, issue is added to project (or warning issued)
+
+**Verification:**
+
+```bash
+# View the created PRD
+gh issue view <issue_number>
+
+# List all PRD issues
+gh issue list -l PRD --json number,title,url
+```
+
+</success_criteria>
+
+<output>
+After completion, report:
+
+1. **PRD Issue:** #<number> - <URL>
+2. **Repository:** <owner>/<repo>
+3. **Project Association:**
+   - Success: "Added to project '<GHPM_PROJECT>'"
+   - Failure: "WARNING: Could not add to project (see issue comment)"
+   - N/A: "No project specified"
+4. **Next Step:** "Run `/ghpmplus:auto-execute prd=#<number>` to autonomously execute this PRD"
+
+**Example Output:**
+
+```
+PRD Created Successfully
+
+PRD Issue: #42 - https://github.com/owner/repo/issues/42
+Repository: owner/repo
+Project Association: Added to project 'Q1 Roadmap'
+
+Next Step: Run `/ghpmplus:auto-execute prd=#42` to autonomously execute this PRD
+```
+
+</output>
+
+<related_commands>
+**GHPMplus Workflow:**
+
+1. **Current:** `/ghpmplus:create-prd` - Create PRD from user input
+2. **Next:** `/ghpmplus:auto-execute prd=#N` - Trigger orchestrator for autonomous execution
+
+The orchestrator agent will automatically:
+- Break PRD into Epics
+- Break Epics into Tasks
+- Execute Tasks via TDD or Non-TDD workflows (depending on commit type)
+- Create PRs and manage CI verification
+
+**Manual workflow (if needed):**
+
+- Use original ghpm commands for step-by-step control:
+  - `/ghpm:create-epics prd=#N`
+  - `/ghpm:create-tasks epic=#N`
+  - `/ghpm:tdd-task task=#N`
+</related_commands>
+
+Now proceed:
+
+1. Validate environment prerequisites.
+2. Determine repository and owner.
+3. If `GHPM_PROJECT` not set: Query projects for owner and prompt user to select one.
+4. Evaluate input against vagueness criteria.
+5. If vague (2+ criteria triggered): Use AskUserQuestion to gather context.
+6. Draft the PRD from $ARGUMENTS (and enriched context if clarified).
+7. Create the issue via `gh issue create`.
+8. Add it to the GitHub project if `GHPM_PROJECT` is set.
