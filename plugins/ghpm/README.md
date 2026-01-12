@@ -288,6 +288,88 @@ To track estimates in GitHub Projects, add a Number field named "Estimate":
 
 When `GHPM_PROJECT` is set, `/ghpm:create-tasks` will automatically populate this field.
 
+## Review Cycle Coordination
+
+GHPM includes agents that coordinate the automated review → fix → review cycle for PRs, ensuring quality gates are met before merge.
+
+### Agents
+
+| Agent | Purpose |
+|-------|---------|
+| `pr-review` | Reviews PRs against Task specifications, checks code quality, posts actionable feedback |
+| `conflict-resolver` | Detects and resolves merge conflicts, categorizes by complexity |
+| `review-cycle-coordinator` | Orchestrates the full review-fix-review cycle with iteration limits |
+
+### Review Cycle Flow
+
+```
+┌─────────────┐    ┌────────────┐    ┌───────────────┐
+│ PR Created  │───►│ pr-review  │───►│   APPROVED    │───► Merge Ready
+└─────────────┘    │   agent    │    └───────────────┘
+                   └─────┬──────┘
+                         │ CHANGES_REQUESTED
+                         ▼
+                   ┌───────────────┐
+                   │ task-executor │
+                   │ fixes issues  │
+                   └───────┬───────┘
+                           │ (iteration < 3)
+                           ▼
+                   ┌───────────────┐
+                   │   Re-review   │───► (loop back to pr-review)
+                   └───────────────┘
+                           │ (iteration >= 3)
+                           ▼
+                   ┌───────────────┐
+                   │   ESCALATE    │───► Human Review Required
+                   └───────────────┘
+```
+
+### Iteration Limits
+
+The review cycle enforces a maximum of 3 iterations before escalating to human review:
+
+| Iteration | Action |
+|-----------|--------|
+| 1-3 | pr-review-agent posts feedback, task-executor addresses issues |
+| 4+ | Cycle terminates with human escalation summary |
+
+### Conflict Handling
+
+When merge conflicts are detected during the review cycle:
+
+1. `conflict-resolver-agent` is invoked automatically
+2. **Simple conflicts** (whitespace, imports, lockfiles) are auto-resolved
+3. **Complex conflicts** (semantic, deleted vs modified) escalate to human
+4. After resolution, the review cycle continues
+
+### Audit Trail
+
+All state transitions are logged in PR comments for full auditability:
+
+```markdown
+## Review Cycle Coordinator - Iteration 2
+
+**Status:** CHANGES_REQUESTED → AWAITING_FIXES
+
+### Review Feedback Summary
+- [blocking] Missing test coverage for error handling
+- [should-fix] Consider extracting validation logic
+
+### Next Steps
+The task-executor-agent should address feedback and push commits.
+```
+
+### CI Integration
+
+The `ci-check` agent monitors GitHub Actions after PR creation:
+
+1. Waits for CI to complete (up to 10 minutes)
+2. Analyzes failures: **in-scope** (related to PR) vs **out-of-scope** (pre-existing)
+3. Fixes in-scope failures automatically
+4. Creates follow-up issues for out-of-scope failures
+5. Posts CI Check Report to the PR
+
 ## Conventional Commits
 
 All commits and PR titles follow [Conventional Commits](https://www.conventionalcommits.org/) format:
