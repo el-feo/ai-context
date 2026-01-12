@@ -13,6 +13,7 @@
     "./agents/orchestrator-agent.md",
     "./agents/epic-creator-agent.md",
     "./agents/task-creator-agent.md",
+    "./agents/task-executor-agent.md",
     "./agents/stub-epic-planner.md",
     "./agents/stub-task-executor.md"
   ]
