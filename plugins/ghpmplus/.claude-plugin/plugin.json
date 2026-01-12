@@ -6,7 +6,8 @@
     "name": "Jeb Coleman"
   },
   "commands": [
-    "./commands/create-prd.md"
+    "./commands/create-prd.md",
+    "./commands/auto-execute.md"
   ],
   "agents": [
     "./agents/orchestrator-agent.md"
