@@ -1,0 +1,10 @@
+{
+  "name": "ghpmplus",
+  "version": "0.1.0",
+  "description": "Autonomous GitHub Project Management workflow with orchestrator-agent coordination for parallel task execution via git worktrees",
+  "author": {
+    "name": "Jeb Coleman"
+  },
+  "commands": [],
+  "agents": []
+}
