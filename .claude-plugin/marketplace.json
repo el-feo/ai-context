@@ -57,8 +57,8 @@
     {
       "name": "ghpmplus",
       "source": "./plugins/ghpmplus",
-      "description": "Autonomous GitHub Project Management workflow with orchestrator-agent coordination for parallel task execution via git worktrees",
-      "version": "0.2.0",
+      "description": "Autonomous GitHub Project Management with orchestrator-agent coordination, parallel task execution via git worktrees, state reconstruction, and failure recovery",
+      "version": "0.2.1",
       "author": {
         "name": "Jeb Coleman"
       }
