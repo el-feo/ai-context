@@ -207,9 +207,9 @@ fi
 
 ### State Reconstruction Algorithm
 
-```
-function reconstruct_state(prd_number):
-    state = new WorkflowState()
+```python
+def reconstruct_state(prd_number):
+    state = WorkflowState()
 
     # 1. Fetch PRD
     prd = gh_issue_view(prd_number)
@@ -274,8 +274,8 @@ echo "$TASK_BODY" | sed -n '/Files to modify:/,/^##/p' | grep -oE '[a-zA-Z0-9_./
 
 ### Building Overlap Groups
 
-```
-function detect_overlaps(tasks):
+```python
+def detect_overlaps(tasks):
     file_to_tasks = {}
 
     # Build file -> task mapping
@@ -332,7 +332,7 @@ overlap_analysis:
 
 ## Concurrency Control
 
-### Configuration
+### Environment Variables
 
 ```bash
 # Read from environment with defaults
@@ -342,14 +342,14 @@ WORKTREE_DIR=${GHPMPLUS_WORKTREE_DIR:-.worktrees}
 
 ### Execution Queue Management
 
-```
+```python
 class ExecutionController:
     max_concurrency: int
-    active_tasks: List[int]
-    queued_tasks: List[int]
-    overlap_groups: Dict[int, List[int]]  # task -> group
+    active_tasks: list
+    queued_tasks: list
+    overlap_groups: dict  # task -> group
 
-    function can_start_task(task_id):
+    def can_start_task(self, task_id):
         # Check concurrency limit
         if len(active_tasks) >= max_concurrency:
             return False
@@ -363,12 +363,12 @@ class ExecutionController:
 
         return True
 
-    function start_task(task_id):
+    def start_task(self, task_id):
         active_tasks.append(task_id)
         queued_tasks.remove(task_id)
         log(f"Started task #{task_id}. Active: {len(active_tasks)}/{max_concurrency}")
 
-    function complete_task(task_id, success):
+    def complete_task(self, task_id, success):
         active_tasks.remove(task_id)
         completed_tasks.append(task_id)
 
@@ -379,7 +379,7 @@ class ExecutionController:
             failed_tasks.append(task_id)
             track_failure(task_id)
 
-    function start_next_eligible():
+    def start_next_eligible(self):
         for task_id in queued_tasks:
             if can_start_task(task_id):
                 start_task(task_id)
@@ -412,8 +412,8 @@ function execute_parallel_tasks(task_ids):
 
 For serialized groups, coordinate merge order:
 
-```
-function coordinate_merge_order(group):
+```python
+def coordinate_merge_order(group):
     # Sort by task number (first created merges first)
     ordered = sorted(group.tasks, key=lambda t: t.number)
 
@@ -479,12 +479,11 @@ checkpoint:
   failure_tracking:
     recent_count: 0
     paused: false
-```
 
-**Links:**
-- PRD: #42
-- Active PRs: #56
-- Merged PRs: #55, #57
+# Links:
+# - PRD: #42
+# - Active PRs: #56
+# - Merged PRs: #55, #57
 ```
 
 ### Posting Checkpoints
@@ -512,10 +511,10 @@ function post_checkpoint(prd_number, state):
 
 Avoid comment spam by batching updates:
 
-```
+```python
 MIN_CHECKPOINT_INTERVAL = 30  # seconds
 
-function should_post_checkpoint():
+def should_post_checkpoint():
     now = current_time()
     if (now - last_checkpoint_time) < MIN_CHECKPOINT_INTERVAL:
         return False
@@ -561,13 +560,13 @@ Post high-level progress updates separately from technical checkpoints:
 
 Track consecutive failures within a sliding time window:
 
-```
+```python
 class FailureTracker:
-    failures: List[FailureRecord]  # (timestamp, task_id, error)
+    failures: list  # (timestamp, task_id, error)
     window_seconds: int = 60
     threshold: int = 3
 
-    function record_failure(task_id, error):
+    def record_failure(self, task_id, error):
         failures.append(FailureRecord(
             timestamp=now(),
             task_id=task_id,
@@ -584,7 +583,7 @@ class FailureTracker:
 
         return None
 
-    function reset_on_success():
+    def reset_on_success(self):
         # Clear failure history on successful task
         failures.clear()
 ```
@@ -675,63 +674,50 @@ function check_for_intervention(prd_number, last_check_time):
 
 ### PAUSE Handling
 
-```
-function handle_pause():
+```python
+def handle_pause():
     log("PAUSE command detected. Gracefully stopping...")
 
     # 1. Stop starting new tasks
-    state.paused = true
+    state.paused = True
 
     # 2. Wait for active tasks to complete (don't kill them)
     wait_for_active_tasks()
 
-    # 3. Post acknowledgment
-    gh issue comment "$PRD_NUMBER" --body "$(cat <<EOF
-## ✋ Workflow Paused
-
-Acknowledged PAUSE command. The orchestrator has stopped starting new tasks.
-
-**Status at pause:**
-- Completed: ${state.completed_tasks.length} tasks
-- Remaining: ${state.queued_tasks.length} tasks
-
-To resume, comment \`RESUME\` on this issue.
-
----
-*Paused at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
-EOF
-)"
+    # 3. Post acknowledgment comment to PRD
+    post_pause_acknowledgment(prd_number, state)
 
     # 4. Save checkpoint
-    post_checkpoint("$PRD_NUMBER", state)
+    post_checkpoint(prd_number, state)
 ```
+
+**Pause acknowledgment comment format:**
+
+> ## Workflow Paused
+>
+> Acknowledged PAUSE command. The orchestrator has stopped starting new tasks.
+>
+> **Status at pause:**
+>
+> - Completed: N tasks
+> - Remaining: M tasks
+>
+> To resume, comment `RESUME` on this issue.
 
 ### RESUME Handling
 
-```
-function handle_resume():
+```python
+def handle_resume():
     log("RESUME command detected. Continuing workflow...")
 
     # 1. Clear pause flag
-    state.paused = false
+    state.paused = False
 
     # 2. Reset failure tracking (give fresh start)
     failure_tracker.reset()
 
     # 3. Post acknowledgment
-    gh issue comment "$PRD_NUMBER" --body "$(cat <<EOF
-## ▶️ Workflow Resumed
-
-Acknowledged RESUME command. Continuing execution from checkpoint.
-
-**Current status:**
-- Completed: ${state.completed_tasks.length} tasks
-- Remaining: ${state.queued_tasks.length} tasks
-
----
-*Resumed at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*
-EOF
-)"
+    post_resume_acknowledgment(prd_number, state)
 
     # 4. Continue execution
     continue_execution()
@@ -739,10 +725,10 @@ EOF
 
 ### Intervention Check Interval
 
-```
+```python
 INTERVENTION_CHECK_INTERVAL = 10  # seconds
 
-function execution_loop():
+def execution_loop():
     while not complete:
         # Process tasks
         process_next_batch()
@@ -834,14 +820,14 @@ function post_comment_if_unique(issue_number, marker, body):
 
 ### Idempotency Summary
 
-| Operation | Guard Check | On Duplicate |
-|-----------|-------------|--------------|
-| Create Epic | Search by title + label | Return existing number |
-| Create Task | Search by title + label | Return existing number |
-| Create Branch | `git show-ref` | Checkout existing |
-| Create PR | `gh pr list --head` | Return existing PR |
-| Create Worktree | Check directory exists | Use existing |
-| Post Checkpoint | Check for marker | Update existing |
+| Operation       | Guard Check              | On Duplicate           |
+|-----------------|--------------------------|------------------------|
+| Create Epic     | Search by title + label  | Return existing number |
+| Create Task     | Search by title + label  | Return existing number |
+| Create Branch   | `git show-ref`           | Checkout existing      |
+| Create PR       | `gh pr list --head`      | Return existing PR     |
+| Create Worktree | Check directory exists   | Use existing           |
+| Post Checkpoint | Check for marker         | Update existing        |
 
 ---
 
@@ -850,6 +836,7 @@ function post_comment_if_unique(issue_number, marker, body):
 ### Phase 1: PRD Hydration
 
 Fetch the PRD issue and extract:
+
 - Objective and scope
 - User stories
 - Acceptance criteria
@@ -864,11 +851,11 @@ gh issue view "$PRD_NUMBER" --json title,body,labels,url
 
 Before starting work, reconstruct state from GitHub:
 
-```
+```python
 state = reconstruct_state(prd_number)
 
 if state.has_progress():
-    log(f"Resuming from checkpoint. {state.completed_tasks.length} tasks already done.")
+    log(f"Resuming from checkpoint. {len(state.completed_tasks)} tasks already done.")
 else:
     log("Starting fresh execution.")
 ```
@@ -887,11 +874,12 @@ Use the Task tool with subagent_type="ghpmplus:epic-planner" to:
 ### Phase 4: Dependency Analysis
 
 Analyze task dependencies to determine execution strategy:
+
 - **Independent tasks** → Execute in parallel via worktrees
 - **Dependent tasks** → Execute sequentially
 - **Shared file tasks** → Batch into single PR
 
-```
+```python
 overlap_analysis = detect_overlaps(all_tasks)
 execution_plan = build_execution_plan(overlap_analysis)
 ```
@@ -922,6 +910,7 @@ Use the Task tool with subagent_type="ghpmplus:task-executor" to:
 ### Phase 7: Integration & QA
 
 After all tasks complete:
+
 1. Verify all PRs pass CI
 2. Run integration tests if defined
 3. Coordinate PR merges in dependency order
@@ -944,13 +933,13 @@ gh issue comment "$PRD_NUMBER" --body "## Execution Complete\n\n..."
 
 The orchestrator delegates to these sub-agents via Task tool:
 
-| Sub-Agent | Purpose |
-|-----------|---------|
-| `epic-planner` | Breaks PRD into Epics |
-| `task-planner` | Breaks Epics into Tasks |
-| `task-executor` | Executes individual tasks (TDD/Non-TDD) |
-| `ci-checker` | Monitors and handles CI status |
-| `qa-agent` | Runs QA validation |
+| Sub-Agent       | Purpose                                  |
+|-----------------|------------------------------------------|
+| `epic-planner`  | Breaks PRD into Epics                    |
+| `task-planner`  | Breaks Epics into Tasks                  |
+| `task-executor` | Executes individual tasks (TDD/Non-TDD)  |
+| `ci-checker`    | Monitors and handles CI status           |
+| `qa-agent`      | Runs QA validation                       |
 
 ### Task Tool Delegation Pattern
 
@@ -1058,6 +1047,7 @@ else:
 ## Success Criteria
 
 Orchestrator completes successfully when:
+
 - All Tasks under the PRD have PRs created
 - All PRs pass CI checks
 - PRD issue is updated with completion summary
@@ -1070,12 +1060,12 @@ Orchestrator completes successfully when:
 
 The orchestrator respects these environment variables:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `GHPMPLUS_MAX_CONCURRENCY` | 3 | Maximum parallel task executions |
-| `GHPMPLUS_WORKTREE_DIR` | `.worktrees` | Directory for git worktrees |
-| `GHPMPLUS_AUTO_MERGE` | false | Auto-merge passing PRs |
-| `GHPMPLUS_FAILURE_WINDOW` | 60 | Seconds for failure tracking window |
-| `GHPMPLUS_FAILURE_THRESHOLD` | 3 | Consecutive failures before pause |
-| `GHPMPLUS_CHECKPOINT_INTERVAL` | 30 | Minimum seconds between checkpoints |
-| `GHPMPLUS_INTERVENTION_CHECK` | 10 | Seconds between PAUSE/RESUME checks |
+| Variable                       | Default      | Description                          |
+|--------------------------------|--------------|--------------------------------------|
+| `GHPMPLUS_MAX_CONCURRENCY`     | 3            | Maximum parallel task executions     |
+| `GHPMPLUS_WORKTREE_DIR`        | `.worktrees` | Directory for git worktrees          |
+| `GHPMPLUS_AUTO_MERGE`          | false        | Auto-merge passing PRs               |
+| `GHPMPLUS_FAILURE_WINDOW`      | 60           | Seconds for failure tracking window  |
+| `GHPMPLUS_FAILURE_THRESHOLD`   | 3            | Consecutive failures before pause    |
+| `GHPMPLUS_CHECKPOINT_INTERVAL` | 30           | Minimum seconds between checkpoints  |
+| `GHPMPLUS_INTERVENTION_CHECK`  | 10           | Seconds between PAUSE/RESUME checks  |
