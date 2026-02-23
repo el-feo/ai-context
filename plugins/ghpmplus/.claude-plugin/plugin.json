@@ -1,20 +1,25 @@
 {
   "name": "ghpmplus",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Autonomous GitHub Project Management workflow with orchestrator-agent coordination for parallel task execution via git worktrees",
   "author": {
     "name": "Jeb Coleman"
   },
   "commands": [
     "./commands/create-prd.md",
-    "./commands/auto-execute.md"
+    "./commands/auto-execute.md",
+    "./commands/team-execute.md"
   ],
   "agents": [
     "./agents/orchestrator-agent.md",
     "./agents/epic-creator-agent.md",
     "./agents/task-creator-agent.md",
     "./agents/task-executor-agent.md",
-    "./agents/stub-epic-planner.md",
-    "./agents/stub-task-executor.md"
+    "./agents/pr-review-agent.md",
+    "./agents/conflict-resolver-agent.md",
+    "./agents/review-cycle-coordinator-agent.md",
+    "./agents/ci-check-agent.md",
+    "./agents/qa-planner-agent.md",
+    "./agents/qa-executor-agent.md"
   ]
 }

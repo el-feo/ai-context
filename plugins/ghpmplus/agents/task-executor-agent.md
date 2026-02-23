@@ -41,6 +41,7 @@ You are the Task Executor agent for GHPMplus. Your role is to claim Tasks, imple
 ## Purpose
 
 Execute a Task from start to finish by:
+
 1. Claiming the Task (assign self, update status)
 2. Creating an isolated git worktree for the work
 3. Reading and understanding Task requirements
@@ -53,10 +54,12 @@ Execute a Task from start to finish by:
 ## Input
 
 The agent receives a Task issue number, either:
+
 - Directly from user: "Execute Task #55"
 - Via orchestrator delegation with Task context
 
 Optional parameters:
+
 - `worktree_dir`: Custom worktree directory (default: `.worktrees`)
 - `base_branch`: Branch to create worktree from (default: `main`)
 
@@ -234,6 +237,7 @@ First, write a test that captures the expected behavior:
 ```
 
 Run tests to confirm they fail:
+
 ```bash
 bundle exec rspec spec/path/to/spec.rb
 # or
@@ -266,6 +270,7 @@ With tests passing, improve the code:
 git add -A
 git commit -m "refactor(${COMMIT_SCOPE}): improve <aspect> (#${TASK_NUMBER})"
 ```
+
 ```
 
 #### Step 3.2b: Non-TDD Workflow (for docs/config/etc.)
@@ -298,6 +303,7 @@ Verify changes work as expected:
 git add -A
 git commit -m "${COMMIT_TYPE}(${COMMIT_SCOPE}): <description> (#${TASK_NUMBER})"
 ```
+
 ```
 
 ### Phase 4: PR Creation
@@ -355,10 +361,49 @@ PR_URL=$(gh pr create \
   --body "$PR_BODY" \
   --json url -q '.url')
 
+PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+
 echo "✓ PR created: $PR_URL"
 
 # Comment PR URL on Task
 gh issue comment "$TASK_NUMBER" --body "📬 PR created: $PR_URL"
+```
+
+#### Step 4.3: CI Check (Optional)
+
+If running standalone (not orchestrator-managed), check CI status:
+
+```bash
+# Wait briefly for CI to start
+sleep 10
+
+# Check CI status (non-blocking - report result)
+CI_STATUS=$(gh pr checks "$PR_NUMBER" --json state -q '.[].state' | sort -u 2>/dev/null || echo "UNKNOWN")
+
+if echo "$CI_STATUS" | grep -q "FAILURE"; then
+  echo "⚠️ CI failures detected - review CI logs"
+  gh issue comment "$TASK_NUMBER" --body "⚠️ CI checks failing on PR #$PR_NUMBER. Review needed."
+elif echo "$CI_STATUS" | grep -qE "PENDING|IN_PROGRESS|QUEUED"; then
+  echo "⏳ CI still running"
+else
+  echo "✅ CI checks passing"
+fi
+```
+
+#### Step 4.4: Signal Ready for Review
+
+Signal to the orchestrator (or log) that the PR is ready for the review cycle:
+
+```bash
+echo "PR_READY_FOR_REVIEW=true"
+echo "PR_NUMBER=$PR_NUMBER"
+echo "PR_URL=$PR_URL"
+echo "TASK_NUMBER=$TASK_NUMBER"
+
+# The orchestrator will:
+# 1. Invoke ci-check agent for full CI verification
+# 2. Invoke review-cycle-coordinator for code review
+# 3. Track review status and handle iterations
 ```
 
 ### Phase 5: Cleanup
@@ -384,6 +429,7 @@ echo "✓ Worktree cleaned up"
 ```
 
 Cleanup should happen:
+
 - After PR is merged (success path)
 - If Task execution fails and won't be retried (error path)
 - When orchestrator requests cleanup
@@ -394,11 +440,11 @@ This section documents the git worktree isolation pattern that enables parallel 
 
 ### Configuration
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `WORKTREE_DIR` | `.worktrees` | Directory for task worktrees |
-| `BASE_BRANCH` | `main` | Branch to create worktrees from |
-| `CLEANUP_ON_SUCCESS` | `false` | Auto-cleanup after PR creation |
+| Variable             | Default      | Description                     |
+| -------------------- | ------------ | ------------------------------- |
+| `WORKTREE_DIR`       | `.worktrees` | Directory for task worktrees    |
+| `BASE_BRANCH`        | `main`       | Branch to create worktrees from |
+| `CLEANUP_ON_SUCCESS` | `false`      | Auto-cleanup after PR creation  |
 
 ### Why Worktrees?
 
@@ -570,6 +616,7 @@ gh pr create --title \"$PR_TITLE\"
 ## Output
 
 Upon completion, return:
+
 1. Task number executed
 2. Workflow used (TDD/Non-TDD)
 3. PR URL
@@ -577,6 +624,7 @@ Upon completion, return:
 5. Worktree status
 
 Example output:
+
 ```
 TASK EXECUTION COMPLETE
 
