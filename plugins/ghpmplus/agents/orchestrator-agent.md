@@ -865,9 +865,11 @@ else:
 Delegate to planner sub-agents to break down work:
 
 ```markdown
-Use the Task tool with subagent_type="ghpmplus:epic-planner" to:
+Use the Task tool with subagent_type="ghpmplus:epic-creator" to:
 1. Analyze the PRD requirements
 2. Create Epic issues with proper structure
+
+Then use the Task tool with subagent_type="ghpmplus:task-creator" to:
 3. Break Epics into atomic Task issues
 ```
 
@@ -907,15 +909,167 @@ Use the Task tool with subagent_type="ghpmplus:task-executor" to:
 3. Report completion status
 ```
 
-### Phase 7: Integration & QA
+### Phase 7: Review Cycle
 
-After all tasks complete:
+After each task-executor creates a PR, run the review cycle:
 
-1. Verify all PRs pass CI
-2. Run integration tests if defined
-3. Coordinate PR merges in dependency order
+#### Step 7.1: CI Verification
 
-### Phase 8: Cleanup & Reporting
+For each PR created by task-executor:
+
+```markdown
+Use the Task tool with subagent_type="ghpmplus:ci-check" to:
+
+Check CI status for PR #$PR_NUMBER.
+
+Context:
+- PR: #$PR_NUMBER
+- Task: #$TASK_NUMBER
+- Branch: $BRANCH_NAME
+
+Instructions:
+1. Wait for CI checks to complete
+2. Analyze any failures
+3. Fix in-scope failures, create issues for out-of-scope
+4. Return CI status: PASSED | FAILED | PARTIALLY_FIXED
+
+Expected Output:
+- CI status
+- List of fixes applied (if any)
+- List of follow-up issues created (if any)
+```
+
+#### Step 7.2: Review Cycle Coordination
+
+After CI passes, invoke the review cycle:
+
+```markdown
+Use the Task tool with subagent_type="ghpmplus:review-cycle-coordinator" to:
+
+Run the review cycle on PR #$PR_NUMBER for Task #$TASK_NUMBER.
+
+Context:
+- PR: #$PR_NUMBER
+- Task: #$TASK_NUMBER
+- Max Iterations: 3
+
+Instructions:
+1. Invoke pr-review agent for code review
+2. If changes requested, apply fixes and re-review
+3. Track iterations and escalate after max
+4. Return final status
+
+Expected Output:
+- Final review status: APPROVED | ESCALATED
+- Number of iterations used
+- Summary of changes made
+```
+
+#### Step 7.3: Track Review Status
+
+Update the orchestrator state with review results:
+
+```yaml
+review_tracking:
+  - pr_number: 56
+    task_number: 202
+    review_status: "APPROVED"  # PENDING | IN_REVIEW | CHANGES_REQUESTED | APPROVED | ESCALATED
+    iterations: 2
+  - pr_number: 57
+    task_number: 203
+    review_status: "IN_REVIEW"
+    iterations: 0
+```
+
+#### Step 7.4: Handle Escalation
+
+When a PR is escalated (max iterations reached):
+
+```bash
+# Label PR for human review
+gh pr edit "$PR_NUMBER" --add-label "needs-human-review"
+
+# Update checkpoint with escalation info
+# Do not block other tasks - continue with remaining work
+
+# Log escalation in PRD comment
+gh issue comment "$PRD_NUMBER" --body "
+PR #$PR_NUMBER (Task #$TASK_NUMBER) has been escalated for human review after 3 review iterations.
+Remaining tasks continue executing.
+"
+```
+
+#### Step 7.5: Merge Approved PRs
+
+After a PR is approved:
+
+```bash
+# Check if GHPMPLUS_AUTO_MERGE is enabled
+if [ "$GHPMPLUS_AUTO_MERGE" = "true" ]; then
+  # Verify PR is still mergeable
+  MERGEABLE=$(gh pr view "$PR_NUMBER" --json mergeable -q '.mergeable')
+  if [ "$MERGEABLE" = "MERGEABLE" ]; then
+    gh pr merge "$PR_NUMBER" --squash --delete-branch
+    echo "PR #$PR_NUMBER merged and branch deleted"
+  fi
+else
+  echo "PR #$PR_NUMBER approved - awaiting manual merge"
+fi
+```
+
+### Phase 8: QA (Optional)
+
+After implementation and review cycles complete, run QA if acceptance criteria exist:
+
+#### Step 8.1: Create QA Plan
+
+```markdown
+Use the Task tool with subagent_type="ghpmplus:qa-planner" to:
+
+Create QA plan for PRD #$PRD_NUMBER.
+
+Context:
+- PRD: #$PRD_NUMBER
+- Completed Tasks: $COMPLETED_TASKS
+- Merged PRs: $MERGED_PRS
+
+Instructions:
+1. Extract acceptance criteria from PRD
+2. Create QA issue linked to PRD
+3. Generate QA steps as sub-issues
+4. Return QA issue number and step count
+
+Expected Output:
+- QA issue number
+- List of QA step numbers
+- Total step count
+```
+
+#### Step 8.2: Execute QA Steps
+
+```markdown
+Use the Task tool with subagent_type="ghpmplus:qa-executor" to:
+
+Execute QA steps for QA issue #$QA_NUMBER.
+
+Context:
+- QA Issue: #$QA_NUMBER
+- PRD: #$PRD_NUMBER
+- Base URL: $BASE_URL (if web application)
+
+Instructions:
+1. Fetch QA steps from QA issue
+2. Execute each step using Playwright (for web) or CLI testing
+3. Report pass/fail for each step
+4. Create Bug issues for failures
+
+Expected Output:
+- Pass/fail status for each step
+- Bug issue numbers (if any created)
+- Overall QA result: PASSED | FAILED
+```
+
+### Phase 9: Cleanup & Reporting
 
 ```bash
 # Clean up worktrees
@@ -933,13 +1087,17 @@ gh issue comment "$PRD_NUMBER" --body "## Execution Complete\n\n..."
 
 The orchestrator delegates to these sub-agents via Task tool:
 
-| Sub-Agent       | Purpose                                  |
-|-----------------|------------------------------------------|
-| `epic-planner`  | Breaks PRD into Epics                    |
-| `task-planner`  | Breaks Epics into Tasks                  |
-| `task-executor` | Executes individual tasks (TDD/Non-TDD)  |
-| `ci-checker`    | Monitors and handles CI status           |
-| `qa-agent`      | Runs QA validation                       |
+| Sub-Agent                  | Purpose                                      |
+|----------------------------|----------------------------------------------|
+| `epic-creator`             | Breaks PRD into Epics                        |
+| `task-creator`             | Breaks Epics into Tasks                      |
+| `task-executor`            | Executes individual tasks (TDD/Non-TDD)      |
+| `ci-check`                 | Monitors and handles CI status               |
+| `pr-review`                | Reviews PRs against Task specifications      |
+| `conflict-resolver`        | Detects and resolves merge conflicts         |
+| `review-cycle-coordinator` | Orchestrates review -> fix -> review cycle   |
+| `qa-planner`               | Creates QA issues and steps from PRD         |
+| `qa-executor`              | Executes QA steps via Playwright             |
 
 ### Task Tool Delegation Pattern
 
@@ -957,7 +1115,7 @@ Use the Task tool with subagent_type="ghpmplus:<agent-name>" to:
 **Delegating to Epic Planner:**
 
 ```markdown
-Use the Task tool with subagent_type="ghpmplus:stub-epic-planner" to:
+Use the Task tool with subagent_type="ghpmplus:epic-creator" to:
 
 Analyze PRD #42 and create Epic issues.
 
@@ -980,7 +1138,7 @@ Expected Output:
 **Delegating to Task Executor:**
 
 ```markdown
-Use the Task tool with subagent_type="ghpmplus:stub-task-executor" to:
+Use the Task tool with subagent_type="ghpmplus:task-executor" to:
 
 Execute Task #55 using the appropriate workflow.
 

@@ -355,10 +355,49 @@ PR_URL=$(gh pr create \
   --body "$PR_BODY" \
   --json url -q '.url')
 
+PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+
 echo "✓ PR created: $PR_URL"
 
 # Comment PR URL on Task
 gh issue comment "$TASK_NUMBER" --body "📬 PR created: $PR_URL"
+```
+
+#### Step 4.3: CI Check (Optional)
+
+If running standalone (not orchestrator-managed), check CI status:
+
+```bash
+# Wait briefly for CI to start
+sleep 10
+
+# Check CI status (non-blocking - report result)
+CI_STATUS=$(gh pr checks "$PR_NUMBER" --json state -q '.[].state' | sort -u 2>/dev/null || echo "UNKNOWN")
+
+if echo "$CI_STATUS" | grep -q "FAILURE"; then
+  echo "⚠️ CI failures detected - review CI logs"
+  gh issue comment "$TASK_NUMBER" --body "⚠️ CI checks failing on PR #$PR_NUMBER. Review needed."
+elif echo "$CI_STATUS" | grep -qE "PENDING|IN_PROGRESS|QUEUED"; then
+  echo "⏳ CI still running"
+else
+  echo "✅ CI checks passing"
+fi
+```
+
+#### Step 4.4: Signal Ready for Review
+
+Signal to the orchestrator (or log) that the PR is ready for the review cycle:
+
+```bash
+echo "PR_READY_FOR_REVIEW=true"
+echo "PR_NUMBER=$PR_NUMBER"
+echo "PR_URL=$PR_URL"
+echo "TASK_NUMBER=$TASK_NUMBER"
+
+# The orchestrator will:
+# 1. Invoke ci-check agent for full CI verification
+# 2. Invoke review-cycle-coordinator for code review
+# 3. Track review status and handle iterations
 ```
 
 ### Phase 5: Cleanup
