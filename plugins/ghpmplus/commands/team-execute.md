@@ -11,6 +11,8 @@ Unlike `/ghpmplus:auto-execute` (which uses a single orchestrator spawning subag
 </objective>
 
 <prerequisites>
+- `tmux` installed (`which tmux`) — required for Claude Code agent teams
+- `CLAUDE_CODE_ENABLE_AGENT_TEAMS=1` environment variable set
 - `gh` CLI installed and authenticated (`gh auth status`)
 - Working directory is a git repository with GitHub remote
 - User has write access to repository issues
@@ -92,9 +94,25 @@ Unlike `/ghpmplus:auto-execute` (which uses a single orchestrator spawning subag
 
 <workflow>
 
-## Step 1: Parse and Validate PRD
+## Step 1: Validate Environment and Parse PRD
 
 ```bash
+# Check tmux is installed (required for agent teams)
+if ! command -v tmux &>/dev/null; then
+  echo "ERROR: tmux is required for agent teams but is not installed."
+  echo "Install it with: brew install tmux (macOS) or apt install tmux (Linux)"
+  exit 1
+fi
+
+# Check agent teams env var is set
+if [ "$CLAUDE_CODE_ENABLE_AGENT_TEAMS" != "1" ]; then
+  echo "ERROR: Agent teams are not enabled."
+  echo "Set the environment variable: export CLAUDE_CODE_ENABLE_AGENT_TEAMS=1"
+  echo ""
+  echo "If you don't need agent teams, use /ghpmplus:auto-execute instead."
+  exit 1
+fi
+
 # Parse prd=#N from $ARGUMENTS
 PRD_NUMBER=$(echo "$ARGUMENTS" | grep -oE 'prd=#[0-9]+' | grep -oE '[0-9]+')
 
