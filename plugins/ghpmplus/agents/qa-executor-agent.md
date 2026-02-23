@@ -278,7 +278,7 @@ gh issue comment "$QA_NUMBER" --body "$(cat <<REPORT_EOF
 | Total Steps | $TOTAL                     |
 | Passed      | $PASSED                    |
 | Failed      | $FAILED                    |
-| Pass Rate   | $((PASSED * 100 / TOTAL))% |
+| Pass Rate   | $((TOTAL > 0 ? PASSED * 100 / TOTAL : 0))% |
 
 ### Results
 

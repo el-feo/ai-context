@@ -268,16 +268,24 @@ If PRD has acceptance criteria suitable for automated QA:
 ```markdown
 Use the Task tool with subagent_type="ghpmplus:qa-planner" to:
 
-You are the QA teammate. Create and execute QA steps.
+You are the QA teammate (planning phase). Create QA steps for PRD #$PRD_NUMBER.
 
 ## Workflow
 
 1. Create QA issue linked to PRD #$PRD_NUMBER
 2. Generate QA steps from acceptance criteria
-3. Wait for implementation to complete (monitor TaskList)
-4. Execute QA steps using Playwright
-5. Create Bug issues for any failures
-6. Report QA results
+3. Report QA issue number and step count when done
+
+Then, once implementation is complete, use the Task tool with subagent_type="ghpmplus:qa-executor" to:
+
+You are the QA teammate (execution phase). Execute QA steps.
+
+## Workflow
+
+1. Wait for implementation to complete (monitor TaskList)
+2. Execute QA steps using Playwright
+3. Create Bug issues for any failures
+4. Report QA results
 ```
 
 ## Step 8: Monitor Progress

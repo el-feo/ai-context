@@ -113,7 +113,7 @@ fi
 
 ```bash
 # Check PR comments for previous review iterations
-ITERATION_COUNT=$(gh pr view "$PR_NUMBER" --json comments -q '.comments[] | select(.body | contains("PR Review Agent")) | select(.body | contains("Iteration:"))' | grep -c "Iteration:" || echo "0")
+ITERATION_COUNT=$(gh pr view "$PR_NUMBER" --json comments -q '[.comments[] | select(.body | contains("PR Review Agent")) | select(.body | contains("Iteration:"))] | length')
 CURRENT_ITERATION=$((ITERATION_COUNT + 1))
 
 echo "Review iteration: $CURRENT_ITERATION of $MAX_ITERATIONS"
