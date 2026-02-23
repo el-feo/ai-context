@@ -153,14 +153,14 @@ Use the Playwright MCP tools to:
 
 Map Given/When/Then to Playwright operations:
 
-| Scenario Element | Playwright Action |
-|-----------------|-------------------|
-| "I am on the login page" | `browser_navigate` to /login |
-| "I am logged in" | Fill login form + submit |
-| "I click the Submit button" | `browser_click` on submit button |
-| "I enter valid credentials" | `browser_fill_form` with test data |
-| "I should see a success message" | `browser_snapshot` + verify text |
-| "I should be redirected to dashboard" | Check current URL |
+| Scenario Element                      | Playwright Action                  |
+| ------------------------------------- | ---------------------------------- |
+| "I am on the login page"              | `browser_navigate` to /login       |
+| "I am logged in"                      | Fill login form + submit           |
+| "I click the Submit button"           | `browser_click` on submit button   |
+| "I enter valid credentials"           | `browser_fill_form` with test data |
+| "I should see a success message"      | `browser_snapshot` + verify text   |
+| "I should be redirected to dashboard" | Check current URL                  |
 
 #### Step 3.3: Record Results
 
@@ -273,12 +273,12 @@ gh issue comment "$QA_NUMBER" --body "$(cat <<REPORT_EOF
 
 ### Summary
 
-| Metric | Count |
-|--------|-------|
-| Total Steps | $TOTAL |
-| Passed | $PASSED |
-| Failed | $FAILED |
-| Pass Rate | $((PASSED * 100 / TOTAL))% |
+| Metric      | Count                      |
+| ----------- | -------------------------- |
+| Total Steps | $TOTAL                     |
+| Passed      | $PASSED                    |
+| Failed      | $FAILED                    |
+| Pass Rate   | $((PASSED * 100 / TOTAL))% |
 
 ### Results
 

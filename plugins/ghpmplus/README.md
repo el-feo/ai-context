@@ -56,6 +56,7 @@ Triggers the orchestrator to autonomously execute a PRD from start to finish. Be
 ```
 
 **What happens:**
+
 1. PRD is validated and analyzed
 2. Epics are created (or existing ones used)
 3. Tasks are created for each Epic
@@ -75,6 +76,7 @@ Executes a PRD using Claude Code agent teams for large, multi-epic projects. Bes
 ```
 
 **Team structure:**
+
 - **Lead:** Creates shared task list, reviews teammate plans, monitors progress
 - **Epic Owners (1 per epic):** Each implements tasks in an isolated worktree
 - **Reviewer:** Reviews PRs in parallel as they arrive
@@ -300,11 +302,13 @@ If autonomous execution isn't suitable, use original ghpm commands:
 You can pause and resume the orchestrator at any time by commenting on the PRD issue:
 
 **To pause the workflow:**
+
 - Comment `PAUSE` on the PRD issue
 - The orchestrator will finish active tasks but won't start new ones
 - An acknowledgment comment confirms the pause
 
 **To resume the workflow:**
+
 - Comment `RESUME` on the PRD issue
 - The orchestrator will continue from the last checkpoint
 - Failure tracking resets for a fresh start
@@ -328,6 +332,7 @@ The orchestrator automatically pauses after multiple consecutive failures to pre
 ### Recovery Actions
 
 After RESUME:
+
 - Failure counter resets
 - Workflow continues from checkpoint
 - Previously failed tasks are retried

@@ -40,6 +40,7 @@ You are the Conflict Resolver agent for GHPMplus. Your role is to detect merge c
 ## Purpose
 
 Handle merge conflicts intelligently by:
+
 1. Detecting conflicts during PR creation or merge operations
 2. Categorizing conflicts as simple (auto-resolvable) or complex (needs human)
 3. Automatically resolving simple conflicts (whitespace, imports, non-overlapping)
@@ -50,11 +51,13 @@ Handle merge conflicts intelligently by:
 ## Input
 
 The agent receives:
+
 - PR number: For PR-based conflict resolution
 - Branch name: For branch-based conflict detection
 - Base branch: The target branch to merge from (default: main)
 
 Parameters:
+
 - `PR_NUMBER`: The pull request number (optional if branch provided)
 - `BRANCH_NAME`: The feature branch with conflicts
 - `BASE_BRANCH`: The target branch to merge from (default: `main`)
@@ -65,27 +68,27 @@ Parameters:
 
 These conflicts can be resolved automatically:
 
-| Type | Description | Resolution Strategy |
-|------|-------------|---------------------|
-| Whitespace | Trailing spaces, tabs vs spaces, line endings | Accept either version (prefer target) |
-| Import ordering | Different import order, same imports | Sort and deduplicate |
-| Non-overlapping | Changes in different parts of same hunk | Accept both changes |
-| Formatting | Code style differences (indentation, braces) | Accept target branch formatting |
-| Version bumps | Package version numbers | Accept higher version |
-| Generated files | Lock files, compiled assets | Regenerate from source |
+| Type            | Description                                   | Resolution Strategy                   |
+| --------------- | --------------------------------------------- | ------------------------------------- |
+| Whitespace      | Trailing spaces, tabs vs spaces, line endings | Accept either version (prefer target) |
+| Import ordering | Different import order, same imports          | Sort and deduplicate                  |
+| Non-overlapping | Changes in different parts of same hunk       | Accept both changes                   |
+| Formatting      | Code style differences (indentation, braces)  | Accept target branch formatting       |
+| Version bumps   | Package version numbers                       | Accept higher version                 |
+| Generated files | Lock files, compiled assets                   | Regenerate from source                |
 
 ### Complex Conflicts (Require Human)
 
 These conflicts require human judgment:
 
-| Type | Description | Why Human Needed |
-|------|-------------|------------------|
-| Semantic | Same code modified differently | Intent unclear |
-| Delete vs modify | One branch deleted, other modified | Business logic decision |
-| Rename conflicts | File renamed in both branches | Naming decision needed |
-| Large refactoring | Extensive structural changes | Architecture understanding needed |
-| Logic conflicts | Business logic contradictions | Domain knowledge required |
-| Test conflicts | Conflicting test expectations | Requirements clarification needed |
+| Type              | Description                        | Why Human Needed                  |
+| ----------------- | ---------------------------------- | --------------------------------- |
+| Semantic          | Same code modified differently     | Intent unclear                    |
+| Delete vs modify  | One branch deleted, other modified | Business logic decision           |
+| Rename conflicts  | File renamed in both branches      | Naming decision needed            |
+| Large refactoring | Extensive structural changes       | Architecture understanding needed |
+| Logic conflicts   | Business logic contradictions      | Domain knowledge required         |
+| Test conflicts    | Conflicting test expectations      | Requirements clarification needed |
 
 ## Workflow
 

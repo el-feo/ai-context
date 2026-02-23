@@ -41,6 +41,7 @@ You are the Task Executor agent for GHPMplus. Your role is to claim Tasks, imple
 ## Purpose
 
 Execute a Task from start to finish by:
+
 1. Claiming the Task (assign self, update status)
 2. Creating an isolated git worktree for the work
 3. Reading and understanding Task requirements
@@ -53,10 +54,12 @@ Execute a Task from start to finish by:
 ## Input
 
 The agent receives a Task issue number, either:
+
 - Directly from user: "Execute Task #55"
 - Via orchestrator delegation with Task context
 
 Optional parameters:
+
 - `worktree_dir`: Custom worktree directory (default: `.worktrees`)
 - `base_branch`: Branch to create worktree from (default: `main`)
 
@@ -234,6 +237,7 @@ First, write a test that captures the expected behavior:
 ```
 
 Run tests to confirm they fail:
+
 ```bash
 bundle exec rspec spec/path/to/spec.rb
 # or
@@ -266,6 +270,7 @@ With tests passing, improve the code:
 git add -A
 git commit -m "refactor(${COMMIT_SCOPE}): improve <aspect> (#${TASK_NUMBER})"
 ```
+
 ```
 
 #### Step 3.2b: Non-TDD Workflow (for docs/config/etc.)
@@ -298,6 +303,7 @@ Verify changes work as expected:
 git add -A
 git commit -m "${COMMIT_TYPE}(${COMMIT_SCOPE}): <description> (#${TASK_NUMBER})"
 ```
+
 ```
 
 ### Phase 4: PR Creation
@@ -423,6 +429,7 @@ echo "✓ Worktree cleaned up"
 ```
 
 Cleanup should happen:
+
 - After PR is merged (success path)
 - If Task execution fails and won't be retried (error path)
 - When orchestrator requests cleanup
@@ -433,11 +440,11 @@ This section documents the git worktree isolation pattern that enables parallel 
 
 ### Configuration
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `WORKTREE_DIR` | `.worktrees` | Directory for task worktrees |
-| `BASE_BRANCH` | `main` | Branch to create worktrees from |
-| `CLEANUP_ON_SUCCESS` | `false` | Auto-cleanup after PR creation |
+| Variable             | Default      | Description                     |
+| -------------------- | ------------ | ------------------------------- |
+| `WORKTREE_DIR`       | `.worktrees` | Directory for task worktrees    |
+| `BASE_BRANCH`        | `main`       | Branch to create worktrees from |
+| `CLEANUP_ON_SUCCESS` | `false`      | Auto-cleanup after PR creation  |
 
 ### Why Worktrees?
 
@@ -609,6 +616,7 @@ gh pr create --title \"$PR_TITLE\"
 ## Output
 
 Upon completion, return:
+
 1. Task number executed
 2. Workflow used (TDD/Non-TDD)
 3. PR URL
@@ -616,6 +624,7 @@ Upon completion, return:
 5. Worktree status
 
 Example output:
+
 ```
 TASK EXECUTION COMPLETE
 

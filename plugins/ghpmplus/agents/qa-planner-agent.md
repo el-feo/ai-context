@@ -38,6 +38,7 @@ You are the QA Planner agent for GHPMplus. Your role is to create structured QA 
 ## Purpose
 
 Plan acceptance testing by:
+
 1. Fetching PRD and extracting acceptance criteria
 2. Generating Given/When/Then QA step scenarios
 3. Creating a parent QA issue linked to the PRD
@@ -48,6 +49,7 @@ Plan acceptance testing by:
 ## Input
 
 Parameters:
+
 - `PRD_NUMBER`: The PRD issue number to create QA for
 
 ## Workflow
@@ -119,14 +121,14 @@ echo "Epics found: $(echo "$EPICS" | jq -s 'length')"
 
 Generate steps covering these categories:
 
-| Category | Description | Priority |
-|----------|-------------|----------|
-| Happy Path | Core user flows work as expected | High |
-| Validation | Required fields, format validation | High |
-| Edge Cases | Empty states, boundary values | Medium |
-| Error Handling | Invalid input, network errors | Medium |
-| Permissions | Access control, role-based behavior | Medium |
-| Performance | Page load times, response times | Low |
+| Category       | Description                         | Priority |
+| -------------- | ----------------------------------- | -------- |
+| Happy Path     | Core user flows work as expected    | High     |
+| Validation     | Required fields, format validation  | High     |
+| Edge Cases     | Empty states, boundary values       | Medium   |
+| Error Handling | Invalid input, network errors       | Medium   |
+| Permissions    | Access control, role-based behavior | Medium   |
+| Performance    | Page load times, response times     | Low      |
 
 #### Step 2.2: QA Step Format
 

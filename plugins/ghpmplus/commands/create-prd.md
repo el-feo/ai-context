@@ -427,9 +427,60 @@ fi
 ```
 
 **Note:** The `gh project item-add` command requires:
+
 - Project number (not title) - we look this up from the project list
 - Owner (user or organization)
 - Issue URL (not issue number)
+
+## Step 8: Offer Next Steps
+
+After the PRD is created and project association is complete, prompt the user for next steps. Since PRD creation generates substantial context, offer the option to clear context before launching execution.
+
+Use `AskUserQuestion`:
+
+```json
+{
+  "question": "PRD #<ISSUE_NUMBER> created. How would you like to proceed?",
+  "header": "Next step",
+  "multiSelect": false,
+  "options": [
+    {
+      "label": "Auto-execute (Recommended)",
+      "description": "Clear context and run /ghpmplus:auto-execute — best for small-medium PRDs (1-2 epics, <10 tasks)"
+    },
+    {
+      "label": "Team-execute",
+      "description": "Clear context and run /ghpmplus:team-execute — best for large PRDs (3+ epics, 10+ tasks)"
+    },
+    {
+      "label": "Done",
+      "description": "Stop here — I'll decide what to do next"
+    }
+  ]
+}
+```
+
+**If user selects "Auto-execute" or "Team-execute":**
+
+Tell the user to start a fresh conversation and run the appropriate command. Provide a ready-to-copy command:
+
+```
+Context cleared. Start a new conversation and run:
+
+/ghpmplus:auto-execute prd=#<ISSUE_NUMBER>
+```
+
+or for team-execute:
+
+```
+Context cleared. Start a new conversation and run:
+
+/ghpmplus:team-execute prd=#<ISSUE_NUMBER>
+```
+
+**If user selects "Done":**
+
+Report the PRD details and exit normally.
 
 </workflow>
 
@@ -498,7 +549,7 @@ After completion, report:
    - Success: "Added to project '<GHPM_PROJECT>'"
    - Failure: "WARNING: Could not add to project (see issue comment)"
    - N/A: "No project specified"
-4. **Next Step:** "Run `/ghpmplus:auto-execute prd=#<number>` to autonomously execute this PRD"
+4. **Next Steps:** Prompt user via Step 8 to auto-execute, team-execute, or stop
 
 **Example Output:**
 
@@ -508,9 +559,9 @@ PRD Created Successfully
 PRD Issue: #42 - https://github.com/owner/repo/issues/42
 Repository: owner/repo
 Project Association: Added to project 'Q1 Roadmap'
-
-Next Step: Run `/ghpmplus:auto-execute prd=#42` to autonomously execute this PRD
 ```
+
+Then the Step 8 prompt asks the user how to proceed.
 
 </output>
 
@@ -518,13 +569,15 @@ Next Step: Run `/ghpmplus:auto-execute prd=#42` to autonomously execute this PRD
 **GHPMplus Workflow:**
 
 1. **Current:** `/ghpmplus:create-prd` - Create PRD from user input
-2. **Next:** `/ghpmplus:auto-execute prd=#N` - Trigger orchestrator for autonomous execution
+2. **Next (auto):** `/ghpmplus:auto-execute prd=#N` - Orchestrator-driven execution for small-medium PRDs
+3. **Next (team):** `/ghpmplus:team-execute prd=#N` - Agent team execution for large PRDs
 
 The orchestrator agent will automatically:
+
 - Break PRD into Epics
 - Break Epics into Tasks
 - Execute Tasks via TDD or Non-TDD workflows (depending on commit type)
-- Create PRs and manage CI verification
+- Create PRs, run CI checks, and manage review cycles
 
 **Manual workflow (if needed):**
 
@@ -544,3 +597,4 @@ Now proceed:
 6. Draft the PRD from $ARGUMENTS (and enriched context if clarified).
 7. Create the issue via `gh issue create`.
 8. Add it to the GitHub project if `GHPM_PROJECT` is set.
+9. Prompt user for next steps (auto-execute, team-execute, or done).

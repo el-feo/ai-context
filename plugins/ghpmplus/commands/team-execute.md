@@ -23,25 +23,28 @@ Unlike `/ghpmplus:auto-execute` (which uses a single orchestrator spawning subag
 - `prd=#N` - The PRD issue number to execute
 
 **Example:**
+
 ```
 /ghpmplus:team-execute prd=#42
 ```
+
 </arguments>
 
 <when_to_use>
 
 ### auto-execute vs team-execute
 
-| Factor | auto-execute (subagents) | team-execute (agent teams) |
-|--------|--------------------------|---------------------------|
-| PRD size | 1-2 epics, <10 tasks | 3+ epics, 10+ tasks |
-| Coordination | Orchestrator manages all | Teammates coordinate directly |
-| Review | Sequential after each PR | Dedicated reviewer in parallel |
-| Token cost | Lower | Higher |
-| Inter-agent comms | Report to parent only | Shared task list |
-| Worktree usage | Orchestrator creates | Each teammate creates own |
+| Factor            | auto-execute (subagents) | team-execute (agent teams)     |
+| ----------------- | ------------------------ | ------------------------------ |
+| PRD size          | 1-2 epics, <10 tasks     | 3+ epics, 10+ tasks            |
+| Coordination      | Orchestrator manages all | Teammates coordinate directly  |
+| Review            | Sequential after each PR | Dedicated reviewer in parallel |
+| Token cost        | Lower                    | Higher                         |
+| Inter-agent comms | Report to parent only    | Shared task list               |
+| Worktree usage    | Orchestrator creates     | Each teammate creates own      |
 
 **Use team-execute when:**
+
 - PRD has 3+ epics with 10+ total tasks
 - Tasks are largely independent across epics
 - You want parallel review alongside implementation
@@ -53,6 +56,7 @@ Unlike `/ghpmplus:auto-execute` (which uses a single orchestrator spawning subag
 ## Agent Team Roles
 
 ### Lead (You - the command executor)
+
 - Creates the shared task list from PRD/Epic/Task breakdown
 - Spawns Epic Owner teammates (1 per epic)
 - Spawns Reviewer teammate
@@ -62,6 +66,7 @@ Unlike `/ghpmplus:auto-execute` (which uses a single orchestrator spawning subag
 - Handles escalations and blockers
 
 ### Epic Owner Teammates (1 per epic)
+
 - Each owns all tasks under a single epic
 - Works in an isolated git worktree
 - Submits implementation plan to lead for approval before coding
@@ -70,12 +75,14 @@ Unlike `/ghpmplus:auto-execute` (which uses a single orchestrator spawning subag
 - Signals reviewer when PRs are ready
 
 ### Reviewer Teammate
+
 - Monitors for new PRs across all epics
 - Runs the review cycle (CI check + pr-review + conflict resolution)
 - Communicates feedback to epic owners via task updates
 - Tracks review iterations and escalates when needed
 
 ### QA Teammate (Optional)
+
 - Creates QA steps from PRD acceptance criteria
 - Executes QA steps as implementation completes
 - Creates Bug issues for failures
@@ -152,6 +159,7 @@ For each Task issue:
 ```
 
 Set up dependencies using `addBlocks`/`addBlockedBy` based on:
+
 - File overlap analysis (tasks sharing files must be serialized)
 - Explicit dependencies noted in Task issues
 - Epic ordering (if one epic depends on another)
@@ -167,13 +175,13 @@ Present the team structure to the user:
 
 ### Team Composition
 
-| Role | Epic | Tasks |
-|------|------|-------|
-| Epic Owner 1 | #101: Core Auth | #201, #202, #203 |
-| Epic Owner 2 | #102: API Layer | #204, #205, #206 |
-| Epic Owner 3 | #103: Testing | #207, #208 |
-| Reviewer | All PRs | - |
-| QA (optional) | All acceptance criteria | - |
+| Role          | Epic                    | Tasks            |
+| ------------- | ----------------------- | ---------------- |
+| Epic Owner 1  | #101: Core Auth         | #201, #202, #203 |
+| Epic Owner 2  | #102: API Layer         | #204, #205, #206 |
+| Epic Owner 3  | #103: Testing           | #207, #208       |
+| Reviewer      | All PRs                 | -                |
+| QA (optional) | All acceptance criteria | -                |
 
 ### Execution Strategy
 
@@ -317,7 +325,7 @@ gh issue comment "$PRD_NUMBER" --body "$(cat <<COMPLETE_EOF
 ### Results
 
 | Epic | Tasks | PRs | Status |
-|------|-------|-----|--------|
+| ---- | ----- | --- | ------ |
 $(for each epic...)
 
 ### Review Summary
@@ -359,20 +367,24 @@ This prevents wasted work from misunderstood requirements.
 <error_handling>
 
 **If no Epics/Tasks exist:**
+
 - Prompt user to run planning first
 - Suggest: `/ghpmplus:auto-execute prd=#N` (which handles planning phases)
 
 **If a teammate fails:**
+
 - Log the error
 - Reassign tasks to another teammate or handle manually
 - Do not block other teammates
 
 **If review escalates:**
+
 - Add `needs-human-review` label
 - Continue with other tasks
 - Report in completion summary
 
 **If user requests PAUSE:**
+
 - Stop spawning new teammates
 - Let active teammates finish current task
 - Save progress via TaskList
@@ -409,6 +421,7 @@ QA: Creating acceptance test steps
 
 Monitor progress on PRD issue: https://github.com/owner/repo/issues/42
 ```
+
 </output>
 
 Now proceed:

@@ -40,6 +40,7 @@ You are the Review Cycle Coordinator agent for GHPMplus. Your role is to orchest
 ## Purpose
 
 Coordinate the review cycle by:
+
 1. Invoking pr-review-agent for initial review
 2. Tracking iteration count and review status
 3. Applying fixes directly for simple feedback (using Edit/Write tools)
@@ -53,6 +54,7 @@ Coordinate the review cycle by:
 ## Input
 
 The agent receives:
+
 - `PR_NUMBER`: The pull request to coordinate
 - `TASK_NUMBER`: The linked Task issue (optional, extracted from PR)
 - `MAX_ITERATIONS`: Maximum review cycles before escalation (default: 3)
@@ -318,6 +320,7 @@ STATE_EOF
 For simple, well-defined review feedback (e.g., naming changes, missing error handling, formatting fixes), apply fixes directly using Edit and Write tools:
 
 1. **Checkout the PR branch:**
+
    ```bash
    git fetch origin "$PR_BRANCH"
    git checkout "$PR_BRANCH"
@@ -332,6 +335,7 @@ For simple, well-defined review feedback (e.g., naming changes, missing error ha
 4. **Apply fixes** using the Edit tool for targeted changes or Write tool for new files
 
 5. **Commit and push the fixes:**
+
    ```bash
    git add -A
    git commit -m "fix(review): address iteration $NEXT_ITERATION feedback (#$TASK_NUMBER)"
@@ -339,6 +343,7 @@ For simple, well-defined review feedback (e.g., naming changes, missing error ha
    ```
 
 **Fix application guidelines:**
+
 - Address all blocking issues (required)
 - Address should-fix issues where possible (recommended)
 - Keep changes minimal and focused on the feedback
@@ -387,7 +392,7 @@ This PR has gone through $MAX_ITERATIONS review iterations without achieving app
 ### Iteration History
 
 | Iteration | Status | Key Issues |
-|-----------|--------|------------|
+| --------- | ------ | ---------- |
 $(for i in $(seq 1 $MAX_ITERATIONS); do
   echo "| $i | CHANGES_REQUESTED | <extracted from iteration $i> |"
 done)
@@ -440,7 +445,7 @@ This PR has passed all automated quality gates and is ready for merge.
 ### Review History
 
 | Iteration | Result |
-|-----------|--------|
+| --------- | ------ |
 $(for i in $(seq 0 $CURRENT_ITERATION); do
   if [ $i -eq $CURRENT_ITERATION ]; then
     echo "| $i | APPROVED |"
@@ -512,14 +517,14 @@ The coordinator communicates with sub-agents via Task tool:
 
 The coordinator applies fixes directly rather than delegating to task-executor for most review feedback:
 
-| Feedback Type | Strategy |
-|--------------|----------|
-| Naming/typo fixes | Edit tool - direct inline fix |
-| Missing error handling | Edit tool - add try/catch or guard clause |
-| Formatting issues | Edit tool - fix indentation/spacing |
-| Missing imports | Edit tool - add import statement |
-| Test adjustments | Edit tool - modify test expectations |
-| Architectural changes | Escalate to human (too complex for auto-fix) |
+| Feedback Type          | Strategy                                     |
+| ---------------------- | -------------------------------------------- |
+| Naming/typo fixes      | Edit tool - direct inline fix                |
+| Missing error handling | Edit tool - add try/catch or guard clause    |
+| Formatting issues      | Edit tool - fix indentation/spacing          |
+| Missing imports        | Edit tool - add import statement             |
+| Test adjustments       | Edit tool - modify test expectations         |
+| Architectural changes  | Escalate to human (too complex for auto-fix) |
 
 ### State Persistence
 

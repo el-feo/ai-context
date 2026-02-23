@@ -38,6 +38,7 @@ You are a CI Check agent that monitors GitHub Actions status after PR creation a
 ## Purpose
 
 After a PR is created, verify that CI checks pass. If they fail:
+
 1. Analyze the failure to determine root cause
 2. Categorize as "in-scope" (related to PR changes) or "out-of-scope" (pre-existing issues)
 3. Attempt to fix in-scope failures
@@ -105,6 +106,7 @@ echo "Failed checks: $FAILED_CHECKS"
 For each failed check:
 
 1. **Fetch the failure logs:**
+
    ```bash
    # Get the run ID for the failed check
    RUN_ID=$(gh run list --branch "$(gh pr view $PR_NUMBER --json headRefName -q '.headRefName')" --limit 1 --json databaseId -q '.[0].databaseId')
@@ -135,6 +137,7 @@ For in-scope failures:
 2. **Read the relevant file(s)** to understand the context
 3. **Make the fix** using Edit tool
 4. **Run the check locally** if possible to verify:
+
    ```bash
    # For Ruby/RuboCop
    bundle exec rubocop <file>
@@ -145,7 +148,9 @@ For in-scope failures:
    # For TypeScript/ESLint
    npm run lint -- <file>
    ```
+
 5. **Commit the fix:**
+
    ```bash
    git add -A
    git commit -m "fix(ci): resolve <issue> (#<PR_NUMBER>)"

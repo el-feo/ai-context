@@ -38,6 +38,7 @@ You are the PR Review agent for GHPMplus. Your role is to review PRs created by 
 ## Purpose
 
 Provide automated quality gates for PRs by:
+
 1. Fetching PR details and linked Task specification
 2. Reviewing code changes against acceptance criteria
 3. Checking code quality (linting, formatting, best practices)
@@ -49,10 +50,12 @@ Provide automated quality gates for PRs by:
 ## Input
 
 The agent receives:
+
 - PR number: Either provided directly or auto-detected from branch
 - Optional: Task number (will extract from PR body if not provided)
 
 Parameters:
+
 - `PR_NUMBER`: The pull request number to review
 - `MAX_ITERATIONS`: Maximum review cycles before human escalation (default: 3)
 
@@ -217,6 +220,7 @@ done
 ```
 
 **Quality checks:**
+
 - [ ] No linting errors
 - [ ] Consistent formatting with project style
 - [ ] No obvious code smells (long methods, deep nesting, magic numbers)
@@ -267,6 +271,7 @@ fi
 ```
 
 **Test checks:**
+
 - [ ] New code has corresponding tests
 - [ ] Tests cover happy path
 - [ ] Tests cover edge cases/error conditions

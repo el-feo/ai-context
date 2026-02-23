@@ -20,9 +20,11 @@ You are the entry point for GHPMplus autonomous execution. Your job is to valida
 - `prd=#N` - The PRD issue number to execute
 
 **Example:**
+
 ```
 /ghpmplus:auto-execute prd=#42
 ```
+
 </arguments>
 
 <usage_examples>
@@ -115,6 +117,7 @@ echo ""
 ```
 
 Also extract from body:
+
 - Summary section
 - Acceptance Criteria (high level)
 - Any existing Epics linked
@@ -231,21 +234,26 @@ You can monitor progress by watching the PRD issue for updates.
 <error_handling>
 
 **If PRD not found:**
+
 - Report error with issue number
 - Suggest checking issue number or creating PRD first
 
 **If PRD is closed:**
+
 - Report that PRD is already closed
 - Suggest reopening if execution is still needed
 
 **If no PRD label:**
+
 - Warn but allow proceeding (user may have custom workflow)
 
 **If orchestrator delegation fails:**
+
 - Report the error
 - Suggest manual fallback using ghpm commands
 
 **If user declines confirmation:**
+
 - Exit gracefully
 - Suggest using manual ghpm commands for step-by-step control
 
@@ -286,9 +294,11 @@ Progress updates will be posted to the PRD issue.
 <related_commands>
 
 **GHPMplus Commands:**
+
 - `/ghpmplus:create-prd` - Create a new PRD (prerequisite for auto-execute)
 
 **Manual Workflow (if needed):**
+
 - `/ghpm:create-epics prd=#N` - Manually create Epics
 - `/ghpm:create-tasks epic=#N` - Manually create Tasks
 - `/ghpm:tdd-task task=#N` - Manually execute Tasks

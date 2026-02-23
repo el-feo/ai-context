@@ -41,6 +41,7 @@ You are the central coordination agent for GHPMplus autonomous execution. Your r
 ## Purpose
 
 The orchestrator manages the full autonomous development lifecycle:
+
 1. **PRD Analysis** - Understand requirements and acceptance criteria
 2. **Epic/Task Breakdown** - Delegate to planner agents for work decomposition
 3. **Parallel Execution** - Set up git worktrees and coordinate parallel task execution
@@ -535,11 +536,11 @@ Post high-level progress updates separately from technical checkpoints:
 
 🟢 **3/8 Tasks Complete** (37%)
 
-| Epic | Status | Progress |
-|------|--------|----------|
-| #101 Core Auth | 🔄 In Progress | 2/3 |
-| #102 API Layer | ⏳ Pending | 0/3 |
-| #103 Testing | ⏳ Pending | 0/2 |
+| Epic           | Status        | Progress |
+| -------------- | ------------- | -------- |
+| #101 Core Auth | 🔄 In Progress | 2/3      |
+| #102 API Layer | ⏳ Pending     | 0/3      |
+| #103 Testing   | ⏳ Pending     | 0/2      |
 
 **Active Work:**
 - PR #56: Implement logout (Task #202)
@@ -606,7 +607,7 @@ The orchestrator has paused after **${#failures[@]} consecutive failures** withi
 ### Failed Tasks
 
 | Task | Error | Time |
-|------|-------|------|
+| ---- | ----- | ---- |
 $(for f in "${failures[@]}"; do
     echo "| #${f.task_id} | ${f.error} | ${f.timestamp} |"
 done)
@@ -820,14 +821,14 @@ function post_comment_if_unique(issue_number, marker, body):
 
 ### Idempotency Summary
 
-| Operation       | Guard Check              | On Duplicate           |
-|-----------------|--------------------------|------------------------|
-| Create Epic     | Search by title + label  | Return existing number |
-| Create Task     | Search by title + label  | Return existing number |
-| Create Branch   | `git show-ref`           | Checkout existing      |
-| Create PR       | `gh pr list --head`      | Return existing PR     |
-| Create Worktree | Check directory exists   | Use existing           |
-| Post Checkpoint | Check for marker         | Update existing        |
+| Operation       | Guard Check             | On Duplicate           |
+| --------------- | ----------------------- | ---------------------- |
+| Create Epic     | Search by title + label | Return existing number |
+| Create Task     | Search by title + label | Return existing number |
+| Create Branch   | `git show-ref`          | Checkout existing      |
+| Create PR       | `gh pr list --head`     | Return existing PR     |
+| Create Worktree | Check directory exists  | Use existing           |
+| Post Checkpoint | Check for marker        | Update existing        |
 
 ---
 
@@ -1087,17 +1088,17 @@ gh issue comment "$PRD_NUMBER" --body "## Execution Complete\n\n..."
 
 The orchestrator delegates to these sub-agents via Task tool:
 
-| Sub-Agent                  | Purpose                                      |
-|----------------------------|----------------------------------------------|
-| `epic-creator`             | Breaks PRD into Epics                        |
-| `task-creator`             | Breaks Epics into Tasks                      |
-| `task-executor`            | Executes individual tasks (TDD/Non-TDD)      |
-| `ci-check`                 | Monitors and handles CI status               |
-| `pr-review`                | Reviews PRs against Task specifications      |
-| `conflict-resolver`        | Detects and resolves merge conflicts         |
-| `review-cycle-coordinator` | Orchestrates review -> fix -> review cycle   |
-| `qa-planner`               | Creates QA issues and steps from PRD         |
-| `qa-executor`              | Executes QA steps via Playwright             |
+| Sub-Agent                  | Purpose                                    |
+| -------------------------- | ------------------------------------------ |
+| `epic-creator`             | Breaks PRD into Epics                      |
+| `task-creator`             | Breaks Epics into Tasks                    |
+| `task-executor`            | Executes individual tasks (TDD/Non-TDD)    |
+| `ci-check`                 | Monitors and handles CI status             |
+| `pr-review`                | Reviews PRs against Task specifications    |
+| `conflict-resolver`        | Detects and resolves merge conflicts       |
+| `review-cycle-coordinator` | Orchestrates review -> fix -> review cycle |
+| `qa-planner`               | Creates QA issues and steps from PRD       |
+| `qa-executor`              | Executes QA steps via Playwright           |
 
 ### Task Tool Delegation Pattern
 
@@ -1218,12 +1219,12 @@ Orchestrator completes successfully when:
 
 The orchestrator respects these environment variables:
 
-| Variable                       | Default      | Description                          |
-|--------------------------------|--------------|--------------------------------------|
-| `GHPMPLUS_MAX_CONCURRENCY`     | 3            | Maximum parallel task executions     |
-| `GHPMPLUS_WORKTREE_DIR`        | `.worktrees` | Directory for git worktrees          |
-| `GHPMPLUS_AUTO_MERGE`          | false        | Auto-merge passing PRs               |
-| `GHPMPLUS_FAILURE_WINDOW`      | 60           | Seconds for failure tracking window  |
-| `GHPMPLUS_FAILURE_THRESHOLD`   | 3            | Consecutive failures before pause    |
-| `GHPMPLUS_CHECKPOINT_INTERVAL` | 30           | Minimum seconds between checkpoints  |
-| `GHPMPLUS_INTERVENTION_CHECK`  | 10           | Seconds between PAUSE/RESUME checks  |
+| Variable                       | Default      | Description                         |
+| ------------------------------ | ------------ | ----------------------------------- |
+| `GHPMPLUS_MAX_CONCURRENCY`     | 3            | Maximum parallel task executions    |
+| `GHPMPLUS_WORKTREE_DIR`        | `.worktrees` | Directory for git worktrees         |
+| `GHPMPLUS_AUTO_MERGE`          | false        | Auto-merge passing PRs              |
+| `GHPMPLUS_FAILURE_WINDOW`      | 60           | Seconds for failure tracking window |
+| `GHPMPLUS_FAILURE_THRESHOLD`   | 3            | Consecutive failures before pause   |
+| `GHPMPLUS_CHECKPOINT_INTERVAL` | 30           | Minimum seconds between checkpoints |
+| `GHPMPLUS_INTERVENTION_CHECK`  | 10           | Seconds between PAUSE/RESUME checks |
