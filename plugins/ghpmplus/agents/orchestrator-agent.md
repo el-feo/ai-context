@@ -1012,6 +1012,13 @@ if [ "$GHPMPLUS_AUTO_MERGE" = "true" ]; then
   if [ "$MERGEABLE" = "MERGEABLE" ]; then
     gh pr merge "$PR_NUMBER" --squash --delete-branch
     echo "PR #$PR_NUMBER merged and branch deleted"
+
+    # Close the linked task issue immediately after merge
+    # (do not rely solely on GitHub's Closes #N — it may not fire for all tasks)
+    TASK_NUM=$(gh pr view "$PR_NUMBER" --json body -q '.body' | grep -oE '(Closes|Fixes|Resolves) #[0-9]+' | head -1 | grep -oE '[0-9]+')
+    if [ -n "$TASK_NUM" ]; then
+      gh issue close "$TASK_NUM" -c "Completed — PR #$PR_NUMBER merged." 2>/dev/null || true
+    fi
   fi
 else
   echo "PR #$PR_NUMBER approved - awaiting manual merge"
@@ -1085,16 +1092,87 @@ Expected Output:
 - Overall QA result: PASSED | FAILED
 ```
 
-### Phase 9: Cleanup & Reporting
+### Phase 9: Cleanup, Issue Closure & Reporting
+
+#### Step 9.1: Clean Up Worktrees
 
 ```bash
-# Clean up worktrees
 for worktree in .worktrees/task-*; do
   git worktree remove "$worktree" --force
 done
+```
 
-# Update PRD status
-gh issue comment "$PRD_NUMBER" --body "## Execution Complete\n\n..."
+#### Step 9.2: Close Completed Task Issues
+
+After all PRs are merged (or work is confirmed complete), explicitly close any Task issues that are still open. Do not rely solely on GitHub's `Closes #N` PR body mechanism — it only works when each task has its own merged PR.
+
+```bash
+for TASK_NUMBER in "${ALL_TASK_NUMBERS[@]}"; do
+  TASK_STATE=$(gh issue view "$TASK_NUMBER" --json state -q '.state')
+  if [ "$TASK_STATE" = "OPEN" ]; then
+    # Check if the task's work was included in a merged PR
+    gh issue close "$TASK_NUMBER" -c "Completed — work delivered in PRD #${PRD_NUMBER} execution."
+  fi
+done
+```
+
+#### Step 9.3: Close Epic Issues
+
+Once all child tasks under an Epic are closed, close the Epic.
+
+```bash
+for EPIC_NUMBER in "${ALL_EPIC_NUMBERS[@]}"; do
+  OPEN_TASKS=$(gh api graphql -F owner="$OWNER" -F repo="$REPO" -F number="$EPIC_NUMBER" \
+    -f query='query($owner: String!, $repo: String!, $number: Int!) {
+      repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+          subIssues(first: 50) {
+            nodes { state }
+          }
+        }
+      }
+    }' --jq '[.data.repository.issue.subIssues.nodes[] | select(.state == "OPEN")] | length')
+
+  if [ "$OPEN_TASKS" -eq 0 ]; then
+    gh issue close "$EPIC_NUMBER" -c "All tasks completed."
+  fi
+done
+```
+
+#### Step 9.4: Close PRD Issue
+
+Close the PRD when all Epics are closed and QA has passed (or was skipped).
+
+```bash
+OPEN_EPICS=$(gh api graphql -F owner="$OWNER" -F repo="$REPO" -F number="$PRD_NUMBER" \
+  -f query='query($owner: String!, $repo: String!, $number: Int!) {
+    repository(owner: $owner, name: $repo) {
+      issue(number: $number) {
+        subIssues(first: 50) {
+          nodes { state }
+        }
+      }
+    }
+  }' --jq '[.data.repository.issue.subIssues.nodes[] | select(.state == "OPEN")] | length')
+
+if [ "$OPEN_EPICS" -eq 0 ]; then
+  gh issue close "$PRD_NUMBER" -c "PRD complete — all epics and tasks delivered."
+else
+  gh issue comment "$PRD_NUMBER" --body "## Execution Complete
+
+$OPEN_EPICS epic(s) still open — review before closing PRD."
+fi
+```
+
+#### Step 9.5: Post Completion Summary
+
+```bash
+gh issue comment "$PRD_NUMBER" --body "## Execution Summary
+
+- **Epics:** ${#ALL_EPIC_NUMBERS[@]} created, all closed
+- **Tasks:** ${#ALL_TASK_NUMBERS[@]} created, all closed
+- **PRs:** Created and merged
+- **QA:** ${QA_STATUS:-skipped}"
 ```
 
 ---
@@ -1224,7 +1302,9 @@ Orchestrator completes successfully when:
 
 - All Tasks under the PRD have PRs created
 - All PRs pass CI checks
-- PRD issue is updated with completion summary
+- All Task issues are closed
+- All Epic issues are closed
+- PRD issue is closed (or commented if epics remain open)
 - All worktrees are cleaned up
 - Final checkpoint posted
 
@@ -1243,3 +1323,4 @@ The orchestrator respects these environment variables:
 | `GHPMPLUS_FAILURE_THRESHOLD`   | 3            | Consecutive failures before pause   |
 | `GHPMPLUS_CHECKPOINT_INTERVAL` | 30           | Minimum seconds between checkpoints |
 | `GHPMPLUS_INTERVENTION_CHECK`  | 10           | Seconds between PAUSE/RESUME checks |
+| `GHPMPLUS_SCREENSHOT_UPLOAD_CMD` | (none)     | Custom command to upload screenshots; receives file path as `$FILE`, prints URL to stdout |
