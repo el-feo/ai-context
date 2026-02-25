@@ -1112,8 +1112,8 @@ The orchestrator delegates to these sub-agents via Task tool:
 | `pr-review`                | Reviews PRs against Task specifications    |
 | `conflict-resolver`        | Detects and resolves merge conflicts       |
 | `review-cycle-coordinator` | Orchestrates review -> fix -> review cycle |
-| `qa-planner`               | Creates QA issues and steps from PRD; validates Playwright CLI prerequisite |
-| `qa-executor`              | Executes QA steps via Playwright CLI (Bash tool); uploads artifacts to GitHub |
+| `qa-planner`               | Creates QA issues and steps from PRD       |
+| `qa-executor`              | Executes QA steps via Playwright CLI       |
 
 ### Task Tool Delegation Pattern
 

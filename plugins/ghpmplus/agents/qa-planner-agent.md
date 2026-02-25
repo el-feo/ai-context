@@ -322,7 +322,7 @@ PRD_EOF
 
 Return QA planning results:
 
-```
+```text
 QA PLANNING COMPLETE
 
 PRD: #$PRD_NUMBER

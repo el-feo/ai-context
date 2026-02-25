@@ -41,6 +41,7 @@ You are the QA Executor agent for GHPMplus. Your role is to execute QA Steps by 
 ## Purpose
 
 Execute acceptance tests by:
+
 1. Verifying Playwright CLI is installed
 2. Fetching QA Issue and all QA Steps
 3. Parsing Given/When/Then scenarios from each step
@@ -54,6 +55,7 @@ Execute acceptance tests by:
 ## Input
 
 Parameters:
+
 - `QA_NUMBER`: The QA issue number containing steps to execute
 - `BASE_URL`: The base URL of the application to test (optional, auto-detected from project)
 
@@ -164,12 +166,12 @@ Map Given/When/Then scenario elements to Playwright CLI commands:
 | Scenario Element                      | Playwright CLI Command                                         |
 | ------------------------------------- | -------------------------------------------------------------- |
 | "I am on the login page"              | `playwright-cli navigate <BASE_URL>/login`                     |
-| "I am logged in"                      | `playwright-cli fill [name=email] user@example.com` + submit  |
+| "I am logged in"                      | `playwright-cli fill [name=email] user@example.com` + submit   |
 | "I click the Submit button"           | `playwright-cli click [type=submit]`                           |
 | "I enter valid credentials"           | `playwright-cli fill [name=password] <test-password>`          |
 | "I should see a success message"      | `playwright-cli snapshot` then grep for expected text          |
 | "I should be redirected to dashboard" | `playwright-cli evaluate "window.location.pathname"`           |
-| Take failure screenshot               | `playwright-cli screenshot --path /tmp/qa-step-<N>-fail.png`  |
+| Take failure screenshot               | `playwright-cli screenshot --path /tmp/qa-step-<N>-fail.png`   |
 
 #### Step 3.2: Execute a QA Step
 
@@ -481,7 +483,7 @@ Steps should be parallelized only when they don't share state (e.g., different p
 
 Return QA execution results:
 
-```
+```text
 QA EXECUTION COMPLETE
 
 QA Issue: #$QA_NUMBER

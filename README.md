@@ -96,6 +96,7 @@ Autonomous GitHub Project Management with orchestrator-agent coordination. Exten
 **Agents:** orchestrator, epic-creator, task-creator, task-executor, pr-review, conflict-resolver, review-cycle-coordinator, ci-check, qa-planner, qa-executor
 
 **Key features:**
+
 - Autonomous end-to-end PRD execution (create epics -> create tasks -> implement -> review -> QA)
 - Parallel task execution via git worktrees with configurable concurrency
 - Automated code review cycle with up to 3 fix iterations before escalation
