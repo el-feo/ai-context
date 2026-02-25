@@ -18,30 +18,6 @@ GHPMplus extends the original GHPM plugin with autonomous execution capabilities
 | Progress Tracking  | User-driven         | Automatic via GitHub comments       |
 | Large PRDs         | Not supported       | Agent teams with parallel teammates |
 
-## Prerequisites
-
-### Playwright CLI (required for QA execution)
-
-The QA agents (`qa-planner` and `qa-executor`) require Playwright CLI for browser automation. Without it, the QA phase will fail fast with a clear error message.
-
-```bash
-# Install Playwright CLI
-npm install -g @playwright/cli@latest
-
-# Install browser binaries
-playwright-cli install
-```
-
-If Playwright CLI is not installed when the QA phase runs, you will see:
-
-```
-ERROR: Playwright CLI not found. Install with: npm install -g @playwright/cli@latest
-```
-
-Node.js and npm must be available in your environment.
-
-**Migrating from v0.3.0?** QA execution now requires `@playwright/cli` instead of MCP Playwright tools. Install the CLI before running any QA steps.
-
 ## Installation
 
 ```bash
@@ -240,12 +216,10 @@ GHPMplus can create and execute QA acceptance tests:
    - Steps linked as sub-issues for tracking
 
 2. **QA Execution** (`qa-executor`) - For each QA Step:
-   - Verifies Playwright CLI is installed (fails fast if not)
-   - Translates scenario to Playwright CLI commands run via Bash tool
-   - Executes against the application (token-efficient: no page DOM in LLM context)
-   - Captures screenshots and uploads artifacts to GitHub issues
-   - Records pass/fail on the issue with the CLI command that was run
-   - Creates Bug issues for failures with Playwright CLI reproduction steps
+   - Translates scenario to Playwright actions
+   - Executes against the application
+   - Records pass/fail on the issue
+   - Creates Bug issues for failures
 
 ## Git Worktree Usage
 
