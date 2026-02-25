@@ -8,15 +8,16 @@ AI Context provides modular Claude Code plugins that can be installed into your 
 
 ## Claude Code Plugins
 
-This repository contains 5 modular Claude Code plugins under `plugins/`:
+This repository contains 6 modular Claude Code plugins under `plugins/`:
 
-| Plugin       | Description                        | Skills | Commands | Agents |
-| ------------ | ---------------------------------- | ------ | -------- | ------ |
-| `ruby-rails` | Ruby on Rails development toolkit  | 11     | 3        | 1      |
-| `ghpm`       | GitHub Project Management workflow | 0      | 10       | 0      |
-| `js-ts`      | JavaScript/TypeScript toolkit      | 3      | 1        | 0      |
-| `devops`     | DevOps & infrastructure toolkit    | 3      | 1        | 0      |
-| `general`    | General development utilities      | 1      | 0        | 0      |
+| Plugin       | Description                                              | Skills | Commands | Agents |
+| ------------ | -------------------------------------------------------- | ------ | -------- | ------ |
+| `ruby-rails` | Ruby on Rails development toolkit                        | 11     | 3        | 1      |
+| `ghpm`       | GitHub Project Management workflow                       | 0      | 10       | 0      |
+| `ghpmplus`   | Autonomous GitHub Project Management with orchestrator   | 0      | 3        | 10     |
+| `js-ts`      | JavaScript/TypeScript toolkit                            | 3      | 1        | 0      |
+| `devops`     | DevOps & infrastructure toolkit                          | 3      | 1        | 0      |
+| `general`    | General development utilities                            | 1      | 0        | 0      |
 
 ## Installation
 
@@ -29,6 +30,7 @@ This repository contains 5 modular Claude Code plugins under `plugins/`:
 # Install individual plugins
 /plugin install ruby-rails@jebs-dev-tools
 /plugin install ghpm@jebs-dev-tools
+/plugin install ghpmplus@jebs-dev-tools
 /plugin install js-ts@jebs-dev-tools
 /plugin install devops@jebs-dev-tools
 /plugin install general@jebs-dev-tools
@@ -60,6 +62,7 @@ ai-context/
 ├── plugins/
 │   ├── ruby-rails/       # Ruby/Rails development
 │   ├── ghpm/             # GitHub Project Management
+│   ├── ghpmplus/         # Autonomous GitHub Project Management
 │   ├── js-ts/            # JavaScript/TypeScript
 │   ├── devops/           # DevOps & infrastructure
 │   └── general/          # General utilities
@@ -83,6 +86,25 @@ Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, S
 GitHub Project Management workflow for product development: PRD creation, epic/task breakdown, TDD execution, and QA planning.
 
 **Commands:** `/ghpm:create-prd`, `/ghpm:create-epics`, `/ghpm:create-tasks`, `/ghpm:create-project`, `/ghpm:execute`, `/ghpm:tdd-task`, `/ghpm:changelog`, `/ghpm:qa-create`, `/ghpm:qa-create-steps`, `/ghpm:qa-execute`
+
+### ghpmplus
+
+Autonomous GitHub Project Management with orchestrator-agent coordination. Extends `ghpm` with end-to-end autonomous execution: the orchestrator breaks down PRDs into epics and tasks, executes them in parallel via git worktrees, runs automated code review cycles, and executes Playwright CLI acceptance tests.
+
+**Commands:** `/ghpmplus:create-prd`, `/ghpmplus:auto-execute`, `/ghpmplus:team-execute`
+
+**Agents:** orchestrator, epic-creator, task-creator, task-executor, pr-review, conflict-resolver, review-cycle-coordinator, ci-check, qa-planner, qa-executor
+
+**Key features:**
+- Autonomous end-to-end PRD execution (create epics -> create tasks -> implement -> review -> QA)
+- Parallel task execution via git worktrees with configurable concurrency
+- Automated code review cycle with up to 3 fix iterations before escalation
+- Playwright CLI QA testing with artifact upload to GitHub issues
+- Agent team execution for large PRDs (3+ epics) via `/ghpmplus:team-execute`
+- Resume capability via GitHub state reconstruction
+- PAUSE/RESUME human intervention via issue comments
+
+**Prerequisites:** Playwright CLI (`npm install -g @playwright/cli@latest`) for QA execution.
 
 ### js-ts
 

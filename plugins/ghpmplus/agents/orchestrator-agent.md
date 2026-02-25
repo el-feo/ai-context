@@ -1020,7 +1020,19 @@ fi
 
 ### Phase 8: QA (Optional)
 
-After implementation and review cycles complete, run QA if acceptance criteria exist:
+After implementation and review cycles complete, run QA if acceptance criteria exist.
+
+**Prerequisite:** QA execution requires Playwright CLI (`@playwright/cli`) to be installed in the environment. Before delegating to qa-planner, verify:
+
+```bash
+if ! command -v playwright-cli &> /dev/null; then
+  echo "WARNING: Playwright CLI not found. QA phase will be skipped."
+  echo "To enable QA, install with: npm install -g @playwright/cli@latest"
+  # Skip to Phase 9
+fi
+```
+
+If Playwright CLI is not installed, skip the QA phase and note the skipped step in the completion report.
 
 #### Step 8.1: Create QA Plan
 
@@ -1035,10 +1047,11 @@ Context:
 - Merged PRs: $MERGED_PRS
 
 Instructions:
-1. Extract acceptance criteria from PRD
-2. Create QA issue linked to PRD
-3. Generate QA steps as sub-issues
-4. Return QA issue number and step count
+1. Verify Playwright CLI prerequisite (agent will exit if not installed)
+2. Extract acceptance criteria from PRD
+3. Create QA issue linked to PRD
+4. Generate QA steps as sub-issues in Given/When/Then format
+5. Return QA issue number and step count
 
 Expected Output:
 - QA issue number
@@ -1051,7 +1064,7 @@ Expected Output:
 ```markdown
 Use the Task tool with subagent_type="ghpmplus:qa-executor" to:
 
-Execute QA steps for QA issue #$QA_NUMBER.
+Execute QA steps for QA issue #$QA_NUMBER using Playwright CLI.
 
 Context:
 - QA Issue: #$QA_NUMBER
@@ -1059,10 +1072,12 @@ Context:
 - Base URL: $BASE_URL (if web application)
 
 Instructions:
-1. Fetch QA steps from QA issue
-2. Execute each step using Playwright (for web) or CLI testing
-3. Report pass/fail for each step
-4. Create Bug issues for failures
+1. Verify Playwright CLI is installed (fail fast if not)
+2. Fetch QA steps from QA issue
+3. Execute each step using Playwright CLI via Bash tool (not MCP tools)
+4. Upload screenshots and artifacts to the QA Step issue
+5. Report pass/fail for each step
+6. Create Bug issues for failures with Playwright CLI reproduction commands
 
 Expected Output:
 - Pass/fail status for each step
@@ -1097,8 +1112,8 @@ The orchestrator delegates to these sub-agents via Task tool:
 | `pr-review`                | Reviews PRs against Task specifications    |
 | `conflict-resolver`        | Detects and resolves merge conflicts       |
 | `review-cycle-coordinator` | Orchestrates review -> fix -> review cycle |
-| `qa-planner`               | Creates QA issues and steps from PRD       |
-| `qa-executor`              | Executes QA steps via Playwright           |
+| `qa-planner`               | Creates QA issues and steps from PRD; validates Playwright CLI prerequisite |
+| `qa-executor`              | Executes QA steps via Playwright CLI (Bash tool); uploads artifacts to GitHub |
 
 ### Task Tool Delegation Pattern
 
