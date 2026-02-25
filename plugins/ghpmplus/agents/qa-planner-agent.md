@@ -54,6 +54,24 @@ Parameters:
 
 ## Workflow
 
+### Phase 0: Prerequisite Check
+
+Before creating QA plans, verify that Playwright CLI is available in the environment. The QA executor agent requires it for test execution, and failing fast here prevents incomplete QA plans from being created for environments that cannot run them.
+
+```bash
+# Check Playwright CLI is installed
+if ! command -v playwright-cli &> /dev/null; then
+  echo "ERROR: Playwright CLI not found. Install with: npm install -g @playwright/cli@latest"
+  echo "After installing, run: playwright-cli install"
+  exit 1
+fi
+
+echo "Playwright CLI: $(playwright-cli --version)"
+echo "Prerequisite check passed. Proceeding with QA planning."
+```
+
+If Playwright CLI is not installed, stop and print the error above. Do not proceed to Phase 1.
+
 ### Phase 1: PRD Analysis
 
 #### Step 1.1: Fetch PRD Details
@@ -304,7 +322,7 @@ PRD_EOF
 
 Return QA planning results:
 
-```
+```text
 QA PLANNING COMPLETE
 
 PRD: #$PRD_NUMBER
