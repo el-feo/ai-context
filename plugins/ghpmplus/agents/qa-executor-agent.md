@@ -191,11 +191,12 @@ execute_qa_step() {
   local notes=""
 
   # 1. Navigate to starting page
-  playwright-cli navigate "${BASE_URL}${url}" 2>/dev/null
+  local nav_cmd="playwright-cli navigate ${BASE_URL}${url}"
+  $nav_cmd 2>/dev/null
   if [ $? -ne 0 ]; then
     notes="Navigation failed: could not reach ${BASE_URL}${url}"
     take_and_upload_screenshot "$step_number" "$screenshot_path" "navigation-failure"
-    record_result "$step_number" "FAIL" "$notes" "$screenshot_path"
+    record_result "$step_number" "FAIL" "$notes" "$screenshot_path" "$nav_cmd"
     return 1
   fi
 
@@ -207,7 +208,8 @@ execute_qa_step() {
   # Translate WHEN into CLI command(s)
 
   # 4. Verify the Then expectation
-  SNAPSHOT=$(playwright-cli snapshot 2>/dev/null)
+  local verify_cmd="playwright-cli snapshot"
+  SNAPSHOT=$($verify_cmd 2>/dev/null)
   if echo "$SNAPSHOT" | grep -q "$then"; then
     result="PASS"
     notes="Expected text found: $then"
@@ -217,7 +219,7 @@ execute_qa_step() {
     take_and_upload_screenshot "$step_number" "$screenshot_path" "assertion-failure"
   fi
 
-  record_result "$step_number" "$result" "$notes" "$screenshot_path"
+  record_result "$step_number" "$result" "$notes" "$screenshot_path" "$verify_cmd"
 }
 ```
 
@@ -237,32 +239,46 @@ take_and_upload_screenshot() {
     return 1
   }
 
-  # Upload screenshot to GitHub issue as a comment with embedded image
-  # GitHub supports image uploads via the issues API attachment endpoint
-  UPLOAD_URL=$(gh api \
-    repos/$(gh repo view --json owner -q '.owner.login')/$(gh repo view --json name -q '.name')/issues/$step_number/comments \
-    --method POST \
-    --field "body=![QA failure screenshot - $failure_type]()" \
-    --jq '.html_url' 2>/dev/null)
-
-  # For inline image embedding, encode as base64 and post in comment
+  # Post screenshot details to the QA Step issue
   if [ -f "$screenshot_path" ]; then
-    # Post screenshot path info so human reviewers can retrieve it if needed
-    gh issue comment "$step_number" --body "$(cat <<SCREENSHOT_EOF
+    local filename="qa-step-${step_number}-${failure_type}.png"
+
+    # If GHPMPLUS_SCREENSHOT_UPLOAD_CMD is set, use it to upload and get a URL
+    # Example: GHPMPLUS_SCREENSHOT_UPLOAD_CMD="aws s3 cp \$FILE s3://bucket/qa/ --output text"
+    # The command receives the file path as $1 and should print the public URL to stdout
+    if [ -n "$GHPMPLUS_SCREENSHOT_UPLOAD_CMD" ]; then
+      IMAGE_URL=$(FILE="$screenshot_path" eval "$GHPMPLUS_SCREENSHOT_UPLOAD_CMD" 2>/dev/null)
+    fi
+
+    if [ -n "$IMAGE_URL" ]; then
+      gh issue comment "$step_number" --body "$(cat <<SCREENSHOT_EOF
 ### Screenshot: $failure_type
 
-Playwright CLI screenshot captured at: \`$screenshot_path\`
+![QA failure screenshot - ${failure_type}](${IMAGE_URL})
 
+**Reproduction command:**
+\`\`\`bash
+playwright-cli screenshot --path /tmp/${filename}
 \`\`\`
-playwright-cli screenshot --path $screenshot_path
-\`\`\`
-
-To view: retrieve the file from the test runner environment or re-run the step.
 SCREENSHOT_EOF
 )"
-  fi
+      echo "Screenshot uploaded: $IMAGE_URL"
+    else
+      # Default: post local path and reproduction command
+      gh issue comment "$step_number" --body "$(cat <<SCREENSHOT_EOF
+### Screenshot: $failure_type
 
-  echo "Screenshot captured: $screenshot_path"
+Screenshot captured at: \`$screenshot_path\`
+
+**Reproduction command:**
+\`\`\`bash
+playwright-cli screenshot --path /tmp/${filename}
+\`\`\`
+SCREENSHOT_EOF
+)"
+      echo "Screenshot captured locally: $screenshot_path"
+    fi
+  fi
 }
 ```
 
