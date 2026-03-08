@@ -2,6 +2,22 @@
 
 Comprehensive guide to testing Rails generators using the built-in Rails testing framework.
 
+## Table of Contents
+
+- [Test Setup](#test-setup)
+- [Running Generators in Tests](#running-generators-in-tests)
+- [Assertion Methods](#assertion-methods)
+- [Testing Options and Arguments](#testing-options-and-arguments)
+- [Testing Generator Hooks](#testing-generator-hooks)
+- [Testing File Modifications](#testing-file-modifications)
+- [Testing Template Rendering](#testing-template-rendering)
+- [Testing Generator Composition](#testing-generator-composition)
+- [Integration Testing](#integration-testing)
+- [Advanced Testing Patterns](#advanced-testing-patterns)
+- [Test Organization](#test-organization)
+- [Running Tests](#running-tests)
+- [Best Practices](#best-practices)
+
 ## Test Setup
 
 ### Basic Test Structure
