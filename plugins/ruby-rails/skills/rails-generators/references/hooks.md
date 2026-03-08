@@ -2,6 +2,18 @@
 
 Generator hooks enable modular composition, allowing generators to delegate to other generators without tight coupling. This is essential for test framework integration and extensible generator design.
 
+## Table of Contents
+
+- [Hook Basics](#hook-basics)
+- [Creating Hook Responders](#creating-hook-responders)
+- [Fallback Configuration](#fallback-configuration)
+- [Hook Invocation Options](#hook-invocation-options)
+- [Advanced Hook Patterns](#advanced-hook-patterns)
+- [Hook Resolution Path](#hook-resolution-path)
+- [Real-World Example: Complete Hook System](#real-world-example-complete-hook-system)
+- [Testing Hooks](#testing-hooks)
+- [Best Practices](#best-practices)
+
 ## Hook Basics
 
 ### Defining Hooks
