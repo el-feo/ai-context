@@ -2,6 +2,20 @@
 
 Comprehensive guide for integrating SimpleCov into various CI/CD pipelines and development workflows.
 
+## Table of Contents
+
+- [GitHub Actions](#github-actions)
+- [GitLab CI](#gitlab-ci)
+- [CircleCI](#circleci)
+- [Jenkins](#jenkins)
+- [Bitbucket Pipelines](#bitbucket-pipelines)
+- [Azure Pipelines](#azure-pipelines)
+- [Heroku CI](#heroku-ci)
+- [Coverage Badges](#coverage-badges)
+- [Pre-commit/Pre-push Hooks](#pre-commitpre-push-hooks)
+- [Docker Integration](#docker-integration)
+- [Best Practices for CI/CD](#best-practices-for-cicd)
+
 ## GitHub Actions
 
 ### Basic Rails Test with Coverage

@@ -2,6 +2,17 @@
 
 This document covers advanced configuration patterns, edge cases, and sophisticated usage of SimpleCov for enterprise Ruby/Rails applications.
 
+## Table of Contents
+
+- [Multi-Application Coverage (Engines/Gems)](#multi-application-coverage-enginesgems)
+- [Dynamic Configuration Based on Environment](#dynamic-configuration-based-on-environment)
+- [Advanced Filtering Strategies](#advanced-filtering-strategies)
+- [Custom Formatters](#custom-formatters)
+- [Collating Coverage Across Machines](#collating-coverage-across-machines)
+- [Continuous Coverage Monitoring](#continuous-coverage-monitoring)
+- [Testing SimpleCov Configuration](#testing-simplecov-configuration)
+- [Debugging Coverage Issues](#debugging-coverage-issues)
+
 ## Multi-Application Coverage (Engines/Gems)
 
 ### Rails Engine Coverage

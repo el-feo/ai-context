@@ -2,6 +2,19 @@
 
 How to effectively combine SimpleCov test coverage with RubyCritic code quality metrics for comprehensive code health analysis.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [Basic Workflow](#basic-workflow)
+- [Prioritization Matrix](#prioritization-matrix)
+- [Example Analysis](#example-analysis)
+- [Automated Integration](#automated-integration)
+- [CI/CD Integration](#cicd-integration)
+- [Monitoring Trends](#monitoring-trends)
+- [Best Practices](#best-practices)
+- [Summary](#summary)
+
 ## Overview
 
 SimpleCov tracks **test coverage** (how much code is tested), while RubyCritic evaluates **code quality** (complexity, duplication, maintainability). Together, they provide a complete picture of code health.
