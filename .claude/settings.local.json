@@ -23,7 +23,23 @@
       "Bash(git pull:*)",
       "Bash(git push:*)",
       "WebSearch",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git fetch:*)",
+      "Bash(git stash:*)",
+      "Bash(gh pr:*)",
+      "Bash(gh run:*)",
+      "Bash(wc:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git worktree:*)",
+      "Bash(rm:*)",
+      "Bash(rmdir:*)",
+      "Bash(gem:*)",
+      "Bash(GEMDIR=\"/Users/jebcoleman/.local/share/mise/installs/ruby/3.4.2/lib/ruby/gems/3.4.0/gems\")",
+      "Read(//Users/jebcoleman/Documents/Development/ai-context/$GEMDIR/**)",
+      "Read(//Users/jebcoleman/Documents/Development/ai-context/**)",
+      "Bash(git:*)"
     ]
   }
 }
