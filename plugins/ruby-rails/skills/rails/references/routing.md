@@ -14,6 +14,16 @@ After reading this guide, you will know:
 
 - Advanced techniques such as creating constraints and mounting Rack endpoints.
 
+## Table of Contents
+
+- [1. The Purpose of the Rails Router](#1-the-purpose-of-the-rails-router)
+- [2. Resource Routing: the Rails Default](#2-resource-routing-the-rails-default)
+- [3. Non-Resourceful Routes](#3-non-resourceful-routes)
+- [4. Customizing Resourceful Routes](#4-customizing-resourceful-routes)
+- [5. Inspecting Routes](#5-inspecting-routes)
+- [6. Testing Routes](#6-testing-routes)
+- [7. Breaking Up a Large Route File With draw](#7-breaking-up-a-large-route-file-with-draw)
+
 ## 1. The Purpose of the Rails Router
 
 The Rails router matches incoming HTTP requests to specific controller actions

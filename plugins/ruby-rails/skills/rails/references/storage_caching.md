@@ -21,6 +21,22 @@ bypassing your application servers.
 
 - How to implement support for additional storage services.
 
+## Table of Contents
+
+- [1. What is Active Storage?](#1-what-is-active-storage)
+- [2. Setup](#2-setup)
+- [3. Attaching Files to Records](#3-attaching-files-to-records)
+- [4. Querying](#4-querying)
+- [5. Removing Files](#5-removing-files)
+- [6. Serving Files](#6-serving-files)
+- [7. Downloading Files](#7-downloading-files)
+- [8. Analyzing Files](#8-analyzing-files)
+- [9. Displaying Images, Videos, and PDFs](#9-displaying-images-videos-and-pdfs)
+- [10. Direct Uploads](#10-direct-uploads)
+- [11. Testing](#11-testing)
+- [12. Implementing Support for Other Cloud Services](#12-implementing-support-for-other-cloud-services)
+- [13. Purging Unattached Uploads](#13-purging-unattached-uploads)
+
 ## 1. What is Active Storage?
 
 Active Storage facilitates uploading files to a cloud storage service like
@@ -1585,6 +1601,16 @@ After reading this guide, you will know:
 - Cache keys.
 
 - Conditional GET support.
+
+## Table of Contents
+
+- [1. What is Caching?](#1-what-is-caching)
+- [2. Types of Caching](#2-types-of-caching)
+- [3. Managing Dependencies](#3-managing-dependencies)
+- [4. Solid Cache](#4-solid-cache)
+- [5. Other Cache Stores](#5-other-cache-stores)
+- [6. Cache Keys](#6-cache-keys)
+- [7. Conditional GET Support](#7-conditional-get-support)
 
 ## 1. What is Caching?
 

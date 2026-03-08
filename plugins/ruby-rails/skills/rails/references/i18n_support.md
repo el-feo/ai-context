@@ -34,6 +34,20 @@ After reading this guide, you will know:
 
 The Ruby I18n framework provides you with all necessary means for internationalization/localization of your Rails application. You may also use various gems available to add additional functionality or features. See the rails-i18n gem for more information.
 
+## Table of Contents
+
+- [1. How I18n in Ruby on Rails Works](#1-how-i18n-in-ruby-on-rails-works)
+- [2. Setup the Rails Application for Internationalization](#2-setup-the-rails-application-for-internationalization)
+- [3. Internationalization and Localization](#3-internationalization-and-localization)
+- [4. Overview of the I18n API Features](#4-overview-of-the-i18n-api-features)
+- [5. How to Store your Custom Translations](#5-how-to-store-your-custom-translations)
+- [6. Customize Your I18n Setup](#6-customize-your-i18n-setup)
+- [7. Translating Model Content](#7-translating-model-content)
+- [8. Conclusion](#8-conclusion)
+- [9. Contributing to Rails I18n](#9-contributing-to-rails-i18n)
+- [10. Resources](#10-resources)
+- [11. Authors](#11-authors)
+- [12. Footnotes](#12-footnotes)
 
 ## 1. How I18n in Ruby on Rails Works
 
@@ -1237,6 +1251,29 @@ After reading this guide, you will know:
 
 - What extensions Active Support provides.
 
+## Table of Contents
+
+- [1. How to Load Core Extensions](#1-how-to-load-core-extensions)
+- [2. Extensions to All Objects](#2-extensions-to-all-objects)
+- [3. Extensions to Module](#3-extensions-to-module)
+- [4. Extensions to Class](#4-extensions-to-class)
+- [5. Extensions to String](#5-extensions-to-string)
+- [6. Extensions to Symbol](#6-extensions-to-symbol)
+- [7. Extensions to Numeric](#7-extensions-to-numeric)
+- [8. Extensions to Integer](#8-extensions-to-integer)
+- [9. Extensions to BigDecimal](#9-extensions-to-bigdecimal)
+- [10. Extensions to Enumerable](#10-extensions-to-enumerable)
+- [11. Extensions to Array](#11-extensions-to-array)
+- [12. Extensions to Hash](#12-extensions-to-hash)
+- [13. Extensions to Regexp](#13-extensions-to-regexp)
+- [14. Extensions to Range](#14-extensions-to-range)
+- [15. Extensions to Date](#15-extensions-to-date)
+- [16. Extensions to DateTime](#16-extensions-to-datetime)
+- [17. Extensions to Time](#17-extensions-to-time)
+- [18. Extensions to File](#18-extensions-to-file)
+- [19. Extensions to NameError](#19-extensions-to-nameerror)
+- [20. Extensions to LoadError](#20-extensions-to-loaderror)
+- [21. Extensions to Pathname](#21-extensions-to-pathname)
 
 ## 1. How to Load Core Extensions
 
@@ -5034,6 +5071,13 @@ After reading this guide, you will know:
 
 - How to build a custom instrumentation implementation.
 
+## Table of Contents
+
+- [1. Introduction to Instrumentation](#1-introduction-to-instrumentation)
+- [2. Subscribing to an Event](#2-subscribing-to-an-event)
+- [3. Rails Framework Hooks](#3-rails-framework-hooks)
+- [4. Exceptions](#4-exceptions)
+- [5. Creating Custom Events](#5-creating-custom-events)
 
 ## 1. Introduction to Instrumentation
 

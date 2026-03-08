@@ -11,6 +11,26 @@ application.
 
 - Other popular testing approaches and plugins.
 
+## Table of Contents
+
+- [1. Why Write Tests?](#1-why-write-tests)
+- [2. Introduction to Testing](#2-introduction-to-testing)
+- [3. The Test Database](#3-the-test-database)
+- [4. Testing Models](#4-testing-models)
+- [5. Functional Testing for Controllers](#5-functional-testing-for-controllers)
+- [6. Integration Testing](#6-integration-testing)
+- [7. System Testing](#7-system-testing)
+- [8. Test Helpers](#8-test-helpers)
+- [9. Testing Routes](#9-testing-routes)
+- [10. Testing Views](#10-testing-views)
+- [11. Testing Mailers](#11-testing-mailers)
+- [12. Testing Jobs](#12-testing-jobs)
+- [13. Testing Action Cable](#13-testing-action-cable)
+- [14. Running tests in Continuous Integration (CI)](#14-running-tests-in-continuous-integration-ci)
+- [15. Parallel Testing](#15-parallel-testing)
+- [16. Testing Eager Loading](#16-testing-eager-loading)
+- [17. Additional Testing Resources](#17-additional-testing-resources)
+
 ## 1. Why Write Tests?
 
 Writing automated tests can be a faster way of ensuring your code continues to
@@ -2760,6 +2780,17 @@ After reading this guide, you will know:
 - The different ways of debugging.
 
 - How to analyze the stack trace.
+
+## Table of Contents
+
+- [1. View Helpers for Debugging](#1-view-helpers-for-debugging)
+- [2. The Logger](#2-the-logger)
+- [3. SQL Query Comments](#3-sql-query-comments)
+- [4. Debugging with the debug Gem](#4-debugging-with-the-debug-gem)
+- [5. Debugging with the web-console Gem](#5-debugging-with-the-web-console-gem)
+- [6. Debugging Memory Leaks](#6-debugging-memory-leaks)
+- [7. Plugins for Debugging](#7-plugins-for-debugging)
+- [8. References](#8-references)
 
 ## 1. View Helpers for Debugging
 

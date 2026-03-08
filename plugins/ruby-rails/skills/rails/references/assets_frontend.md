@@ -12,6 +12,14 @@ After reading this guide, you will know:
 
 - How to use other libraries for more advanced asset management.
 
+## Table of Contents
+
+- [1. What is an Asset Pipeline?](#1-what-is-an-asset-pipeline)
+- [2. Propshaft Features](#2-propshaft-features)
+- [3. Working with Propshaft](#3-working-with-propshaft)
+- [4. Sprockets to Propshaft](#4-sprockets-to-propshaft)
+- [5. Advanced Asset Management](#5-advanced-asset-management)
+
 ## 1. What is an Asset Pipeline?
 
 The Rails Asset Pipeline is a library designed for organizing, caching, and
@@ -1283,6 +1291,14 @@ your JavaScript.
 
 - How to use the Turbo HTML helpers provided by Rails.
 
+## Table of Contents
+
+- [1. Import Maps](#1-import-maps)
+- [2. Adding npm Packages with JavaScript Bundlers](#2-adding-npm-packages-with-javascript-bundlers)
+- [3. Choosing Between Import Maps and a JavaScript Bundler](#3-choosing-between-import-maps-and-a-javascript-bundler)
+- [4. Turbo](#4-turbo)
+- [5. Replacements for Rails/UJS Functionality](#5-replacements-for-railsujs-functionality)
+
 ## 1. Import Maps
 
 Import maps let you import JavaScript modules using
@@ -1636,6 +1652,16 @@ After reading this guide, you will know:
 - How to create, render, style, and customize rich text content.
 
 - How to handle attachments.
+
+## Table of Contents
+
+- [1. What is Action Text?](#1-what-is-action-text)
+- [2. Installation](#2-installation)
+- [3. Creating Rich Text Content](#3-creating-rich-text-content)
+- [4. Rendering Rich Text Content](#4-rendering-rich-text-content)
+- [5. Customizing the Rich Text Content Editor (Trix)](#5-customizing-the-rich-text-content-editor-trix)
+- [6. Attachments](#6-attachments)
+- [7. Miscellaneous](#7-miscellaneous)
 
 ## 1. What is Action Text?
 
