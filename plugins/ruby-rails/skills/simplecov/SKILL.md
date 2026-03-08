@@ -303,119 +303,15 @@ bundle exec parallel_test test/ -n 4
 
 ### 6. CI/CD Integration
 
-**GitHub Actions:**
+Configure SimpleCov for CI pipelines with minimum coverage enforcement and artifact uploading.
 
-```yaml
-# .github/workflows/test.yml
-name: Tests with Coverage
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 3.2
-          bundler-cache: true
-
-      - name: Setup Database
-        run: |
-          bundle exec rails db:create
-          bundle exec rails db:schema:load
-
-      - name: Run tests with coverage
-        run: bundle exec rake test
-
-      - name: Check coverage thresholds
-        run: |
-          if [ $? -ne 0 ]; then
-            echo "❌ Coverage below threshold"
-            exit 1
-          fi
-
-      - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: coverage-report
-          path: coverage/
-```
-
-**CI-Specific Configuration:**
-
-```ruby
-# .simplecov
-SimpleCov.start 'rails' do
-  if ENV['CI']
-    # Use console formatter only in CI
-    formatter SimpleCov::Formatter::Console
-
-    # Strict enforcement
-    minimum_coverage line: 90, branch: 80
-    refuse_coverage_drop :line, :branch
-
-    # More aggressive thresholds
-    minimum_coverage_by_file 85
-  else
-    # Development: HTML + Console
-    formatter SimpleCov::Formatter::MultiFormatter.new([
-      SimpleCov::Formatter::HTMLFormatter,
-      SimpleCov::Formatter::Console
-    ])
-  end
-end
-```
+See [references/ci_cd_integration.md](references/ci_cd_integration.md) for GitHub Actions, CircleCI, and other CI platform configurations.
 
 ### 7. Integration with RubyCritic
 
-Combine SimpleCov with RubyCritic for comprehensive code quality analysis:
+Combine SimpleCov coverage data with RubyCritic complexity analysis to prioritize refactoring targets.
 
-**Combined Analysis:**
-
-```bash
-# 1. Run tests with coverage
-bundle exec rake test
-
-# 2. Run RubyCritic
-bundle exec rubycritic app lib --format console
-
-# 3. Review both reports
-open coverage/index.html
-open tmp/rubycritic/overview.html
-```
-
-**Prioritization Matrix:**
-
-| Complexity | Coverage | Priority | Action                        |
-| ---------- | -------- | -------- | ----------------------------- |
-| High       | Low      | CRITICAL | Add tests + refactor          |
-| High       | High     | High     | Refactor with test safety net |
-| Low        | Low      | Medium   | Add tests                     |
-| Low        | High     | Low      | Well-maintained               |
-
-**Example Combined Analysis:**
-
-```
-SimpleCov: 45% coverage | app/services/order_processor.rb | 80 lines | 44 missed
-RubyCritic: Score D | Complexity 25 | Churn 15
-
-Interpretation:
-- High complexity (25) indicates difficult to understand/maintain
-- High churn (15) shows frequent changes
-- Low coverage (45%) means changes are risky
-
-Action Plan:
-1. Write characterization tests for current behavior (increase coverage to ~70%)
-2. Refactor to reduce complexity while tests protect against regression
-3. Achieve 90%+ coverage on simplified code
-4. Monitor churn - frequent changes may indicate unclear requirements
-```
+See [references/rubycritic_integration.md](references/rubycritic_integration.md) for combined analysis workflows and prioritization matrices.
 
 ## Advanced Features
 
@@ -534,233 +430,21 @@ end
 
 ## Troubleshooting
 
-### Coverage Shows 0% or Missing Files
+Common issues include 0% coverage (load order), Spring conflicts, parallel test merge failures, and missing branch coverage.
 
-**Problem:** SimpleCov doesn't track files or shows 0%.
-
-**Cause:** SimpleCov loaded after application code.
-
-**Solution:** Ensure SimpleCov starts FIRST:
-
-```ruby
-# ✅ CORRECT
-require 'simplecov'
-SimpleCov.start 'rails'
-require_relative '../config/environment'
-
-# ❌ WRONG
-require_relative '../config/environment'
-require 'simplecov'
-SimpleCov.start
-```
-
-### Spring Conflicts
-
-**Problem:** Inaccurate coverage with Spring.
-
-**Solutions:**
-
-```ruby
-# Option 1: Eager load
-require 'simplecov'
-SimpleCov.start 'rails'
-Rails.application.eager_load!
-
-# Option 2: Disable Spring for coverage
-# DISABLE_SPRING=1 bundle exec rake test
-
-# Option 3: Remove Spring
-# Remove gem 'spring' from Gemfile
-```
-
-### Parallel Test Conflicts
-
-**Problem:** Results overwrite each other.
-
-**Solution:**
-
-```ruby
-SimpleCov.start 'rails' do
-  command_name "Test #{ENV['TEST_ENV_NUMBER'] || Process.pid}"
-end
-```
-
-### Branch Coverage Not Showing
-
-**Problem:** Branch coverage is 0% or missing.
-
-**Requirements:**
-
-- Ruby 2.5 or later
-- Must explicitly enable
-
-**Solution:**
-
-```ruby
-SimpleCov.start do
-  enable_coverage :branch
-  primary_coverage :branch
-end
-```
-
-### Old Cached Results
-
-**Problem:** Coverage seems incorrect or stale.
-
-**Solution:**
-
-```bash
-# Clear cache
-rm -rf coverage/
-bundle exec rake test
-
-# Or increase merge timeout
-SimpleCov.merge_timeout 7200  # 2 hours
-```
+See [references/troubleshooting.md](references/troubleshooting.md) for solutions to all common SimpleCov issues.
 
 ## Best Practices
 
-### 1. Start Early
+Set achievable thresholds (start 80-85%), track both line and branch coverage, prioritize business logic, and enforce standards in CI/CD.
 
-Set up SimpleCov at project inception to establish baselines and track progress from day one.
-
-### 2. Set Achievable Thresholds
-
-Start with realistic targets (80-85%) and increase gradually. Avoid demanding 100% immediately.
-
-### 3. Track Both Line and Branch Coverage
-
-Branch coverage reveals untested conditional paths that line coverage misses.
-
-```ruby
-minimum_coverage line: 90, branch: 80
-```
-
-### 4. Prioritize Business Logic
-
-Focus coverage efforts on:
-
-- Domain models
-- Service objects
-- Complex calculations
-- Critical user flows
-
-Less critical:
-
-- View helpers
-- Configuration files
-- Simple CRUD controllers
-
-### 5. Make Coverage Part of Code Review
-
-Include coverage reports in PR reviews. Block PRs that drop coverage without justification.
-
-```ruby
-refuse_coverage_drop :line, :branch
-```
-
-### 6. Don't Chase 100% Blindly
-
-Focus on meaningful tests over coverage percentage. Some code (error logging, debugging helpers) may not need testing.
-
-### 7. Use Appropriate Grouping
-
-Organize reports by architecture to identify weak layers:
-
-```ruby
-add_group "Domain Models", "app/models"
-add_group "Business Logic", "app/services"
-add_group "Background Jobs", "app/jobs"
-add_group "API", "app/controllers/api"
-```
-
-### 8. Filter Wisely
-
-Exclude generated code, migrations, and test infrastructure:
-
-```ruby
-add_filter '/db/migrate/'
-add_filter '/test/'
-add_filter '/config/initializers/'
-add_filter '/vendor/'
-```
-
-### 9. Merge All Test Suites
-
-Ensure coverage reflects complete test suite execution:
-
-```bash
-bundle exec rake test      # Unit/integration
-bundle exec rspec          # Specs
-bundle exec cucumber       # Features
-# SimpleCov merges automatically
-```
-
-### 10. Enforce in CI/CD
-
-Prevent coverage degradation by failing builds:
-
-```ruby
-if ENV['CI']
-  minimum_coverage line: 90, branch: 80
-  refuse_coverage_drop :line, :branch
-end
-```
+See [references/best_practices.md](references/best_practices.md) for the full list of 10 best practices with code examples.
 
 ## Common Patterns
 
-### Pre-commit Hook
+Pre-commit hooks, coverage summary scripts, and watch mode for TDD workflows.
 
-```bash
-#!/bin/bash
-# .git/hooks/pre-commit
-
-echo "Running tests with coverage..."
-COVERAGE=true bundle exec rake test
-
-if [ $? -ne 0 ]; then
-  echo "❌ Coverage check failed"
-  exit 1
-fi
-
-echo "✅ Coverage acceptable"
-```
-
-### Coverage Summary Script
-
-```ruby
-# scripts/coverage_summary.rb
-require 'json'
-
-data = JSON.parse(File.read('coverage/.resultset.json'))
-coverage = data.values.first.dig('coverage', 'lines')
-
-total = coverage.size
-covered = coverage.compact.count { |x| x > 0 }
-pct = (covered.to_f / total * 100).round(2)
-
-puts "Coverage: #{pct}% (#{covered}/#{total} lines)"
-
-exit 1 if pct < 90
-```
-
-### Watch Mode for TDD
-
-```bash
-# Use guard-minitest or guard-rspec
-bundle exec guard
-
-# Gemfile
-group :development, :test do
-  gem 'guard-minitest'
-end
-
-# Guardfile
-guard :minitest do
-  watch(%r{^test/(.*)/?(.*)_test\.rb$})
-  watch(%r{^app/(.+)\.rb$}) { |m| "test/#{m[1]}_test.rb" }
-end
-```
+See [references/common_patterns.md](references/common_patterns.md) for ready-to-use patterns and scripts.
 
 ## Resources
 
