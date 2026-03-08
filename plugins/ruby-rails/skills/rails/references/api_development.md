@@ -10,6 +10,14 @@ In this guide you will learn:
 
 - How to decide which modules to use in your controller
 
+## Table of Contents
+
+- [1. What is an API Application?](#1-what-is-an-api-application)
+- [2. Why Use Rails for JSON APIs?](#2-why-use-rails-for-json-apis)
+- [3. The Basic Configuration](#3-the-basic-configuration)
+- [4. Choosing Middleware](#4-choosing-middleware)
+- [5. Choosing Controller Modules](#5-choosing-controller-modules)
+
 ## 1. What is an API Application?
 
 Traditionally, when people said that they used Rails as an "API", they meant

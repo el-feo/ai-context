@@ -13,6 +13,24 @@ After reading this guide, you will know:
 
 - How to send emails from your application asynchronously.
 
+## Table of Contents
+
+- [1. What is Active Job?](#1-what-is-active-job)
+- [2. Create and Enqueue Jobs](#2-create-and-enqueue-jobs)
+- [3. Default Backend: Solid Queue](#3-default-backend-solid-queue)
+- [4. Queues](#4-queues)
+- [5. Priority](#5-priority)
+- [6. Job Continuations](#6-job-continuations)
+- [7. Callbacks](#7-callbacks)
+- [8. Bulk Enqueuing](#8-bulk-enqueuing)
+- [9. Action Mailer](#9-action-mailer)
+- [10. Internationalization](#10-internationalization)
+- [11. Supported Types for Arguments](#11-supported-types-for-arguments)
+- [12. Exceptions](#12-exceptions)
+- [13. Job Testing](#13-job-testing)
+- [14. Debugging](#14-debugging)
+- [15. Alternate Queuing Backends](#15-alternate-queuing-backends)
+
 ## 1. What is Active Job?
 
 Active Job is a framework in Rails designed for declaring background jobs and
@@ -1114,6 +1132,19 @@ After reading this guide, you will know:
 
 - How to preview emails and test your Action Mailer classes.
 
+## Table of Contents
+
+- [1. What is Action Mailer?](#1-what-is-action-mailer)
+- [2. Creating a Mailer and Views](#2-creating-a-mailer-and-views)
+- [3. Multipart Emails and Attachments](#3-multipart-emails-and-attachments)
+- [4. Mailer Views and Layouts](#4-mailer-views-and-layouts)
+- [5. Sending Email](#5-sending-email)
+- [6. Action Mailer Callbacks](#6-action-mailer-callbacks)
+- [7. Action Mailer View Helpers](#7-action-mailer-view-helpers)
+- [8. Action Mailer Configuration](#8-action-mailer-configuration)
+- [9. Previewing and Testing Mailers](#9-previewing-and-testing-mailers)
+- [10. Intercepting and Observing Emails](#10-intercepting-and-observing-emails)
+
 ## 1. What is Action Mailer?
 
 Action Mailer allows you to send emails from your Rails application. It's one of
@@ -2191,6 +2222,16 @@ After reading this guide, you will know:
 
 - How to test incoming emails.
 
+## Table of Contents
+
+- [1. What is Action Mailbox?](#1-what-is-action-mailbox)
+- [2. Setup](#2-setup)
+- [3. Ingress Configuration](#3-ingress-configuration)
+- [4. Processing Incoming Email](#4-processing-incoming-email)
+- [5. Example](#5-example)
+- [6. Local Development and Testing](#6-local-development-and-testing)
+- [7. Incineration of InboundEmails](#7-incineration-of-inboundemails)
+
 ## 1. What is Action Mailbox?
 
 Action Mailbox routes incoming emails to controller-like mailboxes for
@@ -2720,6 +2761,20 @@ After reading this guide, you will know:
 - How to set up channels
 
 - Deployment and Architecture setup for running Action Cable
+
+## Table of Contents
+
+- [1. What is Action Cable?](#1-what-is-action-cable)
+- [2. Terminology](#2-terminology)
+- [3. Server-Side Components](#3-server-side-components)
+- [4. Client-Side Components](#4-client-side-components)
+- [5. Client-Server Interactions](#5-client-server-interactions)
+- [6. Full-Stack Examples](#6-full-stack-examples)
+- [7. Configuration](#7-configuration)
+- [8. Running Standalone Cable Servers](#8-running-standalone-cable-servers)
+- [9. Dependencies](#9-dependencies)
+- [10. Deployment](#10-deployment)
+- [11. Testing](#11-testing)
 
 ## 1. What is Action Cable?
 

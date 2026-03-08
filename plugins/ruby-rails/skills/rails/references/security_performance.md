@@ -18,6 +18,22 @@ After reading this guide, you will know:
 
 - And the most popular injection attack methods.
 
+## Table of Contents
+
+- [1. Introduction](#1-introduction)
+- [2. Authentication](#2-authentication)
+- [3. Sessions](#3-sessions)
+- [4. Cross-Site Request Forgery (CSRF)](#4-cross-site-request-forgery-csrf)
+- [5. Redirection and Files](#5-redirection-and-files)
+- [6. User Management](#6-user-management)
+- [7. Injection](#7-injection)
+- [8. Unsafe Query Generation](#8-unsafe-query-generation)
+- [9. HTTP Security Headers](#9-http-security-headers)
+- [10. Intranet and Admin Security](#10-intranet-and-admin-security)
+- [11. Environmental Security](#11-environmental-security)
+- [12. Dependency Management and CVEs](#12-dependency-management-and-cves)
+- [13. Additional Resources](#13-additional-resources)
+
 ## 1. Introduction
 
 Web application frameworks are made to help developers build web applications. Some of them also help you with securing the web application. In fact one framework is not more secure than another: If you use it correctly, you will be able to build secure apps with many frameworks. Ruby on Rails has some clever helper methods, for example against SQL injection, so this is hardly a problem.
@@ -1724,6 +1740,13 @@ This guide assumes you are running MRI, the canonical implementation of Ruby als
 CRuby. If you're using another Ruby implementation such as JRuby or TruffleRuby, most of this guide doesn't apply.
 If needed, check sources specific to your Ruby implementation.
 
+## Table of Contents
+
+- [1. Choosing an Application Server](#1-choosing-an-application-server)
+- [2. What to Optimize for?](#2-what-to-optimize-for)
+- [3. Configurations](#3-configurations)
+- [4. Performance Testing](#4-performance-testing)
+
 ## 1. Choosing an Application Server
 
 Puma is Rails' default application server and the most commonly used server across the community.
@@ -1975,6 +1998,11 @@ After reading this guide, you will know:
 - How to use Rails' error reporter to capture and report errors.
 
 - How to create custom subscribers for your error-reporting service.
+
+## Table of Contents
+
+- [1. Error Reporting](#1-error-reporting)
+- [2. Error-reporting Libraries](#2-error-reporting-libraries)
 
 ## 1. Error Reporting
 
