@@ -13,7 +13,7 @@
       "name": "ruby-rails",
       "source": "./plugins/ruby-rails",
       "description": "Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, SimpleCov, Brakeman, and code review with Sandi Metz principles",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Jeb Coleman"
       }
