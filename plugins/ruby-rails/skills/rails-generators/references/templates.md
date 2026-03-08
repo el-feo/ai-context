@@ -156,13 +156,16 @@ class <%= class_name %>Interactor
 <%- end -%>
 ```
 
-### Guard Clauses
+### Conditional Sections
 
 ```erb
-<%- return unless options[:callbacks] -%>
+<%- if options[:callbacks] -%>
   include ActiveSupport::Callbacks
   define_callbacks :call
+<%- end -%>
 ```
+
+**Note**: Do not use `return` inside `.tt` ERB templates — it raises `LocalJumpError`. Use `if/end` blocks instead.
 
 ## Iteration Patterns
 

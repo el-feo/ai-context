@@ -99,14 +99,14 @@ module Api
         @<%= plural_name %> = @<%= plural_name %>.page(params[:page]).per(params[:per_page] || 25)
         <%- end -%>
 
-        render json: @<%= plural_name %>
+        render_collection @<%= plural_name %>
       end
       <%- end -%>
 
       <%- if options[:actions].include?('show') -%>
       # GET /api/<%= options[:version] %>/<%= plural_name %>/:id
       def show
-        render json: @<%= singular_name %>
+        render_resource @<%= singular_name %>
       end
       <%- end -%>
 
@@ -116,7 +116,7 @@ module Api
         @<%= singular_name %> = <%= class_name %>.new(<%= singular_name %>_params)
 
         if @<%= singular_name %>.save
-          render json: @<%= singular_name %>, status: :created
+          render_resource @<%= singular_name %>, status: :created
         else
           render json: { errors: @<%= singular_name %>.errors }, status: :unprocessable_entity
         end
@@ -127,7 +127,7 @@ module Api
       # PATCH/PUT /api/<%= options[:version] %>/<%= plural_name %>/:id
       def update
         if @<%= singular_name %>.update(<%= singular_name %>_params)
-          render json: @<%= singular_name %>
+          render_resource @<%= singular_name %>
         else
           render json: { errors: @<%= singular_name %>.errors }, status: :unprocessable_entity
         end
@@ -155,6 +155,18 @@ module Api
         params.require(:<%= singular_name %>).permit(:name)
       end
       <%- end -%>
+
+      def render_resource(resource, **options)
+        respond_to do |format|
+          format.json { render json: resource, **options }
+        end
+      end
+
+      def render_collection(collection, **options)
+        respond_to do |format|
+          format.json { render json: collection, **options }
+        end
+      end
     end
   end
 end
