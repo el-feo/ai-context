@@ -2,6 +2,21 @@
 
 Proven patterns and anti-patterns from "Everyday Rails Testing with RSpec" and community wisdom.
 
+## Table of Contents
+
+1. [Testing Philosophy](#testing-philosophy)
+2. [Test Organization](#test-organization)
+3. [Test Readability](#test-readability)
+4. [Test Speed](#test-speed)
+5. [Mocking and Stubbing](#mocking-and-stubbing)
+6. [Test Data](#test-data)
+7. [Test Maintenance](#test-maintenance)
+8. [Common Anti-Patterns](#common-anti-patterns)
+9. [TDD Workflow](#tdd-workflow)
+10. [Documentation](#documentation)
+11. [Continuous Improvement](#continuous-improvement)
+12. [Summary](#summary)
+
 ## Testing Philosophy
 
 ### Test the Right Things

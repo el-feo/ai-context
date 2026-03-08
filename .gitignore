@@ -36,3 +36,9 @@ temp/
 *.exe
 *.o
 *.so
+
+# Skill improvement plans (working files)
+.skill-improvements/
+
+# Git worktrees
+.worktrees/
