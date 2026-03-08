@@ -2,6 +2,19 @@
 
 Production-ready service object generator with result objects, dependency injection, and comprehensive testing.
 
+## Table of Contents
+
+- [Generator Implementation](#generator-implementation)
+- [Service Templates](#service-templates)
+- [Result Object Template](#result-object-template)
+- [Error Class Template](#error-class-template)
+- [Usage Examples](#usage-examples)
+- [Testing](#testing)
+- [RSpec Testing](#rspec-testing)
+- [Generator Testing](#generator-testing)
+- [Advanced Patterns](#advanced-patterns)
+- [Best Practices](#best-practices)
+
 ## Generator Implementation
 
 ```ruby

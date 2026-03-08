@@ -2,6 +2,16 @@
 
 Production-ready custom model generator with associations, validations, scopes, and tests.
 
+## Table of Contents
+
+- [Generator Implementation](#generator-implementation)
+- [Migration Template](#migration-template)
+- [Model Template](#model-template)
+- [Usage Examples](#usage-examples)
+- [Testing](#testing)
+- [Advanced Customizations](#advanced-customizations)
+- [Production Considerations](#production-considerations)
+
 ## Generator Implementation
 
 ```ruby

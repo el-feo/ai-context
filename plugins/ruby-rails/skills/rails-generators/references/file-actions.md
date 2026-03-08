@@ -2,6 +2,21 @@
 
 Thor::Actions provides file manipulation methods available in all Rails generators. This reference covers all methods with practical examples.
 
+## Table of Contents
+
+- [File Creation](#file-creation)
+- [File Modification](#file-modification)
+- [Directory Operations](#directory-operations)
+- [Rails-Specific Helpers](#rails-specific-helpers)
+- [File System Queries](#file-system-queries)
+- [User Interaction](#user-interaction)
+- [Output and Logging](#output-and-logging)
+- [Advanced File Operations](#advanced-file-operations)
+- [Behavior Modifiers](#behavior-modifiers)
+- [Practical Patterns](#practical-patterns)
+- [Error Handling](#error-handling)
+- [Best Practices](#best-practices)
+
 ## File Creation
 
 ### create_file

@@ -12,6 +12,9 @@ Guide to testing Rails applications with RSpec Rails, covering all spec types an
 6. [Helper Specs](#helper-specs)
 7. [View Specs](#view-specs)
 8. [Routing Specs](#routing-specs)
+9. [Common Patterns](#common-patterns)
+10. [Debugging Failing Tests](#debugging-failing-tests)
+11. [Testing Complex Queries](#testing-complex-queries)
 
 ## Model Specs
 
@@ -565,12 +568,57 @@ describe 'search' do
     create(:article, title: 'Ruby Guide')
     create(:article, title: 'Python Guide')
   end
-  
+
   it 'finds articles by title' do
     get search_articles_path, params: { q: 'Ruby' }
-    
+
     expect(assigns(:articles).map(&:title)).to include('Ruby Guide')
     expect(assigns(:articles).map(&:title)).not_to include('Python Guide')
+  end
+end
+```
+
+## Debugging Failing Tests
+
+```ruby
+# Use save_and_open_page in system specs
+scenario 'user creates article' do
+  visit new_article_path
+  save_and_open_page  # Opens browser with current page state
+  # ...
+end
+
+# Print response body in request specs
+it 'creates article' do
+  post '/articles', params: { ... }
+  puts response.body  # Debug API responses
+  expect(response).to be_successful
+end
+
+# Use binding.pry for interactive debugging
+it 'calculates total' do
+  order = create(:order)
+  binding.pry  # Pause execution here
+  expect(order.total).to eq(100)
+end
+```
+
+## Testing Complex Queries
+
+```ruby
+describe '.search' do
+  let!(:ruby_article) { create(:article, title: 'Ruby Guide', body: 'Ruby content') }
+  let!(:rails_article) { create(:article, title: 'Rails Guide', body: 'Rails content') }
+
+  it 'finds articles by title' do
+    results = Article.search('Ruby')
+    expect(results).to include(ruby_article)
+    expect(results).not_to include(rails_article)
+  end
+
+  it 'finds articles by body' do
+    results = Article.search('Rails content')
+    expect(results).to include(rails_article)
   end
 end
 ```

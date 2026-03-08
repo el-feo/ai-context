@@ -209,227 +209,32 @@ end
 
 ## Factory Bot Integration
 
-### Defining Factories
+Use FactoryBot for test data. Define factories in `spec/factories/`, use traits for variations, and prefer `build` over `create` when persistence isn't needed.
 
-```ruby
-# spec/factories/users.rb
-FactoryBot.define do
-  factory :user do
-    first_name { 'John' }
-    last_name { 'Doe' }
-    sequence(:email) { |n| "user#{n}@example.com" }
-    password { 'password123' }
-
-    # Traits for variations
-    trait :admin do
-      role { 'admin' }
-    end
-
-    trait :with_articles do
-      transient do
-        articles_count { 3 }
-      end
-
-      after(:create) do |user, evaluator|
-        create_list(:article, evaluator.articles_count, author: user)
-      end
-    end
-  end
-
-  factory :article do
-    sequence(:title) { |n| "Article #{n}" }
-    body { 'Article content' }
-    association :author, factory: :user
-  end
-end
-
-# Using factories
-user = create(:user)                        # Persisted
-user = build(:user)                         # Not persisted
-admin = create(:user, :admin)               # With trait
-user = create(:user, :with_articles)        # With association
-users = create_list(:user, 5)               # Multiple records
-attributes = attributes_for(:user)          # Hash of attributes
-```
+See [references/factory_bot.md](references/factory_bot.md) for factory definitions, traits, sequences, associations, and build strategies.
 
 ## Essential Matchers
 
-### Equality and Identity
+| Category | Examples |
+|----------|----------|
+| Equality | `eq`, `eql`, `be`, `equal` |
+| Truthiness | `be_truthy`, `be_falsy`, `be_nil`, `be_a` |
+| Collections | `include`, `contain_exactly`, `match_array` |
+| Changes | `change`, `raise_error`, `have_enqueued_job` |
 
-```ruby
-expect(actual).to eq(expected)           # ==
-expect(actual).to eql(expected)          # .eql?
-expect(actual).to be(expected)           # .equal?
-expect(actual).to equal(expected)        # same object
-```
-
-### Truthiness and Types
-
-```ruby
-expect(actual).to be_truthy              # not nil or false
-expect(actual).to be_falsy               # nil or false
-expect(actual).to be_nil
-expect(actual).to be_a(Class)
-expect(actual).to be_an_instance_of(Class)
-```
-
-### Collections
-
-```ruby
-expect(array).to include(item)
-expect(array).to contain_exactly(1, 2, 3)   # any order
-expect(array).to match_array([1, 2, 3])     # any order
-expect(array).to start_with(1, 2)
-expect(array).to end_with(2, 3)
-```
-
-### Errors and Changes
-
-```ruby
-expect { action }.to raise_error(ErrorClass)
-expect { action }.to raise_error('message')
-expect { action }.to change(User, :count).by(1)
-expect { action }.to change { user.reload.name }.from('old').to('new')
-```
-
-### Rails-Specific
-
-```ruby
-expect(response).to have_http_status(:success)
-expect(response).to have_http_status(200)
-expect(response).to redirect_to(path)
-expect { action }.to have_enqueued_job(JobClass)
-```
+See [references/matchers.md](references/matchers.md) for the complete matcher reference.
 
 ## Mocks, Stubs, and Doubles
 
-### Test Doubles
+Use `double` or `instance_double` (preferred — verifies against real class) for test doubles. Stub with `allow(obj).to receive(:method)`, set expectations with `expect(obj).to receive(:method)`, and verify after the fact with spies via `have_received`.
 
-```ruby
-# Basic double
-book = double('book', title: 'RSpec Book', pages: 300)
-
-# Verifying double (checks against real class)
-book = instance_double('Book', title: 'RSpec Book')
-```
-
-### Stubbing Methods
-
-```ruby
-# On test doubles
-allow(book).to receive(:title).and_return('New Title')
-allow(book).to receive(:available?).and_return(true)
-
-# On real objects
-user = User.new
-allow(user).to receive(:admin?).and_return(true)
-
-# Chaining
-allow(user).to receive_message_chain(:articles, :published).and_return([article])
-```
-
-### Message Expectations
-
-```ruby
-# Expect method to be called
-expect(mailer).to receive(:deliver).and_return(true)
-
-# With specific arguments
-expect(service).to receive(:call).with(user, { notify: true })
-
-# Number of times
-expect(logger).to receive(:info).once
-expect(logger).to receive(:info).twice
-expect(logger).to receive(:info).exactly(3).times
-expect(logger).to receive(:info).at_least(:once)
-```
-
-### Spies
-
-```ruby
-# Create spy
-invitation = spy('invitation')
-user.accept_invitation(invitation)
-
-# Verify after the fact
-expect(invitation).to have_received(:accept)
-expect(invitation).to have_received(:accept).with(mailer)
-```
+See [references/mocking.md](references/mocking.md) for test doubles, stubbing, message expectations, and spies.
 
 ## DRY Testing Techniques
 
-### Before Hooks
+Use `let` (lazy) and `let!` (eager) for test data, `before` hooks for shared setup, `shared_examples` for reusable test groups, and `shared_context` for reusable setup blocks. Prefer `subject` for the object under test.
 
-```ruby
-RSpec.describe ArticlesController do
-  before(:each) do
-    @user = create(:user)
-    sign_in @user
-  end
-
-  # OR using subject
-  subject { create(:article) }
-
-  it 'has a title' do
-    expect(subject.title).to be_present
-  end
-end
-```
-
-### Let and Let
-
-```ruby
-describe Article do
-  let(:article) { create(:article) }           # Lazy-loaded
-  let!(:published) { create(:article, :published) }  # Eager-loaded
-
-  it 'can access article' do
-    expect(article).to be_valid
-  end
-end
-```
-
-### Shared Examples
-
-```ruby
-# Define shared examples
-RSpec.shared_examples 'a timestamped model' do
-  it 'has created_at' do
-    expect(subject).to respond_to(:created_at)
-  end
-
-  it 'has updated_at' do
-    expect(subject).to respond_to(:updated_at)
-  end
-end
-
-# Use shared examples
-describe Article do
-  it_behaves_like 'a timestamped model'
-end
-
-describe Comment do
-  it_behaves_like 'a timestamped model'
-end
-```
-
-### Shared Contexts
-
-```ruby
-RSpec.shared_context 'authenticated user' do
-  let(:current_user) { create(:user) }
-
-  before do
-    sign_in current_user
-  end
-end
-
-describe ArticlesController do
-  include_context 'authenticated user'
-
-  # Tests use current_user and are signed in
-end
-```
+See [references/core_concepts.md](references/core_concepts.md) for detailed coverage of hooks, let, shared examples, shared contexts, and subject.
 
 ## TDD Workflow
 
@@ -541,68 +346,7 @@ end
 
 ## Common Patterns
 
-### Testing Background Jobs
-
-```ruby
-describe 'background jobs', type: :job do
-  it 'enqueues the job' do
-    expect {
-      SendEmailJob.perform_later(user)
-    }.to have_enqueued_job(SendEmailJob).with(user)
-  end
-
-  it 'performs the job' do
-    expect {
-      SendEmailJob.perform_now(user)
-    }.to change { ActionMailer::Base.deliveries.count }.by(1)
-  end
-end
-```
-
-### Testing Mailers
-
-```ruby
-describe UserMailer, type: :mailer do
-  describe '#welcome_email' do
-    let(:user) { create(:user) }
-    let(:mail) { UserMailer.welcome_email(user) }
-
-    it 'renders the subject' do
-      expect(mail.subject).to eq('Welcome!')
-    end
-
-    it 'renders the receiver email' do
-      expect(mail.to).to eq([user.email])
-    end
-
-    it 'renders the sender email' do
-      expect(mail.from).to eq(['noreply@example.com'])
-    end
-
-    it 'contains the user name' do
-      expect(mail.body.encoded).to include(user.name)
-    end
-  end
-end
-```
-
-### Testing File Uploads
-
-```ruby
-describe 'file upload', type: :system do
-  it 'allows user to upload avatar' do
-    user = create(:user)
-    sign_in user
-
-    visit edit_profile_path
-    attach_file 'Avatar', Rails.root.join('spec', 'fixtures', 'avatar.jpg')
-    click_button 'Update Profile'
-
-    expect(page).to have_content('Profile updated')
-    expect(user.reload.avatar).to be_attached
-  end
-end
-```
+For testing background jobs, mailers, file uploads, pagination, and search, see [references/rails_testing.md](references/rails_testing.md).
 
 ## Performance Tips
 
@@ -673,72 +417,4 @@ For detailed information on specific topics, see the references directory:
 
 ## Common Scenarios
 
-### Debugging Failing Tests
-
-```ruby
-# Use save_and_open_page in system specs
-scenario 'user creates article' do
-  visit new_article_path
-  save_and_open_page  # Opens browser with current page state
-  # ...
-end
-
-# Print response body in request specs
-it 'creates article' do
-  post '/articles', params: { ... }
-  puts response.body  # Debug API responses
-  expect(response).to be_successful
-end
-
-# Use binding.pry for interactive debugging
-it 'calculates total' do
-  order = create(:order)
-  binding.pry  # Pause execution here
-  expect(order.total).to eq(100)
-end
-```
-
-### Testing Complex Queries
-
-```ruby
-describe '.search' do
-  let!(:ruby_article) { create(:article, title: 'Ruby Guide', body: 'Ruby content') }
-  let!(:rails_article) { create(:article, title: 'Rails Guide', body: 'Rails content') }
-
-  it 'finds articles by title' do
-    results = Article.search('Ruby')
-    expect(results).to include(ruby_article)
-    expect(results).not_to include(rails_article)
-  end
-
-  it 'finds articles by body' do
-    results = Article.search('Rails content')
-    expect(results).to include(rails_article)
-  end
-end
-```
-
-### Testing Callbacks
-
-```ruby
-describe 'callbacks' do
-  describe 'after_create' do
-    it 'sends welcome email' do
-      expect(UserMailer).to receive(:welcome_email)
-        .with(an_instance_of(User))
-        .and_return(double(deliver_later: true))
-
-      create(:user)
-    end
-  end
-
-  describe 'before_save' do
-    it 'normalizes email' do
-      user = create(:user, email: 'USER@EXAMPLE.COM')
-      expect(user.email).to eq('user@example.com')
-    end
-  end
-end
-```
-
-This skill provides comprehensive RSpec testing guidance. For specific scenarios or advanced techniques, refer to the detailed reference documentation in the `references/` directory.
+For debugging failing tests, testing complex queries, and testing callbacks, see [references/rails_testing.md](references/rails_testing.md).

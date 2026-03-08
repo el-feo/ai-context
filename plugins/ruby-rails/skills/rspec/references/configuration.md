@@ -2,6 +2,21 @@
 
 Complete guide to configuring RSpec for optimal performance and developer experience.
 
+## Table of Contents
+
+1. [Installation](#installation)
+2. [Configuration Files](#configuration-files)
+3. [Support Files](#support-files)
+4. [Test Coverage](#test-coverage)
+5. [Performance Optimization](#performance-optimization)
+6. [CI/CD Configuration](#cicd-configuration)
+7. [Custom Formatters](#custom-formatters)
+8. [Tags and Metadata](#tags-and-metadata)
+9. [Debugging Configuration](#debugging-configuration)
+10. [Environment-Specific Configuration](#environment-specific-configuration)
+11. [Commands Cheatsheet](#commands-cheatsheet)
+12. [Troubleshooting](#troubleshooting)
+
 ## Installation
 
 ### Add to Gemfile
