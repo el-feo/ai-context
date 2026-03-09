@@ -1,18 +1,16 @@
-# Common Ruby Code Smells and Fixes
-
-This reference provides guidance on addressing common issues detected by RubyCritic.
+# Common Code Smells and Fixes
 
 ## Reek Smells
 
 ### Control Parameter
-**Issue**: Method behavior changes based on boolean parameter
+
 ```ruby
 # Bad
 def process(data, use_cache)
   use_cache ? cached_process(data) : fresh_process(data)
 end
 
-# Good
+# Good - separate methods
 def process_with_cache(data)
   cached_process(data)
 end
@@ -23,14 +21,14 @@ end
 ```
 
 ### Feature Envy
-**Issue**: Method uses more features of another class than its own
+
 ```ruby
-# Bad
+# Bad - uses another class's data
 def total_price
   item.price * item.quantity + item.tax
 end
 
-# Good - move method to item class
+# Good - move to Item class
 class Item
   def total_price
     price * quantity + tax
@@ -38,38 +36,22 @@ class Item
 end
 ```
 
-### Long Parameter List
-**Issue**: Method has too many parameters (>3)
+### Long Parameter List (>3 params)
+
 ```ruby
 # Bad
 def create_user(name, email, age, address, phone, country)
-  # ...
 end
 
-# Good
+# Good - parameter object
 def create_user(user_params)
   name = user_params[:name]
   email = user_params[:email]
-  # ...
-end
-```
-
-### Unused Parameter
-**Issue**: Parameter is defined but never used
-```ruby
-# Bad
-def process(data, unused_param)
-  data.map(&:upcase)
-end
-
-# Good
-def process(data)
-  data.map(&:upcase)
 end
 ```
 
 ### Duplicate Method Call
-**Issue**: Same method called multiple times
+
 ```ruby
 # Bad
 def display
@@ -77,7 +59,7 @@ def display
   log("Displayed #{user.full_name}")
 end
 
-# Good
+# Good - cache result
 def display
   name = user.full_name
   puts name
@@ -85,47 +67,31 @@ def display
 end
 ```
 
-## Flog Complexity
+## Flog: High Complexity
 
-### High Method Complexity
-**Issue**: Method has too many branches or operations
-
-**Fix strategies:**
+Fix strategies:
 - Extract methods for distinct operations
 - Replace conditionals with polymorphism
 - Use early returns to reduce nesting
-- Split into smaller, focused methods
 
 ```ruby
-# Bad - high complexity
+# Bad - deeply nested
 def process_order(order)
   if order.valid?
     if order.paid?
       if order.items.any?
         order.items.each do |item|
-          if item.in_stock?
-            item.ship
-          else
-            item.backorder
-          end
+          item.in_stock? ? item.ship : item.backorder
         end
       end
     end
   end
 end
 
-# Good - extracted methods
+# Good - extracted methods with early returns
 def process_order(order)
-  return unless valid_paid_order?(order)
-  process_items(order.items)
-end
-
-def valid_paid_order?(order)
-  order.valid? && order.paid? && order.items.any?
-end
-
-def process_items(items)
-  items.each { |item| process_item(item) }
+  return unless order.valid? && order.paid? && order.items.any?
+  order.items.each { |item| process_item(item) }
 end
 
 def process_item(item)
@@ -133,36 +99,24 @@ def process_item(item)
 end
 ```
 
-## Flay Duplication
+## Flay: Duplication
 
-### Code Duplication
-**Issue**: Similar code blocks appear in multiple places
-
-**Fix strategies:**
+Fix strategies:
 - Extract common code to shared methods
 - Use modules for shared behavior
 - Create service objects for complex operations
-- Use inheritance or composition
 
 ```ruby
-# Bad - duplication
+# Bad - duplicated delivery logic
 class User
   def send_welcome_email
-    Mailer.deliver(
-      to: email,
-      subject: "Welcome",
-      template: "welcome"
-    )
+    Mailer.deliver(to: email, subject: "Welcome", template: "welcome")
   end
 end
 
 class Admin < User
   def send_admin_welcome_email
-    Mailer.deliver(
-      to: email,
-      subject: "Admin Welcome",
-      template: "admin_welcome"
-    )
+    Mailer.deliver(to: email, subject: "Admin Welcome", template: "admin_welcome")
   end
 end
 
@@ -175,35 +129,15 @@ class User
   private
 
   def send_email(subject, template)
-    Mailer.deliver(
-      to: email,
-      subject: subject,
-      template: template
-    )
-  end
-end
-
-class Admin < User
-  def send_admin_welcome_email
-    send_email("Admin Welcome", "admin_welcome")
+    Mailer.deliver(to: email, subject: subject, template: template)
   end
 end
 ```
 
-## Quality Score Interpretation
+## Quick Wins (priority order)
 
-- **A (90-100)**: Excellent - maintain this quality
-- **B (80-89)**: Good - minor improvements possible
-- **C (70-79)**: Acceptable - consider refactoring
-- **D (60-69)**: Needs work - prioritize improvements
-- **F (<60)**: Poor - requires significant refactoring
-
-## Quick Wins
-
-When time is limited, prioritize:
-
-1. **Remove unused code** - Easy fix, immediate improvement
-2. **Extract long methods** - Break into 5-10 line methods
-3. **Rename unclear variables** - Use descriptive names
-4. **Reduce parameter lists** - Use parameter objects
-5. **Fix duplicate code** - Extract to shared methods
+1. Remove unused code
+2. Extract long methods (target 5-10 lines)
+3. Reduce parameter lists (use parameter objects)
+4. Fix duplicate code (extract to shared methods)
+5. Rename unclear variables
