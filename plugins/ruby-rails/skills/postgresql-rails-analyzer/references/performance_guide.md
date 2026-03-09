@@ -2,6 +2,18 @@
 
 This reference contains key performance concepts and recommendations from "High Performance PostgreSQL for Rails" by Andrew Atkinson.
 
+## Table of Contents
+
+- [Index Optimization](#index-optimization) (FK indexes, partial, composite, covering, expression, GIN, maintenance)
+- [Query Optimization](#query-optimization) (N+1 prevention, eager loading, counter caches, batch processing, select)
+- [Database Configuration](#database-configuration) (connection pool, timeouts, prepared statements, reaping)
+- [Query Analysis with EXPLAIN](#query-analysis-with-explain) (key metrics, common issues)
+- [Vacuum and Statistics](#vacuum-and-statistics) (autovacuum, manual ANALYZE)
+- [Bulk Operations](#bulk-operations) (inserts, updates, upserts)
+- [Schema Design Best Practices](#schema-design-best-practices) (data types, constraints, enums)
+- [Monitoring and Observability](#monitoring-and-observability) (extensions, metrics, tools)
+- [Common Performance Patterns](#common-performance-patterns) (pagination, full-text search, materialized views)
+
 ## Index Optimization
 
 ### Foreign Key Indexes

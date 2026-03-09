@@ -2,6 +2,16 @@
 
 This reference documents common performance anti-patterns and their solutions.
 
+## Table of Contents
+
+- [Query Anti-Patterns](#query-anti-patterns) (1-7: N+1, counter cache, batch loading, exists, pluck, select, counting)
+- [Index Anti-Patterns](#index-anti-patterns) (8-11: FK indexes, boolean indexes, column order, duplicates)
+- [Schema Anti-Patterns](#schema-anti-patterns) (12-15: varchar vs text, constraints, json vs jsonb, integer PKs)
+- [Configuration Anti-Patterns](#configuration-anti-patterns) (16-18: timeouts, pool size, pg_stat_statements)
+- [Transaction Anti-Patterns](#transaction-anti-patterns) (19-20: long transactions, nested transactions)
+- [Query Writing Anti-Patterns](#query-writing-anti-patterns) (21-23: SQL injection, LIKE, case-insensitive)
+- [Maintenance Anti-Patterns](#maintenance-anti-patterns) (24-25: index monitoring, ANALYZE)
+
 ## Query Anti-Patterns
 
 ### 1. The N+1 Query Problem
