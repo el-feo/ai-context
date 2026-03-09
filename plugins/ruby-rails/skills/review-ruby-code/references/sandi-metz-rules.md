@@ -394,6 +394,141 @@ end
 
 ---
 
+## Tell, Don't Ask
+
+**Principle**: Objects should make their own decisions, not have their state queried and acted upon externally.
+
+**Bad** (asking):
+```ruby
+class Controller
+  def handle_request(user)
+    if user.admin?
+      admin_dashboard
+    elsif user.premium?
+      premium_dashboard
+    else
+      standard_dashboard
+    end
+  end
+end
+```
+
+**Good** (telling):
+```ruby
+class Controller
+  def handle_request(user)
+    user.show_dashboard
+  end
+end
+
+class User
+  def show_dashboard
+    dashboard_class.new(self).render
+  end
+
+  private
+
+  def dashboard_class
+    return AdminDashboard if admin?
+    return PremiumDashboard if premium?
+    StandardDashboard
+  end
+end
+```
+
+---
+
+## Code Smells (18 types)
+
+**Structural**:
+- Long Method (>5 lines)
+- Large Class (>100 lines)
+- Long Parameter List (>4 params)
+- Data Clump (same params together repeatedly)
+
+**Coupling**:
+- Feature Envy (method uses data from another class more than own)
+- Message Chains (Law of Demeter violations)
+- Inappropriate Intimacy (classes too tightly coupled)
+
+**Conditional Logic**:
+- Conditional Complexity (nested if-elsif)
+- Case Statements (candidate for polymorphism)
+- Speculative Generality (code added "just in case")
+
+**Naming**:
+- Vague names (Manager, Handler, Processor, Data)
+- Methods with "and" (doing multiple things)
+- Flag parameters (boolean params that change behavior)
+
+**Comments**:
+- Comments explaining "what" code does → Code should be self-documenting
+- Keep comments that explain "why" decisions were made
+
+---
+
+## Shameless Green Philosophy
+
+From 99 Bottles of OOP - encourage this refactoring approach:
+
+1. **Start with Shameless Green** - Write simplest code that works
+2. **Wait for duplication** - Don't abstract too early
+3. **Follow Flocking Rules**:
+   - Find things that are most alike
+   - Find smallest difference between them
+   - Make simplest change to remove difference
+4. **Converge on abstractions** - Let patterns emerge
+
+**Key wisdom**: "Make the change easy, then make the easy change"
+
+**Example journey**:
+
+Step 1 - Shameless Green:
+```ruby
+def verse(n)
+  if n == 0
+    "No more bottles of beer on the wall"
+  elsif n == 1
+    "1 bottle of beer on the wall"
+  else
+    "#{n} bottles of beer on the wall"
+  end
+end
+```
+
+Step 2 - Remove Duplication:
+```ruby
+def verse(n)
+  "#{quantity(n)} #{container(n)} of beer on the wall"
+end
+```
+
+Step 3 - Polymorphism (Open/Closed):
+```ruby
+class BottleNumber
+  def self.for(number)
+    case number
+    when 0 then BottleNumber0
+    when 1 then BottleNumber1
+    else BottleNumber
+    end.new(number)
+  end
+
+  def quantity = number.to_s
+  def container = 'bottles'
+end
+
+class BottleNumber0 < BottleNumber
+  def quantity = 'no more'
+end
+
+class BottleNumber1 < BottleNumber
+  def container = 'bottle'
+end
+```
+
+---
+
 ## Breaking The Rules
 
 **When to break these rules:**
@@ -406,30 +541,4 @@ end
 
 **Guideline**: If you break a rule, document why with a comment explaining the trade-off.
 
----
-
-## Checking Rules in Code Reviews
-
-**Quick checks**:
-```bash
-# Classes over 100 lines
-find app -name "*.rb" -exec wc -l {} + | awk '$1 > 100 {print $2, $1}'
-
-# Long methods (rough check)
-grep -n "def " app/**/*.rb | while read line; do
-  # Manual inspection needed
-  echo "$line"
-done
-
-# Controller actions with multiple instantiations
-grep -A 20 "def create\|def update" app/controllers/**/*.rb | grep -c "@.*= "
-
-# Views with multiple instance variables
-grep -o "@[a-z_]*" app/views/**/*.erb | sort | uniq -c | sort -rn
-```
-
-**During review**:
-1. Flag violations as comments
-2. Suggest specific refactoring
-3. Consider if violation is justified
-4. Check if pattern is consistent across codebase
+Sandi Metz: "Break them only if you have a good reason and you've tried not to."

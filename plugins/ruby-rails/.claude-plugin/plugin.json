@@ -1,6 +1,6 @@
 {
   "name": "ruby-rails",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Ruby on Rails development toolkit with skills for Rails, Ruby, RSpec, RuboCop, SimpleCov, Brakeman, and code review with Sandi Metz principles",
   "author": {
     "name": "Jeb Coleman"

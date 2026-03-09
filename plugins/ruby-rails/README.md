@@ -15,7 +15,7 @@ cc --plugin-dir /path/to/plugins/ruby-rails
 
 ## Features
 
-### Skills (11)
+### Skills (10)
 
 - **rails** - Comprehensive Rails v8.1 development guide
 - **ruby** - Ruby language fundamentals and design patterns
@@ -25,8 +25,7 @@ cc --plugin-dir /path/to/plugins/ruby-rails
 - **simplecov** - Test coverage analysis
 - **brakeman** - Rails security vulnerability scanner
 - **rails-generators** - Creating custom Rails generators
-- **sandi-metz-reviewer** - OO design principles from POODR and 99 Bottles
-- **review-ruby-code** - Code review with Sandi Metz rules
+- **review-ruby-code** - Code review with Sandi Metz rules, SOLID, and OO design principles
 - **postgresql-rails-analyzer** - PostgreSQL optimization for Rails
 
 ### Commands (3)
