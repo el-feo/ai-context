@@ -164,9 +164,7 @@ end
 
 # World module (preferred for reusable helpers)
 module MyWorld
-  def current_user
-    @current_user ||= create(:user)
-  end
+  attr_accessor :current_user
 
   def login_as(user)
     @current_user = user
