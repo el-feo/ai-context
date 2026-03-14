@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DevOps and infrastructure toolkit with GitHub Actions, Kamal deployment, and Tailscale VPN configuration",
   "author": {
     "name": "Jeb Coleman"
