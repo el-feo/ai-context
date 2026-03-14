@@ -1,64 +1,22 @@
 # Kamal Workflows and Best Practices
 
-Common deployment workflows, troubleshooting patterns, and production best practices.
+Detailed deployment workflows, troubleshooting patterns, and production best practices.
 
-## Initial Setup Workflow
+## Table of Contents
 
-### For New Projects
-
-1. **Install Kamal**
-   ```bash
-   gem install kamal
-   ```
-
-2. **Initialize Configuration**
-   ```bash
-   cd your-app
-   kamal init
-   ```
-
-3. **Configure deploy.yml**
-   - Set service name and image
-   - Add server IPs
-   - Configure registry credentials
-   - Set up environment variables
-   - Configure proxy settings
-
-4. **Configure Secrets**
-   Edit `.kamal/secrets` and add:
-   ```bash
-   KAMAL_REGISTRY_PASSWORD=your-registry-token
-   RAILS_MASTER_KEY=your-master-key
-   # Other secrets...
-   ```
-
-5. **Bootstrap Servers**
-   ```bash
-   kamal server bootstrap
-   ```
-   Or let `kamal setup` handle it.
-
-6. **Run Initial Setup**
-   ```bash
-   kamal setup
-   ```
-
-### For Existing Projects
-
-1. **Check Configuration**
-   ```bash
-   kamal config
-   ```
-
-2. **Verify Servers Are Accessible**
-   ```bash
-   ssh user@server-ip
-   ```
-
-3. **Deploy**
-   ```bash
-   kamal deploy
-   ```
+- [Standard Deployment Workflow](#standard-deployment-workflow)
+- [Multi-Environment Workflow](#multi-environment-workflow)
+- [Zero-Downtime Deploy Process](#zero-downtime-deploy-process)
+- [Rollback Workflow](#rollback-workflow)
+- [Maintenance Mode Workflow](#maintenance-mode-workflow)
+- [Troubleshooting Workflows](#troubleshooting-workflows)
+- [Database Management Workflows](#database-management-workflows)
+- [Scaling Workflows](#scaling-workflows)
+- [CI/CD Integration Workflows](#cicd-integration-workflows)
+- [Security Best Practices](#security-best-practices)
+- [Performance Optimization](#performance-optimization)
+- [Monitoring and Logging](#monitoring-and-logging)
+- [Common Patterns](#common-patterns)
 
 ## Standard Deployment Workflow
 
@@ -637,48 +595,6 @@ env:
     FEATURE_NEW_UI: true
 ```
 
-## Quick Reference Cheat Sheet
+## Quick Reference
 
-```bash
-# Initial setup
-kamal init
-kamal setup
-
-# Daily deploys
-kamal deploy
-kamal deploy -d staging
-
-# Rollbacks
-kamal app containers
-kamal rollback <version>
-
-# Logs
-kamal app logs -f
-kamal app logs -g "error"
-
-# Maintenance
-kamal app maintenance
-kamal app live
-
-# Console access
-kamal app exec -i --reuse "bin/rails console"
-kamal app exec -i --reuse "bash"
-
-# Lock management
-kamal lock status
-kamal lock release
-
-# Accessories
-kamal accessory boot postgres
-kamal accessory logs redis -f
-kamal accessory exec postgres "psql"
-
-# Configuration
-kamal config
-kamal config env
-
-# Quick fixes
-kamal app reboot       # Restart app
-kamal proxy reboot     # Restart proxy
-kamal lock release     # Clear stuck lock
-```
+See [commands.md](commands.md) for the complete command reference with all options and examples.

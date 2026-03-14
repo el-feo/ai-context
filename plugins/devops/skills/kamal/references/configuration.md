@@ -1,6 +1,27 @@
 # Kamal Configuration Reference
 
-This reference covers the complete configuration structure for Kamal's `config/deploy.yml` file.
+Complete configuration structure for Kamal's `config/deploy.yml` file.
+
+## Table of Contents
+
+- [Basic Configuration Structure](#basic-configuration-structure)
+- [Service Configuration](#service-configuration)
+- [Registry Configuration](#registry-configuration) (Docker Hub, GHCR, ECR, GCR)
+- [Server Configuration](#server-configuration) (simple, roles, role-specific)
+- [Environment Variables](#environment-variables) (secret, clear, role-specific)
+- [Builder Configuration](#builder-configuration) (local, remote, multi-arch, cache)
+- [Kamal Proxy Configuration](#kamal-proxy-configuration) (SSL, health checks, routing, buffering)
+- [Accessories](#accessories-supporting-services) (PostgreSQL, Redis, MySQL, Litestream)
+- [SSH Configuration](#ssh-configuration)
+- [Volumes](#volumes)
+- [Destinations (Multiple Environments)](#destinations-multiple-environments)
+- [Aliases](#aliases)
+- [Rollout Strategy](#rollout-strategy)
+- [Hooks](#hooks)
+- [Secrets Management](#secrets-management)
+- [Logging](#logging)
+- [Healthchecks](#healthchecks)
+- [Complete Example Configuration](#complete-example-configuration)
 
 ## Basic Configuration Structure
 
