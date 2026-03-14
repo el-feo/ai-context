@@ -2,6 +2,19 @@
 
 Comprehensive security best practices for GitHub Actions workflows.
 
+## Table of Contents
+
+- [Quick Security Audit](#quick-security-audit) - Rapid checklist
+- [GITHUB_TOKEN Permissions](#github_token-permissions) - Default read-only, granular, job-level
+- [Action Pinning](#action-pinning) - SHA pinning, trusted organizations
+- [Secrets Management](#secrets-management) - Storage, masking, environments, rotation
+- [OIDC Authentication](#oidc-authentication-credential-less) - AWS, GCP, Azure
+- [Dangerous Triggers](#dangerous-triggers) - pull_request_target, workflow_run
+- [Self-Hosted Runners](#self-hosted-runners) - Risks and mitigations
+- [Third-Party Actions](#third-party-actions) - Vetting and alternatives
+- [Input Validation](#input-validation) - Script injection prevention
+- [Security Scanning](#security-scanning) - Dependabot, CodeQL, secret scanning
+
 ## Quick Security Audit
 
 Run through this checklist when reviewing any workflow:

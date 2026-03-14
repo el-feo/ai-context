@@ -2,6 +2,20 @@
 
 Strategies to reduce workflow execution time and resource usage.
 
+## Table of Contents
+
+- [Performance Impact Hierarchy](#performance-impact-hierarchy) - Prioritized optimization list
+- [Dependency Caching](#dependency-caching) - Ruby, Node.js, Python, Docker, custom
+- [Parallelization](#parallelization) - Matrix builds, independent jobs, test splitting
+- [Selective Triggers](#selective-triggers) - Path filters, branch filters, skip CI
+- [Concurrency Control](#concurrency-control) - Cancel outdated runs
+- [Workflow Optimization](#workflow-optimization) - Remove steps, shallow checkout, timeouts
+- [Self-Hosted Runners](#self-hosted-runners) - Benefits, setup, caching
+- [Resource Optimization](#resource-optimization) - Docker images, multi-stage builds, artifacts
+- [Monitoring Performance](#monitoring-performance) - Timing, bottlenecks, profiling
+- [Advanced Caching Strategies](#advanced-caching-strategies) - Cross-job, warm cache, multi-level
+- [Reusable Workflows](#reusable-workflows) - DRY patterns
+
 ## Performance Impact Hierarchy
 
 1. **Caching** (80% time reduction potential) - Biggest impact

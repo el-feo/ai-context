@@ -2,6 +2,17 @@
 
 Production-ready workflow templates for Ruby/Rails, TypeScript, and deployment to Heroku/Fly.io.
 
+## Table of Contents
+
+- [Ruby on Rails CI/CD](#ruby-on-rails-cicd) - PostgreSQL, MySQL, SQLite, matrix testing
+- [TypeScript/Node.js CI/CD](#typescriptnodejs-cicd) - npm/yarn/pnpm, matrix testing, Next.js
+- [Heroku Deployment](#heroku-deployment) - Action, CLI, Docker, review apps
+- [Fly.io Deployment](#flyio-deployment) - Basic, migrations, review apps, multi-region, Docker
+- [Monorepo Workflows](#monorepo-workflows) - Nx, Turborepo
+- [Code Quality & Security](#code-quality--security) - RuboCop, Brakeman, ESLint, CodeQL
+- [Release Automation](#release-automation) - Semantic release, GitHub releases
+- [Complete Full-Stack Example](#complete-full-stack-example) - Rails API + TypeScript frontend
+
 ## Ruby on Rails CI/CD
 
 ### Complete Rails CI with PostgreSQL

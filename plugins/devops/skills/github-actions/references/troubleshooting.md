@@ -2,6 +2,22 @@
 
 Common issues, debugging strategies, and solutions for GitHub Actions workflows.
 
+## Table of Contents
+
+- [Quick Diagnosis](#quick-diagnosis) - Symptom/cause/fix table
+- [Permission Errors](#permission-errors) - GITHUB_TOKEN, Docker
+- [Caching Issues](#caching-issues) - Key mismatch, v1-v2 deprecation
+- [Secret Issues](#secret-issues) - Not available, empty values
+- [Dependency Installation Failures](#dependency-installation-failures) - Bundler, npm/yarn
+- [Database Connection Issues](#database-connection-issues) - PostgreSQL, service networking
+- [Timeout Issues](#timeout-issues) - Hanging jobs, slow steps
+- [Action Execution Errors](#action-execution-errors) - Command not found, Docker
+- [Git Issues](#git-issues) - Missing refs, detached HEAD, merge conflicts
+- [Environment Variable Issues](#environment-variable-issues) - Scope, context access
+- [Artifact Issues](#artifact-issues) - Upload/download failures
+- [Workflow Trigger Issues](#workflow-trigger-issues) - Not triggering, wrong events
+- [Advanced Debugging](#advanced-debugging) - Debug logging, SSH, `act`, environment inspection
+
 ## Quick Diagnosis
 
 | Symptom | Likely Cause | Quick Fix |

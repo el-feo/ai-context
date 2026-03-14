@@ -2,6 +2,16 @@
 
 Guide to creating JavaScript, Docker, and composite actions.
 
+## Table of Contents
+
+- [Action Types Comparison](#action-types-comparison) - JavaScript vs Docker vs Composite
+- [JavaScript Actions](#javascript-actions) - Structure, action.yml, toolkit API, distribution, testing
+- [Docker Actions](#docker-actions) - Dockerfile, entrypoint, pre-built images
+- [Composite Actions](#composite-actions) - Multi-step reusable units
+- [Publishing Actions](#publishing-actions) - Marketplace, versioning, security
+- [Testing Actions Locally](#testing-actions-locally) - `act`, manual testing
+- [Common Patterns](#common-patterns) - Conditionals, file I/O, HTTP, artifacts
+
 ## Action Types Comparison
 
 | Feature | JavaScript | Docker | Composite |
