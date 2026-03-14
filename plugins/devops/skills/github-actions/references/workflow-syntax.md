@@ -15,7 +15,8 @@ Complete YAML syntax reference for GitHub Actions workflows.
 - [Reusable Workflows](#reusable-workflows) - Inputs, secrets, outputs, nesting limits
 - [Defaults](#default-settings) - Shell, working directory
 - [Artifacts](#artifacts) - Upload, download
-- [Path/Branch Filtering](#path-filtering) - Include/exclude patterns
+- [Path Filtering](#path-filtering) - Include/exclude path patterns
+- [Branch Filtering](#branch-filtering) - Include/exclude branch patterns
 
 ## Basic Structure
 

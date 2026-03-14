@@ -68,7 +68,7 @@ jobs:
 **Deploy to Fly.io:**
 
 ```yaml
-- uses: superfly/flyctl-actions/setup-flyctl@master
+- uses: superfly/flyctl-actions/setup-flyctl@1.5
 - run: flyctl deploy --remote-only
   env:
     FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
