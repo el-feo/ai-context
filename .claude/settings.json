@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'case \"$CLAUDE_TOOL_INPUT\" in *\"gh pr create\"*) bash .claude/scripts/check-plugin-versions.sh --mode pr ;; esac'"
+            "command": "bash .claude/hooks/check-pr-creation.sh"
           }
         ]
       }

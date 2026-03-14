@@ -42,3 +42,6 @@ temp/
 
 # Git worktrees
 .worktrees/
+
+# Version bump temp files
+.new-version
