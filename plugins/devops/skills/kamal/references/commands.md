@@ -2,6 +2,20 @@
 
 Complete reference for all Kamal CLI commands and their usage.
 
+## Table of Contents
+
+- [Core Deployment Commands](#core-deployment-commands) (init, setup, deploy, redeploy, rollback, remove)
+- [Server Management Commands](#server-management-commands) (bootstrap, exec)
+- [Application Commands](#application-commands) (boot, reboot, start, stop, exec, logs, containers, maintenance)
+- [Build Commands](#build-commands) (deliver, pull, push, create, remove)
+- [Accessory Commands](#accessory-commands) (boot, reboot, start, stop, exec, logs, details)
+- [Proxy Commands](#proxy-commands) (boot, reboot, start, stop, remove, logs)
+- [Registry Commands](#registry-commands) (login, logout)
+- [Lock Commands](#lock-commands) (acquire, release, status)
+- [Configuration Commands](#configuration-commands) (config, env, docs)
+- [Secrets Commands](#secrets-commands) (fetch, extract)
+- [Hook Integration](#hook-integration)
+
 ## Core Deployment Commands
 
 ### kamal init
@@ -675,110 +689,6 @@ kamal secrets extract SECRET_NAME SECRETS_JSON
 ```bash
 SECRETS=$(kamal secrets fetch --adapter 1password --account my-account --from my-vault)
 RAILS_MASTER_KEY=$(kamal secrets extract RAILS_MASTER_KEY $SECRETS)
-```
-
-## Common Command Patterns
-
-### Deploying to Multiple Environments
-
-```bash
-# Setup staging
-kamal setup -d staging
-
-# Deploy to staging
-kamal deploy -d staging
-
-# Deploy to production (default)
-kamal deploy
-```
-
-### Targeting Specific Servers
-
-```bash
-# Deploy to specific hosts
-kamal deploy -h 192.168.1.10,192.168.1.11
-
-# Deploy to specific role
-kamal deploy -r web
-
-# Deploy only to primary
-kamal deploy -p
-```
-
-### Debugging Deployments
-
-```bash
-# Verbose logging
-kamal deploy -v
-
-# Check configuration
-kamal config
-
-# Check app version
-kamal app version
-
-# Check containers
-kamal app containers
-
-# View logs
-kamal app logs -f
-
-# Check lock status
-kamal lock status
-```
-
-### Running Tasks
-
-```bash
-# Run Rails migrations
-kamal app exec -p "bin/rails db:migrate"
-
-# Run Rails console
-kamal app exec -i --reuse "bin/rails console"
-
-# Run database seed
-kamal app exec -p "bin/rails db:seed"
-
-# Run custom rake task
-kamal app exec -p "bin/rails mytask:run"
-```
-
-### Managing Accessories
-
-```bash
-# Start all accessories
-kamal setup  # Boots accessories as part of setup
-
-# Restart specific accessory
-kamal accessory reboot postgres
-
-# View accessory logs
-kamal accessory logs postgres -f
-
-# Access PostgreSQL
-kamal accessory exec postgres "psql -U myapp"
-
-# Backup database
-kamal accessory exec postgres "pg_dump -U myapp myapp_production" > backup.sql
-```
-
-## Using Custom Aliases
-
-If you define aliases in `config/deploy.yml`:
-
-```yaml
-aliases:
-  console: app exec --interactive --reuse "bin/rails console"
-  shell: app exec --interactive --reuse "bash"
-  logs: app logs -f
-```
-
-You can use them directly:
-
-```bash
-kamal console
-kamal shell
-kamal logs
 ```
 
 ## Hook Integration
