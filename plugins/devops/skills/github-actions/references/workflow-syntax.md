@@ -2,6 +2,21 @@
 
 Complete YAML syntax reference for GitHub Actions workflows.
 
+## Table of Contents
+
+- [Basic Structure](#basic-structure) - Minimal workflow template
+- [Workflow Triggers](#workflow-triggers-on) - Events, branches, paths, inputs, schedule
+- [Permissions](#permissions) - GITHUB_TOKEN, granular, job-level
+- [Environment Variables](#environment-variables) - Workflow, job, step scopes
+- [Jobs](#jobs) - Runners, dependencies, matrix, outputs, services, environments
+- [Steps](#steps) - Run commands, use actions, conditionals, outputs, timeouts
+- [Expressions and Contexts](#expressions-and-contexts) - GitHub, secrets, matrix contexts
+- [Concurrency](#concurrency) - Cancel in-progress, named groups
+- [Reusable Workflows](#reusable-workflows) - Inputs, secrets, outputs, nesting limits
+- [Defaults](#default-settings) - Shell, working directory
+- [Artifacts](#artifacts) - Upload, download
+- [Path/Branch Filtering](#path-filtering) - Include/exclude patterns
+
 ## Basic Structure
 
 ```yaml
