@@ -49,7 +49,7 @@
       "name": "general",
       "source": "./plugins/general",
       "description": "General development utilities including Mermaid diagram creation for software documentation",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "author": {
         "name": "Jeb Coleman"
       }
