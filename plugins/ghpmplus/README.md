@@ -115,6 +115,64 @@ Executes a PRD using Claude Code agent teams for large, multi-epic projects. Bes
 | Review       | Sequential after each PR | Dedicated reviewer in parallel |
 | Token cost   | Lower                    | Higher                         |
 
+## Agile Process Mapping
+
+GHPMplus automates each phase of the agile development lifecycle. The diagram below shows the end-to-end flow, with the responsible GHPMplus component annotated at each step.
+
+```mermaid
+flowchart TD
+    A["Product Idea"] --> B["Create PRD"]
+    B --> C["Break into Epics"]
+    C --> D["Break into Tasks"]
+    D --> E["Execute in Worktrees"]
+    E --> F["Open PR"]
+    F --> G{"Code Review\nApproved?"}
+    G -->|"Yes"| H["CI Check"]
+    G -->|"No"| I["Apply Fixes\nmax 3 iterations"]
+    I --> G
+    H --> J["QA via Playwright"]
+    J --> K{"Pass?"}
+    K -->|"Yes"| L["Merge PR"]
+    K -->|"No"| M["File Bug"] --> E
+    L --> N["Cleanup + Summary"]
+
+    style A fill:#E8F4FD,stroke:#4A90D9,color:#000
+    style B fill:#E8F4FD,stroke:#4A90D9,color:#000
+    style C fill:#E8F8E8,stroke:#7BC47F,color:#000
+    style D fill:#E8F8E8,stroke:#7BC47F,color:#000
+    style E fill:#FFF3E0,stroke:#F5A623,color:#000
+    style F fill:#FFF3E0,stroke:#F5A623,color:#000
+    style G fill:#F3E8FD,stroke:#9B59B6,color:#000
+    style H fill:#F3E8FD,stroke:#9B59B6,color:#000
+    style I fill:#F3E8FD,stroke:#9B59B6,color:#000
+    style J fill:#FDEDEC,stroke:#E74C3C,color:#000
+    style K fill:#FDEDEC,stroke:#E74C3C,color:#000
+    style L fill:#EAFAF1,stroke:#27AE60,color:#000
+    style M fill:#FDEDEC,stroke:#E74C3C,color:#000
+    style N fill:#EAFAF1,stroke:#27AE60,color:#000
+```
+
+**Legend:** 🔵 Planning &nbsp; 🟢 Decomposition &nbsp; 🟠 Execution &nbsp; 🟣 Review &nbsp; 🔴 QA &nbsp; ✅ Completion
+
+### Component Mapping
+
+| Phase | GHPMplus Component | Role |
+|---|---|---|
+| **Create PRD** | `/ghpmplus:create-prd` | Converts user input into a structured PRD issue with adaptive clarification |
+| **Break into Epics** | `epic-creator-agent` | Decomposes PRD into 3-7 logical Epics with acceptance criteria |
+| **Break into Tasks** | `task-creator-agent` | Splits each Epic into 3-10 atomic Tasks with estimates and file scope hints |
+| **Claim Task + Branch** | `task-executor-agent` | Claims task, creates isolated git worktree, implements via TDD or direct |
+| **Code Review** | `pr-review-agent` + `review-cycle-coordinator` | Reviews PR against Task spec, iterates fixes up to 3 times, then escalates |
+| **CI Check** | `ci-check-agent` | Monitors GitHub Actions, fixes in-scope failures, flags pre-existing issues |
+| **QA via Playwright** | `qa-planner-agent` + `qa-executor-agent` | Generates Given/When/Then scenarios from acceptance criteria, executes in browser |
+| **Merge Conflicts** | `conflict-resolver-agent` | Auto-resolves simple conflicts, escalates complex ones with guidance |
+| **Orchestration** | `orchestrator-agent` | Coordinates all agents, manages parallelism, tracks state, handles PAUSE/RESUME |
+
+### Execution Modes
+
+- **`/ghpmplus:auto-execute`** — Single orchestrator manages everything (best for 1-2 epics, <10 tasks)
+- **`/ghpmplus:team-execute`** — Spawns dedicated agent teammates per epic via tmux (best for 3+ epics, 10+ tasks)
+
 ## Architecture
 
 ### Orchestrator-Agent Model
