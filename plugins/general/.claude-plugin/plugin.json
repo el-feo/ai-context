@@ -1,6 +1,6 @@
 {
   "name": "general",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "General development utilities including Mermaid diagram creation for software documentation",
   "author": {
     "name": "Jeb Coleman"
