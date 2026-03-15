@@ -120,45 +120,39 @@ Executes a PRD using Claude Code agent teams for large, multi-epic projects. Bes
 GHPMplus automates each phase of the agile development lifecycle. The diagram below shows the end-to-end flow, with the responsible GHPMplus component annotated at each step.
 
 ```mermaid
-flowchart LR
-    subgraph Plan["Planning"]
-        A1["Product Idea"] --> A2["Create PRD"]
-        A2 --> A3["Break into Epics"]
-        A3 --> A4["Break into Tasks"]
-    end
+flowchart TD
+    A["Product Idea"] --> B["Create PRD"]
+    B --> C["Break into Epics"]
+    C --> D["Break into Tasks"]
+    D --> E["Execute in Worktrees"]
+    E --> F["Open PR"]
+    F --> G{"Code Review\nApproved?"}
+    G -->|"Yes"| H["CI Check"]
+    G -->|"No"| I["Apply Fixes\nmax 3 iterations"]
+    I --> G
+    H --> J["QA via Playwright"]
+    J --> K{"Pass?"}
+    K -->|"Yes"| L["Merge PR"]
+    K -->|"No"| M["File Bug"] --> E
+    L --> N["Cleanup + Summary"]
 
-    subgraph Build["Execution"]
-        B1["Claim Task +\nCreate Branch"] --> B2{"Code or\nConfig?"}
-        B2 -->|"feat/fix"| B3["TDD:\nRed-Green-Refactor"]
-        B2 -->|"docs/chore"| B4["Direct\nImplementation"]
-        B3 --> B5["Commit + Open PR"]
-        B4 --> B5
-    end
-
-    subgraph Verify["Review & QA"]
-        C1["Code Review"] --> C2{"Approved?"}
-        C2 -->|"Yes"| C3["CI Check"]
-        C2 -->|"No, iter < 3"| C4["Apply Fixes"] --> C1
-        C2 -->|"No, iter >= 3"| C5["Escalate to Human"]
-        C3 --> C6["QA via Playwright"]
-        C6 --> C7{"Pass?"}
-        C7 -->|"Yes"| C8["Merge PR"]
-        C7 -->|"No"| C9["File Bug"] --> B1
-    end
-
-    subgraph Done["Completion"]
-        D1["Cleanup Worktrees"] --> D2["Post Summary\nto PRD"]
-    end
-
-    A4 --> B1
-    B5 --> C1
-    C8 --> D1
-
-    style Plan fill:#E8F4FD,stroke:#4A90D9
-    style Build fill:#FFF3E0,stroke:#F5A623
-    style Verify fill:#F3E8FD,stroke:#9B59B6
-    style Done fill:#EAFAF1,stroke:#27AE60
+    style A fill:#E8F4FD,stroke:#4A90D9,color:#000
+    style B fill:#E8F4FD,stroke:#4A90D9,color:#000
+    style C fill:#E8F8E8,stroke:#7BC47F,color:#000
+    style D fill:#E8F8E8,stroke:#7BC47F,color:#000
+    style E fill:#FFF3E0,stroke:#F5A623,color:#000
+    style F fill:#FFF3E0,stroke:#F5A623,color:#000
+    style G fill:#F3E8FD,stroke:#9B59B6,color:#000
+    style H fill:#F3E8FD,stroke:#9B59B6,color:#000
+    style I fill:#F3E8FD,stroke:#9B59B6,color:#000
+    style J fill:#FDEDEC,stroke:#E74C3C,color:#000
+    style K fill:#FDEDEC,stroke:#E74C3C,color:#000
+    style L fill:#EAFAF1,stroke:#27AE60,color:#000
+    style M fill:#FDEDEC,stroke:#E74C3C,color:#000
+    style N fill:#EAFAF1,stroke:#27AE60,color:#000
 ```
+
+**Legend:** 🔵 Planning &nbsp; 🟢 Decomposition &nbsp; 🟠 Execution &nbsp; 🟣 Review &nbsp; 🔴 QA &nbsp; ✅ Completion
 
 ### Component Mapping
 
