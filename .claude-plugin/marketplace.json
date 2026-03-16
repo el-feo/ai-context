@@ -31,7 +31,7 @@
       "name": "js-ts",
       "source": "./plugins/js-ts",
       "description": "JavaScript and TypeScript development toolkit with ESLint, Vitest, and unit testing best practices",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "author": {
         "name": "Jeb Coleman"
       }

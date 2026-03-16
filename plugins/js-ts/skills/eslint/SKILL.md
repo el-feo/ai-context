@@ -3,11 +3,7 @@ name: eslint
 description: Comprehensive ESLint agent for JavaScript/TypeScript code quality. Use when setting up ESLint, configuring linting rules, analyzing code for issues, fixing violations, or integrating ESLint into development workflows. Triggers on requests involving code quality, linting, static analysis, or ESLint configuration for JavaScript, TypeScript, React, or Node.js projects.
 ---
 
-# ESLint Agent
-
-## Overview
-
-ESLint is a pluggable and configurable linter tool for identifying and reporting on patterns in JavaScript and TypeScript code. This skill enables Claude to help you set up, configure, and effectively use ESLint to maintain code quality across your projects.
+# ESLint
 
 ## Quick Start
 
@@ -399,77 +395,9 @@ export default defineConfig([
 ]);
 ```
 
-## Integration with Development Tools
+## Integration
 
-### VS Code Integration
-
-**Install Extension:**
-
-- ESLint extension by Microsoft (dbaeumer.vscode-eslint)
-
-**Workspace Settings (`.vscode/settings.json`):**
-
-```json
-{
-  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
-  "eslint.validate": [
-    "javascript",
-    "javascriptreact",
-    "typescript",
-    "typescriptreact"
-  ]
-}
-```
-
-### CI/CD Integration
-
-**GitHub Actions:**
-
-```yaml
-name: ESLint
-
-on: [push, pull_request]
-
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm ci
-      - run: npx eslint .
-```
-
-**Pre-commit Hook (with Husky):**
-
-```bash
-npm install --save-dev husky lint-staged
-
-# Add to package.json
-{
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix", "git add"]
-  }
-}
-```
-
-### Package.json Scripts
-
-```json
-{
-  "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "lint:staged": "lint-staged"
-  }
-}
-```
+For VS Code setup, CI/CD (GitHub Actions), pre-commit hooks (Husky/lint-staged), and package.json scripts, see [references/integration.md](references/integration.md).
 
 ## Troubleshooting
 
@@ -499,26 +427,17 @@ npm install --save-dev husky lint-staged
 
 ### Creating Custom Rules
 
-For project-specific patterns, see `references/custom_rules.md`.
+For project-specific patterns, see [references/custom_rules.md](references/custom_rules.md).
 
 ### TypeScript Type-Aware Linting
 
-For advanced TypeScript checks requiring type information, see `references/type_aware_linting.md`.
+For advanced TypeScript checks requiring type information, see [references/type_aware_linting.md](references/type_aware_linting.md).
+
+### Rule Reference
+
+For a comprehensive rule reference with examples, see [references/rule_reference.md](references/rule_reference.md).
 
 ### Migration from ESLint 8.x
 
-For projects using the legacy `.eslintrc.*` format, see `references/migration_guide.md`.
+For projects using the legacy `.eslintrc.*` format, see [references/migration_guide.md](references/migration_guide.md).
 
-## Resources
-
-### references/
-
-- `custom_rules.md` - Guide to creating custom ESLint rules
-- `type_aware_linting.md` - TypeScript type-aware linting configuration
-- `migration_guide.md` - Migrating from ESLint 8.x to 9.x flat config
-- `rule_reference.md` - Comprehensive rule reference with examples
-
-### assets/
-
-- `eslint.config.js` - Complete example configuration for various project types
-- `.eslintignore` - Example ignore file patterns

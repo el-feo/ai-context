@@ -15,7 +15,7 @@ When helping users with unit testing:
 2. **Apply core principles**: Focus on readability, maintainability, and trust in tests
 3. **Use appropriate patterns**: Select the right testing pattern based on exit point type (return value, state change, or third-party call)
 4. **Provide examples**: Show concrete code examples following best practices
-5. **Reference supporting documentation**: Point to [REFERENCE.md](REFERENCE.md) for detailed concepts and [EXAMPLES.md](EXAMPLES.md) for more code samples
+5. **Reference supporting documentation**: Point to [references/REFERENCE.md](references/REFERENCE.md) for detailed concepts and [references/EXAMPLES.md](references/EXAMPLES.md) for more code samples
 
 ## Core Concepts
 
@@ -346,47 +346,16 @@ Can you answer YES to all these?
 - ✓ Tests are easy to read and understand?
 - ✓ When tests fail, you know exactly what broke?
 
-If NO to any → Review the corresponding section in [REFERENCE.md](REFERENCE.md)
+If NO to any → Review the corresponding section in [references/REFERENCE.md](references/REFERENCE.md)
 
 ## Examples
 
-For comprehensive code examples covering all patterns and scenarios, see [EXAMPLES.md](EXAMPLES.md).
-
-## Best Practices
-
-**Test Structure:**
-
-- Use AAA pattern (Arrange-Act-Assert)
-- Follow USE naming (Unit-Scenario-Expectation)
-- One assertion per test (or multiple for same concern)
-- Factory methods over beforeEach()
-
-**Dependencies:**
-
-- Inject all dependencies
-- Use stubs for incoming data
-- Use mocks only for exit points (one per test)
-- Prefer return-value and state-based tests (95%+ of tests)
-
-**Async Code:**
-
-- Extract pure logic into separate functions
-- Wrap async dependencies behind adapters
-- Use fake timers for time-dependent code
-- Keep most tests synchronous
-
-**Maintainability:**
-
-- No logic in tests
-- Test behavior, not implementation
-- Keep tests independent
-- Refactor tests like production code
-- Trust your tests - if they fail, there's a bug
+For comprehensive code examples covering all patterns and scenarios, see [references/EXAMPLES.md](references/EXAMPLES.md).
 
 ## Resources
 
-- Full reference documentation: [REFERENCE.md](REFERENCE.md)
-- Code examples: [EXAMPLES.md](EXAMPLES.md)
+- Full reference documentation: [references/REFERENCE.md](references/REFERENCE.md)
+- Code examples: [references/EXAMPLES.md](references/EXAMPLES.md)
 - Book: "The Art of Unit Testing, Third Edition" by Roy Osherove (Manning, 2024)
 - Code samples: <https://github.com/royosherove/aout3-samples>
 - Jest documentation: <https://jestjs.io/>
