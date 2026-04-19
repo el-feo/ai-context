@@ -1,0 +1,45 @@
+{
+  "skill_name": "testprof",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "blind-triage",
+      "prompt": "Our RSpec suite is taking 4 minutes and 30 seconds to run about 22,000 examples. It used to be around 2 minutes a few months ago. We haven't profiled anything yet. What should I do first to figure out where the time is going? Give me the specific commands I'd run and in what order.",
+      "expected_output": "A diagnostic plan that runs a stack/global profiler and TPS profiler first, mentions TEST_MEM_PROF=gc if GC suspected, and recommends measuring before optimizing. Should cover TestProf's TPS_PROF at minimum.",
+      "assertions": [
+        {"text": "Recommends running TestProf's TPS_PROF (TPS_PROF=N) to find slow files"},
+        {"text": "Recommends a stack/sampling profiler (StackProf or Vernier) for global issues"},
+        {"text": "Mentions TEST_MEM_PROF=gc as a diagnostic for GC overhead"},
+        {"text": "Prescribes diagnostics BEFORE jumping to fixes (i.e., doesn't start by guessing at let_it_be / coverage tweaks)"},
+        {"text": "Gives a clear ordered plan (first run X, then Y) rather than a grab-bag of commands"}
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "gc-rubocop",
+      "prompt": "I ran TEST_MEM_PROF=gc on our RSpec suite and it's reporting 89 seconds of GC time over a 4 minute run — about 37% of runtime. I've got `require 'rubocop/rspec/support'` in my spec_helper because we write custom cops. Is that related? How do I fix it without breaking the cop specs?",
+      "expected_output": "Identifies that rubocop/rspec/support installs global hooks causing GC bloat. Recommends narrower requires (cop_helper, expect_offense) and scoping includes to cop specs only (e.g., by type/tag). Explains WHY this helps.",
+      "assertions": [
+        {"text": "Confirms rubocop/rspec/support IS related to the high GC time and explains why (global hooks / memory retained across all examples)"},
+        {"text": "Recommends replacing the full require with rubocop/rspec/cop_helper and/or rubocop/rspec/expect_offense"},
+        {"text": "Shows how to scope the CopHelper include to only cop specs (via type:, tag, or similar) so non-cop specs are unaffected"},
+        {"text": "Explains the WHY (hooks persist / memory not released), not just the what"}
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "eval_name": "sleep-retry",
+      "prompt": "One of our service specs is super slow — 1,080 examples taking 2 minutes 49 seconds. When I profile it with ruby-prof, 20% of time is in Kernel#sleep. The service has retry logic with exponential backoff that we want to actually test. What do I do?",
+      "expected_output": "Identifies real-sleep in retry backoff as the root cause. Recommends making the base_delay injectable (constructor arg or configuration) rather than stubbing Kernel#sleep globally. Provides a code example showing injection in both the service and the spec.",
+      "assertions": [
+        {"text": "Recommends making the retry delay/backoff injectable (constructor arg, config, or similar) rather than stubbing Kernel#sleep globally"},
+        {"text": "Provides a concrete before/after code example showing the injection"},
+        {"text": "Explains the tradeoff: still exercises the retry path while removing wall-clock sleep"},
+        {"text": "Warns against (or at least does not recommend) global Kernel#sleep stubs as the primary fix"}
+      ],
+      "files": []
+    }
+  ]
+}
