@@ -11,7 +11,7 @@ AI Context is a collection of Claude Code plugins designed to enhance developer 
 ```text
 ai-context/
 ├── plugins/
-│   ├── ruby-rails/      # Ruby/Rails development (11 skills, 3 commands, 1 agent)
+│   ├── ruby-rails/      # Ruby/Rails development (13 skills, 3 commands, 1 agent)
 │   ├── ghpm/            # GitHub Project Management (10 commands, 1 agent)
 │   ├── js-ts/           # JavaScript/TypeScript (3 skills, 1 command)
 │   ├── devops/          # DevOps & infrastructure (3 skills, 1 command)

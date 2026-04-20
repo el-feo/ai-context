@@ -40,6 +40,10 @@ temp/
 # Skill improvement plans (working files)
 .skill-improvements/
 
+# Skill-creator evaluation workspaces and eval sets
+plugins/**/skills/*-workspace/
+plugins/**/skills/*/evals/
+
 # Git worktrees
 .worktrees/
 
