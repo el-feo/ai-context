@@ -15,7 +15,8 @@ ai-context/
 │   ├── ghpm/            # GitHub Project Management (10 commands, 1 agent)
 │   ├── js-ts/           # JavaScript/TypeScript (3 skills, 1 command)
 │   ├── devops/          # DevOps & infrastructure (3 skills, 1 command)
-│   └── general/         # General utilities (1 skill)
+│   ├── general/         # General utilities (1 skill)
+│   └── sandi/           # Sandi Metz OO design advisor (1 skill, 1 command)
 └── tools/               # Helper scripts
 ```
 
@@ -55,6 +56,10 @@ JavaScript/TypeScript toolkit with ESLint, Vitest, and unit testing skills.
 ### devops
 
 DevOps toolkit with GitHub Actions, Kamal deployment, and Tailscale skills.
+
+### sandi
+
+Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, *99 Bottles of OOP*). The `/sandi` command auto-detects whether you want planning, code review, refactoring, or design advice. Language-agnostic.
 
 ## Installation
 
