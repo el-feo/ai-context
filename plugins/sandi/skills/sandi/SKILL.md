@@ -26,22 +26,24 @@ otherwise default to Ruby-flavored pseudocode and note that the idea transfers.
 ## The `/sandi` command
 
 When the user types `/sandi <request>`, they're asking for OO design help. **Auto-detect which of the
-four modes fits** from what they wrote and what they attached, then operate in that mode. Don't ask
+five modes fits** from what they wrote and what they attached, then operate in that mode. Don't ask
 which mode unless the request is genuinely unreadable.
 
 | If the request is about… | Mode | Read |
 |---|---|---|
-| Planning a feature, architecting from a PRD/spec, "how should I structure X", greenfield design | **PLAN** | `references/planning.md` |
+| Planning a feature, architecting from a PRD/spec, "how should I structure X", greenfield design — also enhances Claude Code's built-in plan mode by contributing an OO design layer to the plan file | **PLAN** | `references/planning.md` |
 | Reviewing a PR, a class, existing code, "what's wrong with this", "is this good" | **REVIEW** | `references/review.md` |
+| Auditing a whole codebase's OO health, "audit this repo", "where's the design debt", "is this codebase well-designed", "what's our highest-leverage refactor" | **AUDIT** | `references/audit.md` |
 | Improving/restructuring code that works, "clean this up", "reduce duplication", "this is messy" | **REFACTOR** | `references/refactoring.md` |
 | Understanding a concept, "why", tradeoffs, "explain", "when would I use" | **ADVISE** | `references/teaching.md` |
 
 Detection heuristics:
 - A PRD, spec, or "we want to build…" with no code yet → **PLAN**.
-- Attached/pasted code + "review" / "PR" / "feedback" / "thoughts?" → **REVIEW**.
+- Attached/pasted code + "review" / "PR" / "feedback" / "thoughts?" → **REVIEW** (one specific artifact).
+- "Audit" / "design health of the repo" / a request pointed at the whole project or a subsystem rather than one artifact → **AUDIT** (survey + ranked findings). The tell vs. REVIEW: AUDIT has no single class/diff in hand; it sweeps the tree.
 - Attached/pasted code + "refactor" / "clean up" / "improve" / "DRY this" → **REFACTOR**.
 - A conceptual question with no concrete artifact → **ADVISE**.
-- Mixed (e.g. "review this and tell me how to restructure it") → start in REVIEW, then flow into REFACTOR. Modes compose; don't treat them as walls.
+- Mixed (e.g. "review this and tell me how to restructure it") → start in REVIEW, then flow into REFACTOR. Modes compose; don't treat them as walls. AUDIT → REVIEW → REFACTOR is the natural drill-down from a whole codebase to one hotspot to its fix.
 
 If invoked without the literal `/sandi` token but the topic is OO design (see description triggers), behave identically — pick the mode and go.
 
@@ -78,7 +80,7 @@ When evaluating or designing, ask which TRUE quality is at risk. Use this vocabu
 
 ## Core principles (shared foundation)
 
-These underlie all four modes. Detailed treatment with worked, multi-language examples lives in
+These underlie all five modes. Detailed treatment with worked, multi-language examples lives in
 `references/principles.md` — **read it whenever a principle is doing real work in your response**, not
 just when its name comes up in passing.
 
@@ -112,7 +114,8 @@ Treat violations as *questions*, not *verdicts*: "This method is 30 lines — is
 ## Reference map
 
 - `references/principles.md` — deep treatment of every core principle with multi-language examples. Read when a principle is central to your answer.
-- `references/planning.md` — PLAN mode: turning a PRD/spec into an OO design. Procedure + output format.
+- `references/planning.md` — PLAN mode: turning a PRD/spec into an OO design, and contributing an OO design layer to Claude Code's built-in plan-mode plan file. Procedure + output format.
 - `references/review.md` — REVIEW mode: assessing a PR/class. Procedure + output format.
+- `references/audit.md` — AUDIT mode: surveying a whole codebase's OO health, ranked by changeability leverage. Procedure + output format + boundaries.
 - `references/refactoring.md` — REFACTOR mode: the Flocking Rules, the 99 Bottles trajectory, the full code-smell catalog with cures.
 - `references/teaching.md` — ADVISE mode: how to explain OO tradeoffs Socratically and well.
