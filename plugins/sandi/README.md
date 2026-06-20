@@ -23,10 +23,10 @@ cc --plugin-dir /path/to/plugins/sandi
 ### Command
 
 ```text
-/sandi [plan|review|refactor|advise (optional)] <your request, code, PRD, or question>
+/sandi [plan|review|audit|refactor|advise (optional)] <your request, code, PRD, or question>
 ```
 
-`/sandi` auto-detects which of four modes fits your request and responds in that
+`/sandi` auto-detects which of five modes fits your request and responds in that
 mode. You can prefix an explicit mode word to force one.
 
 ### Skill (1)
@@ -38,16 +38,22 @@ mode. You can prefix an explicit mode word to force one.
   POODR, "99 Bottles", "shameless green", "flocking rules", the "squint test",
   the "Law of Demeter", or "tell don't ask".
 
-## The four modes
+## The five modes
 
 | Your request is about… | Mode | Example |
 |---|---|---|
 | Planning/architecting a feature from a PRD or spec, greenfield design | **PLAN** | "How should I structure a notifications system?" |
 | Reviewing a PR, a class, or existing code | **REVIEW** | "Is this service object any good?" |
+| Auditing a whole codebase's OO health, ranked by leverage | **AUDIT** | "Audit this repo — where's the design debt?" |
 | Improving code that already works | **REFACTOR** | "DRY up this duplicated logic" |
 | Understanding a concept or tradeoff | **ADVISE** | "When should I use duck typing?" |
 
-Modes compose — it's fine to review and then flow into refactoring.
+Modes compose — audit a codebase, review a hotspot it surfaces, then flow into refactoring.
+
+PLAN mode also **enhances Claude Code's built-in plan mode**: invoke it during a plan-mode
+session and it contributes an `## Object Design (Sandi)` layer — objects, responsibilities, the
+message conversation, seams, and what *not* to build — into the plan file alongside the
+implementation steps.
 
 ## What's inside
 
@@ -57,8 +63,9 @@ sandi/
 └── skills/sandi/
     ├── SKILL.md               # shared foundation + mode selection
     └── references/
-        ├── planning.md        # PLAN mode procedure
+        ├── planning.md        # PLAN mode procedure + plan-mode design layer
         ├── review.md          # REVIEW mode procedure
+        ├── audit.md           # AUDIT mode: whole-codebase OO health, ranked by leverage
         ├── refactoring.md     # flocking rules, 99 Bottles, code-smell catalog
         ├── principles.md      # deep treatment of every core principle
         └── teaching.md        # ADVISE mode: Socratic explanation of tradeoffs

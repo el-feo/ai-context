@@ -15,6 +15,39 @@ into a corner.
 When a PRD hints at future features ("eventually we'll also support X"), note where the design stays
 *open* to X — but do not build X.
 
+## Enhancing Claude Code's built-in plan mode
+
+PLAN mode works two ways. Used on its own (`/sandi plan …`), it answers with the design directly.
+Used **during a Claude Code plan-mode session** — where Claude is already writing a plan file with
+implementation steps and verification — Sandi's job is to contribute the **design layer** that the
+default plan would otherwise skip.
+
+Division of labor:
+- **Built-in plan mode owns the *what* and the *sequence*** — which files change, the steps, the
+  order, how to verify.
+- **Sandi owns the *shape*** — the object design that makes those steps cheap to change later:
+  which objects exist, what each is responsible for, the conversation between them, and what *not*
+  to build.
+
+When operating inside a plan-mode session, run the procedure below and emit your result as a
+dedicated section to be written into the plan file, **before** the implementation steps (the steps
+should follow from the design, not the other way around):
+
+```
+## Object Design (Sandi)
+- **Proposed objects & responsibilities** — one sentence each, no "and".
+- **The core conversation** — the message flow for the primary use case.
+- **Where variation lives** — the roles / duck types absorbing the PRD's implied axes of change.
+- **Seams to inject** — boundaries with faster-changing things (framework, ORM, clock, services).
+- **What we deliberately will NOT build** — premature abstractions avoided; future hooks noted only.
+- **Suggested first slice** — the simplest end-to-end "shameless green" walking skeleton to build first.
+```
+
+This is the same content as the standalone output format below, reframed to sit beside a plan's
+steps. Hold the line on Sandi's discipline even here: design for the requirements that exist, build
+the first slice first, let abstractions reveal themselves, and keep refactoring separate from
+feature work.
+
 ## Procedure
 
 ### 1. Extract the domain from the requirement
