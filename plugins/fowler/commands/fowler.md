@@ -3,7 +3,7 @@ description: Martin Fowler refactoring advisor — diagnoses code smells, applie
 argument-hint: [diagnose|refactor|advise (optional)] <code, file paths, a refactoring name, or a question>
 ---
 
-Engage the `refactor` skill and follow its SKILL.md.
+Engage the `fowler` skill and follow its SKILL.md.
 
 Auto-detect the mode from the request (or honor an explicit leading keyword):
 

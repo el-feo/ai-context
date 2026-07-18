@@ -1,4 +1,4 @@
-# refactor
+# fowler
 
 A refactoring advisor grounded in Martin Fowler's *Refactoring: Improving the
 Design of Existing Code* (2nd edition). It diagnoses code smells, applies
@@ -14,10 +14,10 @@ to Ruby, JavaScript, Python, or anything else with functions and objects.
 /plugin marketplace add el-feo/ai-context
 
 # Install the plugin
-/plugin install refactor@jebs-dev-tools
+/plugin install fowler@jebs-dev-tools
 
 # Or use the plugin directory directly
-cc --plugin-dir /path/to/ai-context/plugins/refactor
+cc --plugin-dir /path/to/ai-context/plugins/fowler
 ```
 
 ## Usage
@@ -25,15 +25,15 @@ cc --plugin-dir /path/to/ai-context/plugins/refactor
 ### Command
 
 ```text
-/refactor [diagnose|refactor|advise] <code, file paths, a refactoring name, or a question>
+/fowler [diagnose|refactor|advise] <code, file paths, a refactoring name, or a question>
 ```
 
 The mode keyword is optional — the skill auto-detects intent:
 
 ```text
-/refactor app/services/invoice_builder.rb          # diagnose smells
-/refactor extract class on app/models/user.rb      # guided refactoring
-/refactor when should I use Split Phase?           # advice/teaching
+/fowler app/services/invoice_builder.rb            # diagnose smells
+/fowler extract class on app/models/user.rb        # guided refactoring
+/fowler when should I use Split Phase?             # advice/teaching
 ```
 
 ### Skill trigger
@@ -53,13 +53,13 @@ name, or wrestle with code that's hard to read or change.
 ## What's inside
 
 ```text
-refactor/
+fowler/
 ├── .claude-plugin/
 │   └── plugin.json              # Plugin manifest
 ├── commands/
-│   └── refactor.md              # /refactor — thin wrapper that engages the skill
+│   └── fowler.md                # /fowler — thin wrapper that engages the skill
 └── skills/
-    └── refactor/
+    └── fowler/
         ├── SKILL.md             # Modes, discipline, and catalog index
         └── references/
             ├── principles.md    # Two hats, when (not) to refactor, testing discipline

@@ -1,18 +1,18 @@
 ---
-name: refactor
+name: fowler
 description: >-
   A refactoring advisor grounded in Martin Fowler's "Refactoring: Improving the
   Design of Existing Code" (2nd edition). Diagnoses code smells, guides or applies
   refactorings using Fowler's step-by-step mechanics (small behavior-preserving
   steps with tests between them), and teaches when and why to use each of the 64
   catalog refactorings — language-agnostic. Use this skill whenever the user invokes
-  the `/refactor` command, OR whenever they ask to refactor, clean up, restructure,
+  the `/fowler` command, OR whenever they ask to refactor, clean up, restructure,
   simplify, or untangle existing code, complain that code is hard to read, hard to
   change, too long, duplicated, or messy, ask about code smells, technical debt, or
   legacy code improvement, or mention Martin Fowler, the Refactoring book, or any
   catalog refactoring by name (Extract Function, Extract Class, Replace Conditional
   with Polymorphism, Introduce Parameter Object, Replace Temp with Query, and the
-  rest). Trigger this even when the user doesn't say "refactor" explicitly but is
+  rest). Trigger this even when the user doesn't say "refactor" or "fowler" explicitly but is
   wrestling with how to safely improve the structure of working code without
   changing its behavior.
 ---
