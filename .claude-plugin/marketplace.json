@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Claude Code plugins for developer productivity",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -68,6 +68,15 @@
       "source": "./plugins/sandi",
       "description": "Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, 99 Bottles of OOP). Plans, reviews, audits whole codebases, refactors, and teaches OO design — language-agnostic",
       "version": "0.2.0",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    },
+    {
+      "name": "refactor",
+      "source": "./plugins/refactor",
+      "description": "Refactoring advisor grounded in Martin Fowler's catalog (Refactoring, 2nd ed.). Diagnoses code smells, applies refactorings step-by-step with tests between steps, and teaches when and why to use each technique — language-agnostic",
+      "version": "0.1.0",
       "author": {
         "name": "Jeb Coleman"
       }
