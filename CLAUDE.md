@@ -16,7 +16,8 @@ ai-context/
 │   ├── js-ts/           # JavaScript/TypeScript (3 skills, 1 command)
 │   ├── devops/          # DevOps & infrastructure (3 skills, 1 command)
 │   ├── general/         # General utilities (1 skill)
-│   └── sandi/           # Sandi Metz OO design advisor (1 skill, 1 command)
+│   ├── sandi/           # Sandi Metz OO design advisor (1 skill, 1 command)
+│   └── fowler/          # Martin Fowler refactoring advisor (1 skill, 1 command)
 └── tools/               # Helper scripts
 ```
 
@@ -60,6 +61,10 @@ DevOps toolkit with GitHub Actions, Kamal deployment, and Tailscale skills.
 ### sandi
 
 Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, *99 Bottles of OOP*). The `/sandi` command auto-detects whether you want planning, code review, refactoring, or design advice. Language-agnostic.
+
+### fowler
+
+Refactoring advisor grounded in Martin Fowler's *Refactoring* (2nd edition) catalog. The `/fowler` command auto-detects whether you want a smell diagnosis, a guided step-by-step refactoring, or advice on when/why to use a technique. Language-agnostic.
 
 ## Installation
 

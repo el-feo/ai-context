@@ -1,0 +1,10 @@
+{
+  "name": "fowler",
+  "version": "0.1.0",
+  "description": "Refactoring advisor grounded in Martin Fowler's catalog (Refactoring, 2nd ed.). Diagnoses code smells, applies refactorings step-by-step with tests between steps, and teaches when and why to use each technique — language-agnostic",
+  "author": {
+    "name": "Jeb Coleman"
+  },
+  "commands": ["./commands/fowler.md"],
+  "skills": ["./skills/fowler"]
+}
