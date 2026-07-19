@@ -66,8 +66,8 @@
     {
       "name": "sandi",
       "source": "./plugins/sandi",
-      "description": "Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, 99 Bottles of OOP). Plans, reviews, audits whole codebases, refactors, and teaches OO design — language-agnostic",
-      "version": "0.2.0",
+      "description": "Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, 99 Bottles of OOP). Plans, reviews, audits whole codebases, refactors, and teaches OO design — language-agnostic. Includes an installable GitHub Actions PR-review workflow",
+      "version": "0.3.0",
       "author": {
         "name": "Jeb Coleman"
       }
@@ -75,8 +75,8 @@
     {
       "name": "fowler",
       "source": "./plugins/fowler",
-      "description": "Refactoring advisor grounded in Martin Fowler's catalog (Refactoring, 2nd ed.). Diagnoses code smells, applies refactorings step-by-step with tests between steps, and teaches when and why to use each technique — language-agnostic",
-      "version": "0.1.0",
+      "description": "Refactoring advisor grounded in Martin Fowler's catalog (Refactoring, 2nd ed.). Diagnoses code smells, applies refactorings step-by-step with tests between steps, and teaches when and why to use each technique — language-agnostic. Includes an installable GitHub Actions PR-review workflow",
+      "version": "0.2.0",
       "author": {
         "name": "Jeb Coleman"
       }

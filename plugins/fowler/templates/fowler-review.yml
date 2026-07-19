@@ -1,0 +1,109 @@
+name: Fowler Refactoring Review
+
+on:
+  # First review: fires automatically when a PR is opened or reopened.
+  pull_request:
+    types: [opened, reopened]
+    # To limit automatic reviews to part of the codebase, add a paths filter:
+    # paths:
+    #   - "app/**"
+    #   - "lib/**"
+  # Re-review on demand: comment "/fowler" on the PR to request another pass.
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write # required by claude-code-action to fetch an OIDC token
+  actions: read # lets claude-code-action read CI status checks
+
+jobs:
+  fowler-review:
+    # Run on PR open/reopen, OR on a PR comment starting with "/fowler".
+    # The issue_comment event ALWAYS runs with repo secrets and checks out the
+    # PR head (attacker-controlled), so it must be gated on commenter trust to
+    # avoid a pwn-request: only repo owners/members/collaborators can trigger
+    # it. (issue_comment also fires on plain issues, so we require .pull_request.)
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request != null &&
+       startsWith(github.event.comment.body, '/fowler') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history so Claude can diff against the base branch
+          # On pull_request use the PR head; on issue_comment there's no
+          # pull_request payload, so fall back to the PR head ref by number.
+          ref: ${{ github.event.pull_request.head.sha || format('refs/pull/{0}/head', github.event.issue.number) }}
+
+      - uses: anthropics/claude-code-action@v1
+        # `gh` CLI calls from the review agent (gh pr diff / gh pr comment)
+        # need an authenticated token in the environment — the action's own
+        # token wiring only covers its MCP servers, not Bash subprocesses.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Surface the full agent transcript in the run log so denied tool
+          # calls and errors are diagnosable (the default hides everything).
+          show_full_output: true
+
+          # Install the `fowler` plugin from the jebs-dev-tools marketplace
+          # (public repo el-feo/ai-context) into the fresh CI runner.
+          plugin_marketplaces: |
+            https://github.com/el-feo/ai-context.git
+          plugins: |
+            fowler@jebs-dev-tools
+
+          # Deliver a human-style review: inline comments anchored to the diff,
+          # plus one non-redundant summary. use_sticky_comment stays false so the
+          # inline notes and the summary are separate comments (no single blob).
+          use_sticky_comment: false
+          prompt: |
+            Use the /fowler:fowler skill to review this pull request through
+            the lens of Martin Fowler's Refactoring catalog (2nd edition), then
+            deliver it the way a thoughtful human reviewer would — NOT as one
+            long essay in a single comment.
+
+            Tone: you are a teacher and coach, not a gatekeeper. Assume the
+            author is capable but may not have met the smell or technique
+            before. For each finding, teach the underlying idea so they can
+            spot it themselves next time — explain WHY the smell hurts, not
+            just what to change. Be encouraging and collegial, never scolding;
+            when the diff does something well, say so briefly.
+
+            Scope: review the files changed in this pull request. Anchor
+            everything to the diff against the base branch.
+
+            How to deliver the review:
+            1. For each concrete finding, leave an INLINE comment on the exact
+               line(s) it concerns using the
+               mcp__github_inline_comment__create_inline_comment tool. Name the
+               code smell by its catalog name, explain why it makes the code
+               harder to read or change, and prescribe the catalog refactoring
+               that cures it — including the first mechanical step the author
+               would take.
+            2. When the fix is a small, exact replacement of changed lines,
+               include a GitHub ```suggestion block so the author can commit it
+               in one click. Only attach suggestions to lines present in the diff.
+            3. Keep each inline comment to its one line/region. Do not restate
+               the same point across multiple comments.
+            4. Finally, post exactly ONE summary comment with `gh pr comment`.
+               It must NOT repeat the inline findings. Use it only to tie things
+               together: cross-cutting smells, a prioritized refactoring order
+               (highest payoff first), and — where honest — where refactoring
+               is NOT worth it right now. If there is nothing broader to say
+               than the inline comments already cover, keep the summary to a
+               single sentence.
+          # The allowlist must cover everything the prompt instructs: `Skill`
+          # to invoke /fowler:fowler (denied tools fail silently in CI), and
+          # git/gh diff commands so the review can actually see the PR's diff.
+          claude_args: |
+            --model claude-sonnet-5
+            --allowedTools "Skill,mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(git status:*),Bash(git branch:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(find:*),Read,Grep,Glob"
+            --max-turns 100
