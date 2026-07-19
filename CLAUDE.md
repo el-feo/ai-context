@@ -16,8 +16,8 @@ ai-context/
 │   ├── js-ts/           # JavaScript/TypeScript (3 skills, 1 command)
 │   ├── devops/          # DevOps & infrastructure (3 skills, 1 command)
 │   ├── general/         # General utilities (1 skill)
-│   ├── sandi/           # Sandi Metz OO design advisor (1 skill, 1 command)
-│   └── fowler/          # Martin Fowler refactoring advisor (1 skill, 1 command)
+│   ├── sandi/           # Sandi Metz OO design advisor (1 skill, 2 commands, 1 workflow template)
+│   └── fowler/          # Martin Fowler refactoring advisor (1 skill, 2 commands, 1 workflow template)
 └── tools/               # Helper scripts
 ```
 
@@ -32,7 +32,8 @@ plugins/<name>/
 │   └── plugin.json      # Plugin manifest
 ├── skills/              # SKILL.md files with references/
 ├── commands/            # Slash command definitions
-└── agents/              # Agent configurations
+├── agents/              # Agent configurations
+└── templates/           # Installable file templates (e.g. GitHub workflows)
 ```
 
 ## Key Plugins
@@ -60,11 +61,11 @@ DevOps toolkit with GitHub Actions, Kamal deployment, and Tailscale skills.
 
 ### sandi
 
-Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, *99 Bottles of OOP*). The `/sandi` command auto-detects whether you want planning, code review, refactoring, or design advice. Language-agnostic.
+Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, *99 Bottles of OOP*). The `/sandi` command auto-detects whether you want planning, code review, refactoring, or design advice. Language-agnostic. `/sandi:install-review` installs a GitHub Actions workflow (from `templates/sandi-review.yml`) that runs a Sandi review on every PR via claude-code-action.
 
 ### fowler
 
-Refactoring advisor grounded in Martin Fowler's *Refactoring* (2nd edition) catalog. The `/fowler` command auto-detects whether you want a smell diagnosis, a guided step-by-step refactoring, or advice on when/why to use a technique. Language-agnostic.
+Refactoring advisor grounded in Martin Fowler's *Refactoring* (2nd edition) catalog. The `/fowler` command auto-detects whether you want a smell diagnosis, a guided step-by-step refactoring, or advice on when/why to use a technique. Language-agnostic. `/fowler:install-review` installs a GitHub Actions workflow (from `templates/fowler-review.yml`) that runs a refactoring review on every PR via claude-code-action.
 
 ## Installation
 
