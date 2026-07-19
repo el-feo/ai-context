@@ -12,6 +12,12 @@ on:
   issue_comment:
     types: [created]
 
+# One run per PR at a time: a newer trigger (another /fowler comment, or a rapid
+# reopen) cancels the in-flight run instead of posting duplicate comments.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write
@@ -103,7 +109,10 @@ jobs:
           # The allowlist must cover everything the prompt instructs: `Skill`
           # to invoke /fowler:fowler (denied tools fail silently in CI), and
           # git/gh diff commands so the review can actually see the PR's diff.
+          # No generic filesystem Bash (cat/head/find/...): Read/Grep/Glob
+          # already cover file inspection, and cat + gh pr comment would let a
+          # prompt-injected diff exfiltrate secrets from the runner environment.
           claude_args: |
             --model claude-sonnet-5
-            --allowedTools "Skill,mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(git status:*),Bash(git branch:*),Bash(ls:*),Bash(cat:*),Bash(head:*),Bash(tail:*),Bash(wc:*),Bash(find:*),Read,Grep,Glob"
+            --allowedTools "Skill,mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git fetch:*),Bash(git status:*),Bash(git branch:*),Read,Grep,Glob"
             --max-turns 100

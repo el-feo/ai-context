@@ -1,6 +1,6 @@
 {
   "name": "sandi",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, 99 Bottles of OOP). Plans, reviews, audits whole codebases, refactors, and teaches OO design — language-agnostic",
   "author": {
     "name": "Jeb Coleman"
