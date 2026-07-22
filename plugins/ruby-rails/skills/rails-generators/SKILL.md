@@ -1,10 +1,10 @@
 ---
 name: rails-generators
-description: Create expert-level Ruby on Rails generators for models, services, controllers, and full-stack features. Use when building custom generators, scaffolds, or code generation tools for Rails applications, or when the user mentions Rails generators, Thor DSL, or automated code generation.
+description: Create expert-level Ruby on Rails generators for models, services, controllers, and full-stack features, plus application templates for whole-app setup. Use when building custom generators, scaffolds, code generation tools, or Rails application templates (rails new -m, app:template, starter-app automation, multi-tenant setup), or when the user mentions Rails generators, Thor DSL, or automated code generation.
 ---
 
 <objective>
-Build production-ready Rails generators that automate repetitive coding tasks and enforce architectural patterns. This skill covers creating custom generators for models, service objects, API scaffolds, and complete features with migrations, tests, and documentation.
+Build production-ready Rails generators that automate repetitive coding tasks and enforce architectural patterns. This skill covers creating custom generators for models, service objects, API scaffolds, and complete features with migrations, tests, and documentation — plus application templates (`rails new -m` / `app:template`) for whole-app setup such as authentication and multi-tenancy.
 </objective>
 
 <quick_start>
@@ -333,6 +333,39 @@ See [references/file-actions.md](references/file-actions.md) for complete refere
 </file_manipulation>
 </advanced_features>
 
+<application_templates>
+**Application templates** configure a whole app (gems, auth, config, feature sets) rather than generating one component. They use the same Thor action DSL but are invoked with `rails new myapp -m template.rb` or `bin/rails app:template LOCATION=template.rb`:
+
+```ruby
+# multitenant_template.rb
+def source_paths
+  [__dir__]
+end
+
+# Guard against double application
+if File.exist?('app/models/organization.rb')
+  say '❌ Template already applied.', :red
+  exit 1
+end
+
+gem 'devise', comment: 'Authentication'
+gem 'acts_as_tenant', comment: 'Row-level multi-tenancy'
+run 'bundle install'
+
+# Always use the gems' own install generators — never hand-write their config
+generate 'devise:install'
+generate 'devise', 'User'
+
+rails_command 'db:migrate'
+run 'bundle exec rspec'  # fail loudly at apply time, not first boot
+```
+
+**Key rules**: guard against re-runs (injections corrupt on second apply), prefer gem install generators over hand-rolled setup, prefer `inject_into_file` on stable anchors over brittle `gsub_file` regexes, and end by running the app's test suite.
+
+- See [references/application-templates.md](references/application-templates.md) for the full DSL, `after_bundle`, composing templates with `apply`, and verification workflow
+- See [references/multitenant-template.md](references/multitenant-template.md) for a complete worked example: multi-tenant SaaS setup with acts_as_tenant, Organizations, role-based Memberships, and invitations
+</application_templates>
+
 <testing>
 **Testing with Rails::Generators::TestCase**:
 
@@ -407,6 +440,8 @@ Before considering a generator complete, verify:
 - [Rails testing](references/testing-rails.md) - Rails::Generators::TestCase patterns
 - [RSpec testing](references/testing-rspec.md) - generator_spec and RSpec patterns
 - [Examples](references/examples.md) - Complete generator examples (query objects, form objects, presenters)
+- [Application templates](references/application-templates.md) - Whole-app setup via `rails new -m` / `app:template`
+- [Multi-tenant template](references/multitenant-template.md) - Worked example: acts_as_tenant, Organizations, Memberships, invitations
 </reference_guides>
 
 <success_criteria>
