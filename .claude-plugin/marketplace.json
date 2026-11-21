@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Claude Code plugins for developer productivity",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -77,6 +77,15 @@
       "source": "./plugins/fowler",
       "description": "Refactoring advisor grounded in Martin Fowler's catalog (Refactoring, 2nd ed.). Diagnoses code smells, applies refactorings step-by-step with tests between steps, and teaches when and why to use each technique — language-agnostic. Includes an installable GitHub Actions PR-review workflow",
       "version": "0.2.1",
+      "author": {
+        "name": "Jeb Coleman"
+      }
+    },
+    {
+      "name": "golang",
+      "source": "./plugins/golang",
+      "description": "Go development toolkit with a test-driven development skill grounded in Test-Driven Development in Go (Simion), updated for Go 1.22+: table-driven tests, mocking, integration/E2E, contract testing, concurrency, fuzzing, and generics",
+      "version": "0.1.0",
       "author": {
         "name": "Jeb Coleman"
       }
