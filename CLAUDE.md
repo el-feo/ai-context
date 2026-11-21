@@ -17,7 +17,8 @@ ai-context/
 │   ├── devops/          # DevOps & infrastructure (3 skills, 1 command)
 │   ├── general/         # General utilities (1 skill)
 │   ├── sandi/           # Sandi Metz OO design advisor (1 skill, 2 commands, 1 workflow template)
-│   └── fowler/          # Martin Fowler refactoring advisor (1 skill, 2 commands, 1 workflow template)
+│   ├── fowler/          # Martin Fowler refactoring advisor (1 skill, 2 commands, 1 workflow template)
+│   └── golang/          # Go development (1 skill)
 └── tools/               # Helper scripts
 ```
 
@@ -66,6 +67,10 @@ Object-oriented design advisor channeling Sandi Metz's philosophy (POODR, *99 Bo
 ### fowler
 
 Refactoring advisor grounded in Martin Fowler's *Refactoring* (2nd edition) catalog. The `/fowler` command auto-detects whether you want a smell diagnosis, a guided step-by-step refactoring, or advice on when/why to use a technique. Language-agnostic. `/fowler:install-review` installs a GitHub Actions workflow (from `templates/fowler-review.yml`) that runs a refactoring review on every PR via claude-code-action.
+
+### golang
+
+Go toolkit. The `go-tdd` skill teaches test-driven development in Go, based on *Test-Driven Development in Go* (Simion) and updated for Go 1.22+. It covers table-driven tests, mocking, integration/E2E, contract testing, concurrency, fuzzing, and generics.
 
 ## Installation
 
